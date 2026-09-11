@@ -1,0 +1,65 @@
+<!doctype html><html lang="de" class="check"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Schlaf-Check — Ruhepuls</title>
+<meta name="description" content="Sieben Fragen, zwei Minuten: Welches Schlaf-Muster passt zu deinen Nächten — und die zwei belegten Regeln dazu.">
+<link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="check.css">
+<meta name="robots" content="index,follow"></head><body><main>
+
+<!-- ===== 1. Start ===== -->
+<section id="start">
+  <h1>Der Schlaf-Check</h1>
+  <p class="lead">Sieben Fragen, etwa zwei Minuten. Am Ende siehst du, welches Muster zu deinen Nächten passt — und die zwei belegten Regeln dazu, jede mit der Studie dahinter.</p>
+  <p class="small">Keine Anmeldung, keine Cookies, kein Tracking. Deine Antworten bleiben in deinem Browser.</p>
+  <button class="btn" id="losgehts" type="button">Check starten</button>
+</section>
+
+<!-- ===== 2. Fragen ===== -->
+<section id="fragen" class="weg">
+  <div class="fortschritt"><i id="balken"></i></div>
+  <p class="zaehler" id="zaehler">Frage 1 von 7</p>
+  <p class="frage" id="fragetext"></p>
+  <p class="zusatz" id="fragezusatz"></p>
+  <div class="antworten" id="antworten"></div>
+  <div class="navi">
+    <button class="link weg" id="zurueck" type="button">Zurück</button>
+    <button class="link weg" id="ueberspringen" type="button">Überspringen</button>
+  </div>
+</section>
+
+<!-- ===== 3. Ergebnis — steht IMMER vor dem E-Mail-Block ===== -->
+<section id="ergebnis" class="weg">
+  <p class="zaehler">Dein Ergebnis</p>
+  <div class="muster">
+    <h2 id="musterName"></h2>
+    <p id="musterSatz"></p>
+    <div id="regeln"></div>
+  </div>
+
+  <div class="teilen">
+    <button class="btn sekundaer" id="teilen" type="button">Ergebnis teilen</button>
+    <button class="btn sekundaer" id="nochmal" type="button">Noch einmal</button>
+  </div>
+  <p class="small" id="teilenStatus" aria-live="polite"></p>
+
+  <!-- ===== 4. E-Mail — bewusst NACH dem vollständigen Ergebnis ===== -->
+  <div class="mailblock">
+    <h2>Ergebnis und die vier Regeln per Mail</h2>
+    <p>Willst du dein Ergebnis und die vier wichtigsten Schlafregeln schwarz auf weiß? Trag deine Adresse ein — du bekommst eine Bestätigungsmail, erst danach schicke ich etwas.</p>
+    <!-- MAILERLITE_FORM -->
+    <!-- Liam: Den Einbettungscode aus MailerLite (Free, Double-Opt-in aktiv) GENAU HIER einsetzen
+         und das Beispiel-Markup darunter loeschen. Anleitung: check/README.md -->
+    <form id="mailBeispiel" onsubmit="return false;">
+      <p class="small">Platzhalter — hier kommt das MailerLite-Formular hin.</p>
+      <p><input type="email" placeholder="deine@mailadresse.de" style="width:100%;padding:14px;border-radius:10px;border:1px solid #2a3b57;background:#0f1b2d;color:#f2f4f8;font:inherit"></p>
+      <button class="btn" type="submit">Die vier Regeln schicken</button>
+    </form>
+    <p class="small">Kein Zwang: Dein Ergebnis oben ist vollständig, auch ohne Adresse. Abmelden geht jederzeit mit einem Klick. Was mit deiner Adresse passiert, steht in der <a href="../datenschutz.html">Datenschutzerklärung</a>.</p>
+  </div>
+
+  <p class="hinweis">Dieser Check ist eine Einordnung, keine Untersuchung, und er ersetzt keine ärztliche Beratung. Wenn dich deine Nächte länger als drei Monate belasten, wenn dir jemand Atemaussetzer im Schlaf gemeldet hat oder wenn du regelmäßig Medikamente zum Schlafen nimmst, geh damit zu deiner Hausärztin oder deinem Hausarzt. Das ist der richtige Ort dafür, nicht diese Seite.</p>
+</section>
+
+<footer><a href="../index.html">Start</a><a href="../impressum.html">Impressum</a><a href="../datenschutz.html">Datenschutz</a></footer>
+</main>
+<script src="check.js"></script>
+</body></html>
