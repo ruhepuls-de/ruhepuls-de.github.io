@@ -1,7 +1,10 @@
 /* Schlaf-Check — Anzeige und Ablauf.
    Alles laeuft im Browser. Kein Server, kein Tracking, keine Cookies.
-   Gespeichert wird nur die letzte Antwortfolge in localStorage, damit ein
-   versehentliches Neuladen die acht Fragen nicht wegwirft.
+   Es wird auch nichts auf dem Geraet gespeichert: kein localStorage, kein
+   sessionStorage. Ein Neuladen faengt neu an. Wer speichern will, muss die
+   Antworten auch wieder einlesen — sonst ist die Speicherung zwecklos und
+   nach § 25 TDDDG nicht "unbedingt erforderlich". Geprueft: Zweig h) in
+   scripts/pruefe-check.py.
 
    Fragen, Regeln und Auswertung stehen in regeln.js.
    Die Video-Links stehen in videolinks.js und werden von
@@ -13,7 +16,6 @@
   var R = window.RUHEPULS_REGELN;
   var V = window.RUHEPULS_VIDEOS || { kanal: {}, videos: {} };
   var FRAGEN = R.FRAGEN;
-  var SPEICHER = "ruhepuls-check-v2";
 
   var antworten = {}, schritt = 0, letztesErgebnis = null;
 
@@ -53,11 +55,7 @@
   }
 
   function auswerten() {
-    var e = R.werteAus(antworten);
-    zeigeErgebnis(e);
-    try {
-      localStorage.setItem(SPEICHER, JSON.stringify(antworten));
-    } catch (fehler) { /* Privater Modus: dann eben nicht. */ }
+    zeigeErgebnis(R.werteAus(antworten));
   }
 
   /* Baut die Zeile mit den Video-Links — oder den Satz, dass keins da ist. */
@@ -103,8 +101,8 @@
       var bezug = document.createElement("p");
       bezug.className = "bezug";
       bezug.textContent = t.bezug
-        ? "Du hast angegeben, dass " + t.bezug + "."
-        : "Diese Regel hält, was schon gut läuft.";
+        ? "Du hast gesagt: " + t.bezug + "."
+        : "Die Regel hält, was bei dir schon gut läuft.";
       d.appendChild(bezug);
 
       var tipp = document.createElement("p");

@@ -8,6 +8,8 @@
    - Jede Frage hat mindestens einen Ausloeser.
    - Fuer jede maximal auffaellige Antwort steht die zugehoerige Regel
      im Ergebnis.
+   - Keine Regel erscheint ohne ihre Voraussetzung (`nurWenn`).
+   - Zwei Regeln aus KONFLIKTE stehen nie im selben Ergebnis.
    - Der Tipp darf nicht mehr sagen als die Quelle.
 */
 (function (global) {
@@ -37,8 +39,8 @@
     nichtErzwingen: {
       titel: "Hör auf, das Einschlafen zu erzwingen",
       tipp:
-        "Leg dich hin und nimm dir vor, wach zu bleiben. Das klingt verdreht " +
-        "und ist eine anerkannte Technik: Sie heißt paradoxe Intention. Die " +
+        "Leg dich hin und nimm dir vor, wach zu bleiben. Das klingt verdreht, " +
+        "ist aber eine anerkannte Technik. Sie heißt paradoxe Intention. Die " +
         "deutsche Leitlinie führt sie als wirksam auf und stützt sich dabei " +
         "auf eine Übersicht mehrerer Studien.",
       quelle:
@@ -53,11 +55,16 @@
       titel: "Verbring nicht mehr Zeit im Bett, als du schläfst",
       tipp:
         "Wer nachts lange wach liegt, geht oft früher ins Bett — und liegt " +
-        "dann noch länger wach. Die Leitlinie macht es andersherum: die " +
-        "Bettzeit auf die Zeit kürzen, die du wirklich schläfst, nie unter " +
+        "dann noch länger wach. Die Leitlinie macht es andersherum: Du kürzt " +
+        "die Bettzeit auf die Zeit, die du wirklich schläfst, nie unter " +
         "viereinhalb Stunden. Mach das nicht allein, sondern mit ärztlicher " +
-        "oder therapeutischer Begleitung. Am Anfang wirst du müder.",
-      quelle: LEITLINIE + ", Tabelle 7 „Instruktionen der Bettzeitrestriktion“",
+        "oder therapeutischer Begleitung. Am Anfang wirst du müder. Wenn du " +
+        "Auto fährst oder an Maschinen arbeitest, fang damit nicht ohne " +
+        "ärztliche Rücksprache an — die Leitlinie warnt genau davor.",
+      quelle:
+        LEITLINIE +
+        ", Tabelle 7 „Instruktionen der Bettzeitrestriktion“ und der Hinweis " +
+        "zur Vorsicht bei potentiell gefährlichen Tätigkeiten",
       link: LEITLINIE_LINK,
       video: null
     },
@@ -67,9 +74,9 @@
       tipp:
         "Schlecht schlafen heißt nicht nur, abends nicht einschlafen zu " +
         "können. In einer Befragung von 24.600 Menschen in sechs " +
-        "europäischen Ländern berichteten 18 von 100 einen unterbrochenen " +
-        "Schlaf und 10 von 100 Einschlafprobleme. Du bist damit nicht der " +
-        "Sonderfall.",
+        "europäischen Ländern berichteten 18 von 100 mindestens dreimal pro " +
+        "Woche einen unterbrochenen Schlaf und 10 von 100 Einschlafprobleme. " +
+        "Du bist damit nicht der Sonderfall.",
       quelle:
         "Ohayon & Roth (2001): What are the contributing factors for insomnia " +
         "in the general population? Journal of Psychosomatic Research 51(6), " +
@@ -95,9 +102,10 @@
     abklaeren: {
       titel: "Lass das ärztlich abklären",
       tipp:
-        "Mehrmals pro Woche und länger als drei Monate — ab da spricht die " +
-        "internationale Krankheitsklassifikation ICD-11 von einer chronischen " +
-        "insomnischen Störung. Das gehört in eine Sprechstunde. Die Leitlinie " +
+        "Mehrmals pro Woche, länger als drei Monate: Ab da hat das einen " +
+        "Namen. Die internationale Krankheitsklassifikation ICD-11 nennt es " +
+        "eine chronische insomnische Störung. Das gehört in eine " +
+        "Sprechstunde. Die Leitlinie " +
         "sieht dafür ein Gespräch, eine körperliche Untersuchung und ein " +
         "Schlaftagebuch vor. Nimm dieses Ergebnis mit.",
       quelle: LEITLINIE + ", Empfehlung D1 und die ICD-11-Kriterien",
@@ -224,10 +232,10 @@
       text: "Wie lange brauchst du abends, bis du eingeschlafen bist?",
       zusatz: "Geschätzt, an einem normalen Wochentag.",
       optionen: [
-        { text: "Meistens unter 15 Minuten", wert: 0, bezug: "du abends schnell einschläfst" },
-        { text: "15 bis 30 Minuten", wert: 1, bezug: "du abends bis zu einer halben Stunde brauchst" },
-        { text: "30 bis 60 Minuten", wert: 2, bezug: "du abends eine halbe bis eine Stunde wach liegst" },
-        { text: "Meistens über eine Stunde", wert: 3, bezug: "du abends über eine Stunde wach liegst" }
+        { text: "Meistens unter 15 Minuten", wert: 0, bezug: "Du schläfst abends schnell ein" },
+        { text: "15 bis 30 Minuten", wert: 1, bezug: "Du brauchst abends bis zu einer halben Stunde" },
+        { text: "30 bis 60 Minuten", wert: 2, bezug: "Du liegst abends eine halbe bis eine Stunde wach" },
+        { text: "Meistens über eine Stunde", wert: 3, bezug: "Du liegst abends über eine Stunde wach" }
       ],
       ausloeser: [
         { ab: 2, regel: "warmDuschen", schwere: 5 },
@@ -239,10 +247,10 @@
       text: "Wachst du nachts auf und liegst dann längere Zeit wach?",
       zusatz: "Kurz aufwachen und gleich wieder wegdriften zählt nicht.",
       optionen: [
-        { text: "So gut wie nie", wert: 0, bezug: "du nachts durchschläfst" },
-        { text: "Ein- bis zweimal pro Woche", wert: 1, bezug: "du ein- bis zweimal pro Woche nachts wach liegst" },
-        { text: "Drei- bis viermal pro Woche", wert: 2, bezug: "du an mehreren Nächten pro Woche wach liegst" },
-        { text: "Fast jede Nacht", wert: 3, bezug: "du fast jede Nacht wach liegst" }
+        { text: "So gut wie nie", wert: 0, bezug: "Du schläfst nachts durch" },
+        { text: "Ein- bis zweimal pro Woche", wert: 1, bezug: "Du liegst ein- bis zweimal pro Woche nachts wach" },
+        { text: "Drei- bis viermal pro Woche", wert: 2, bezug: "Du liegst an mehreren Nächten pro Woche wach" },
+        { text: "Fast jede Nacht", wert: 3, bezug: "Du liegst fast jede Nacht wach" }
       ],
       ausloeser: [
         { ab: 1, regel: "dreiFormen", schwere: 2 },
@@ -254,10 +262,10 @@
       text: "Wachst du morgens zu früh auf und schläfst nicht mehr ein?",
       zusatz: "Gemeint ist: eine Stunde oder mehr vor dem Wecker.",
       optionen: [
-        { text: "So gut wie nie", wert: 0, bezug: "du morgens nicht zu früh wach wirst" },
-        { text: "Ein- bis zweimal pro Woche", wert: 1, bezug: "du ein- bis zweimal pro Woche zu früh wach wirst" },
-        { text: "Drei- bis viermal pro Woche", wert: 2, bezug: "du an mehreren Morgen pro Woche zu früh wach wirst" },
-        { text: "Fast jeden Morgen", wert: 3, bezug: "du fast jeden Morgen zu früh wach wirst" }
+        { text: "So gut wie nie", wert: 0, bezug: "Du wirst morgens nicht zu früh wach" },
+        { text: "Ein- bis zweimal pro Woche", wert: 1, bezug: "Du wirst ein- bis zweimal pro Woche zu früh wach" },
+        { text: "Drei- bis viermal pro Woche", wert: 2, bezug: "Du wirst an mehreren Morgen pro Woche zu früh wach" },
+        { text: "Fast jeden Morgen", wert: 3, bezug: "Du wirst fast jeden Morgen zu früh wach" }
       ],
       ausloeser: [
         { ab: 1, regel: "dreiFormen", schwere: 2 },
@@ -267,12 +275,12 @@
     {
       id: "dauer",
       text: "Seit wann geht das so?",
-      zusatz: "Gemeint sind die Nächte, nach denen du unzufrieden aufwachst.",
+      zusatz: "Gemeint sind die Nächte, die dich stören.",
       optionen: [
-        { text: "Ich schlafe eigentlich gut", wert: 0, bezug: "du gut schläfst" },
-        { text: "Ein paar Nächte, seit Kurzem", wert: 1, bezug: "es bei dir erst seit Kurzem vorkommt" },
-        { text: "Mehrmals pro Woche, seit weniger als drei Monaten", wert: 2, bezug: "es mehrmals pro Woche vorkommt, seit weniger als drei Monaten" },
-        { text: "Mehrmals pro Woche, seit mehr als drei Monaten", wert: 3, bezug: "es mehrmals pro Woche vorkommt, und das seit mehr als drei Monaten" }
+        { text: "Ich schlafe eigentlich gut", wert: 0, bezug: "Du schläfst gut" },
+        { text: "Ein paar Nächte, seit Kurzem", wert: 1, bezug: "Bei dir kommt das erst seit Kurzem vor" },
+        { text: "Mehrmals pro Woche, seit weniger als drei Monaten", wert: 2, bezug: "Das kommt mehrmals pro Woche vor, seit weniger als drei Monaten" },
+        { text: "Mehrmals pro Woche, seit mehr als drei Monaten", wert: 3, bezug: "Das kommt mehrmals pro Woche vor, und zwar seit mehr als drei Monaten" }
       ],
       ausloeser: [
         { ab: 3, regel: "abklaeren", schwere: 10 }
@@ -280,17 +288,24 @@
     },
     {
       id: "tagsueber",
-      text: "Merkst du am Tag etwas von deinem Schlaf?",
+      text: "Merkst du tagsüber, wie du geschlafen hast?",
       zusatz: "Zum Beispiel Müdigkeit, Konzentration, Stimmung, Antrieb.",
       optionen: [
-        { text: "Nein, ich komme gut durch den Tag", wert: 0, bezug: "du gut durch den Tag kommst" },
-        { text: "Ein bisschen", wert: 1, bezug: "du am Tag ein bisschen davon merkst" },
-        { text: "Deutlich", wert: 2, bezug: "du am Tag deutlich etwas davon merkst" },
-        { text: "Sehr stark, es zieht sich durch alles", wert: 3, bezug: "dich das am Tag sehr stark belastet" }
+        { text: "Nein, ich komme gut durch den Tag", wert: 0, bezug: "Du kommst gut durch den Tag" },
+        { text: "Ein bisschen", wert: 1, bezug: "Du merkst am Tag ein bisschen davon" },
+        { text: "Deutlich", wert: 2, bezug: "Du merkst am Tag deutlich etwas davon" },
+        { text: "Sehr stark, es zieht sich durch alles", wert: 3, bezug: "Das belastet dich am Tag sehr stark" }
       ],
       ausloeser: [
         { ab: 1, regel: "tagIstMassstab", schwere: 2 },
-        { ab: 2, regel: "kvti", schwere: 8 }
+        /* Die KVT-I ist die Behandlung einer Insomnie. Ohne ein einziges
+           Insomnie-Symptom darf sie nicht empfohlen werden — Muedigkeit am
+           Tag allein ist keins. Darum die zweite Bedingung: mindestens eine
+           der Fragen 1 bis 3 (Einschlafen, Durchschlafen, frueh wach) muss
+           auffaellig sein, ab Wert 2 — das ist die Schwelle "mehrmals pro
+           Woche". Geprueft von scripts/pruefe-check.py, Zweig g). */
+        { ab: 2, regel: "kvti", schwere: 8,
+          nurWenn: { eineVon: ["einschlafen", "durchschlafen", "frueh"], ab: 2 } }
       ]
     },
     {
@@ -298,10 +313,10 @@
       text: "Wenn du nachts wach liegst — was machst du dann?",
       zusatz: "",
       optionen: [
-        { text: "Das kommt bei mir nicht vor", wert: 0, bezug: "du nachts nicht wach liegst" },
-        { text: "Ich stehe auf und mache etwas Ruhiges", wert: 0, bezug: "du dabei aufstehst" },
-        { text: "Ich bleibe liegen und warte, bis es wieder klappt", wert: 2, bezug: "du liegen bleibst und wartest" },
-        { text: "Ich nehme das Handy oder mache den Fernseher an", wert: 3, bezug: "du im Bett zum Handy oder zum Fernseher greifst" }
+        { text: "Das kommt bei mir nicht vor", wert: 0, bezug: "Du liegst nachts nicht wach" },
+        { text: "Ich stehe auf und mache etwas Ruhiges", wert: 0, bezug: "Du stehst dabei auf" },
+        { text: "Ich bleibe liegen und warte, bis es wieder klappt", wert: 2, bezug: "Du bleibst liegen und wartest" },
+        { text: "Ich nehme das Handy oder mache den Fernseher an", wert: 3, bezug: "Du greifst im Bett zum Handy oder zum Fernseher" }
       ],
       ausloeser: [
         { ab: 2, regel: "stehAuf", schwere: 6 },
@@ -311,12 +326,12 @@
     {
       id: "rhythmus",
       text: "Wie viel später stehst du am Wochenende auf als unter der Woche?",
-      zusatz: "Aufstehzeit am Samstag oder Sonntag minus Aufstehzeit am Dienstag.",
+      zusatz: "Vergleich einfach einen Samstag mit einem normalen Dienstag.",
       optionen: [
-        { text: "Höchstens eine halbe Stunde", wert: 0, bezug: "du am Wochenende fast zur gleichen Zeit aufstehst" },
-        { text: "Eine halbe bis eine Stunde", wert: 1, bezug: "du am Wochenende bis zu einer Stunde später aufstehst" },
-        { text: "Ein bis zwei Stunden", wert: 2, bezug: "du am Wochenende ein bis zwei Stunden später aufstehst" },
-        { text: "Mehr als zwei Stunden", wert: 3, bezug: "du am Wochenende mehr als zwei Stunden später aufstehst" }
+        { text: "Höchstens eine halbe Stunde", wert: 0, bezug: "Du stehst am Wochenende fast zur gleichen Zeit auf" },
+        { text: "Eine halbe bis eine Stunde", wert: 1, bezug: "Du stehst am Wochenende bis zu einer Stunde später auf" },
+        { text: "Ein bis zwei Stunden", wert: 2, bezug: "Du stehst am Wochenende ein bis zwei Stunden später auf" },
+        { text: "Mehr als zwei Stunden", wert: 3, bezug: "Du stehst am Wochenende mehr als zwei Stunden später auf" }
       ],
       ausloeser: [
         { ab: 2, regel: "festeAufstehzeit", schwere: 4 },
@@ -325,13 +340,13 @@
     },
     {
       id: "koffein",
-      text: "Wann trinkst du dein letztes Koffein?",
+      text: "Wann kommt bei dir der letzte Kaffee — oder die letzte Cola?",
       zusatz: "Kaffee, Cola, Energydrink oder schwarzer Tee.",
       optionen: [
-        { text: "Ich trinke so etwas nicht", wert: 0, bezug: "du kein Koffein trinkst" },
-        { text: "Vormittags", wert: 0, bezug: "du Koffein nur vormittags trinkst" },
-        { text: "Am frühen Nachmittag", wert: 2, bezug: "du dein letztes Koffein am frühen Nachmittag trinkst" },
-        { text: "Am späten Nachmittag oder abends", wert: 3, bezug: "du noch am späten Nachmittag oder abends Koffein trinkst" }
+        { text: "Trinke ich nicht", wert: 0, bezug: "Du trinkst kein Koffein" },
+        { text: "Vormittags", wert: 0, bezug: "Du trinkst Koffein nur vormittags" },
+        { text: "Am frühen Nachmittag", wert: 2, bezug: "Du trinkst dein letztes Koffein am frühen Nachmittag" },
+        { text: "Am späten Nachmittag oder abends", wert: 3, bezug: "Du trinkst noch am späten Nachmittag oder abends Koffein" }
       ],
       ausloeser: [
         { ab: 2, regel: "koffeinAbstand", schwere: 5 },
@@ -343,20 +358,43 @@
   /* Wer nirgends auffaellig ist, bekommt diese zwei Regeln zum Halten. */
   var HALTEN = ["festeAufstehzeit", "bettNurZumSchlafen"];
 
+  /* Regelpaare, die im selben Ergebnis nicht nebeneinander stehen duerfen,
+     weil die eine der anderen widerspricht. „Die erste Behandlung ist keine
+     Tablette“ setzt eine Insomnie voraus, „Der Tag ist der Massstab“ sagt,
+     wann keine vorliegt. Steht beides da, hebt sich das Ergebnis selbst auf.
+     Es bleibt die Regel mit den mehr Punkten. Geprueft: Zweig g). */
+  var KONFLIKTE = [["kvti", "tagIstMassstab"]];
+
   var UNAUFFAELLIG = {
     titel: "Bei dir ist nichts auffällig",
     satz:
-      "Keine deiner Antworten zeigt ein Muster, an dem etwas klemmt. Dann " +
-      "geht es bei dir nicht ums Reparieren, sondern ums Halten. Diese zwei " +
-      "Regeln sind die, die deinen Schlaf stabil halten."
+      "An keiner deiner Antworten klemmt etwas. Dann geht es bei dir nicht " +
+      "ums Reparieren, sondern ums Halten. Diese zwei Regeln sind die, die " +
+      "deinen Schlaf stabil halten."
   };
 
   var AUFFAELLIG = {
-    titel: "Das ist an deinen Antworten aufgefallen",
+    titel: "Das ist mir an deinen Antworten aufgefallen",
     satz:
-      "Diese Regeln gehören zu den Antworten, die am stärksten auffallen. " +
-      "Zu jeder steht, worauf sie sich bezieht und woher sie kommt."
+      "Das sind die Regeln zu den Antworten, die am meisten auffallen. Bei " +
+      "jeder steht, warum sie hier steht und woher sie kommt."
   };
+
+  /* Ein Ausloeser kann eine zweite Bedingung mitbringen (`nurWenn`): eine
+     der genannten Fragen muss mindestens den Wert `ab` haben. Ohne
+     `nurWenn` gilt er immer. */
+  function ausloeserGilt(a, antworten) {
+    if (!a.nurWenn) { return true; }
+    var noetig = a.nurWenn;
+    for (var i = 0; i < FRAGEN.length; i++) {
+      var f = FRAGEN[i];
+      if (noetig.eineVon.indexOf(f.id) < 0) { continue; }
+      var k = antworten[f.id];
+      if (typeof k !== "number" || !f.optionen[k]) { continue; }
+      if (f.optionen[k].wert >= noetig.ab) { return true; }
+    }
+    return false;
+  }
 
   /* ------------------------------------------------------ Die Auswertung
      antworten: { frageId: gewaehlterIndex }
@@ -373,6 +411,7 @@
       var o = f.optionen[i];
       f.ausloeser.forEach(function (a) {
         if (o.wert < a.ab) { return; }
+        if (!ausloeserGilt(a, antworten)) { return; }
         var punkte = a.schwere + o.wert;
         if (gesehen[a.regel]) {
           if (punkte > gesehen[a.regel].punkte) {
@@ -406,6 +445,16 @@
     }
 
     treffer.sort(function (a, b) { return b.punkte - a.punkte; });
+
+    /* Widersprechende Paare aufloesen: Die weiter hinten stehende Regel
+       (weniger Punkte) faellt raus. */
+    KONFLIKTE.forEach(function (paar) {
+      var ids = treffer.map(function (t) { return t.regelId; });
+      var a = ids.indexOf(paar[0]), b = ids.indexOf(paar[1]);
+      if (a < 0 || b < 0) { return; }
+      treffer.splice(Math.max(a, b), 1);
+    });
+
     var zeigen = treffer.slice(0, 3);
 
     /* Steht nur eine Regel da, kommt eine Regel zum Halten dazu — damit
@@ -434,6 +483,8 @@
     REGELN: REGELN,
     FRAGEN: FRAGEN,
     HALTEN: HALTEN,
+    KONFLIKTE: KONFLIKTE,
+    ausloeserGilt: ausloeserGilt,
     werteAus: werteAus
   };
 

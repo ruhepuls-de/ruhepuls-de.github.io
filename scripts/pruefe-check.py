@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Prueft den Schlaf-Check (check/). Rot (Exit 1), wenn etwas bricht.
 
-Sechs Zweige:
+Neun Zweige:
 
 a) QUELLE      Jede Regel hat `quelle` und `link` (http/https). Ein Video ist
                NICHT mehr Pflicht — eine Regel haengt an einer Quelle, nicht
@@ -19,6 +19,17 @@ e) VIDEO       Jede genannte Video-ID gibt es in der Pipeline (genau
 f) TON         Keine Zuschreibung im Seitentext ("du hast eine ...",
                "du leidest", "krankhaft"). Fachbegriffe in einer
                Quellenangabe sind erlaubt.
+g) AUSSCHLUSS  Alle 4^8 Antwortkombinationen laufen durch die echte
+               Auswertung. Keine Regel steht im Ergebnis, ohne dass ein
+               Ausloeser samt Voraussetzung (`nurWenn`) erfuellt ist — die
+               KVT-I darf nie ohne Insomnie-Symptom erscheinen. Und kein
+               Paar aus KONFLIKTE steht je zusammen im Ergebnis.
+h) SPEICHER    Wer auf dem Geraet schreibt, muss auch lesen (sonst ist die
+               Speicherung nach § 25 TDDDG nicht erforderlich), und die
+               Datenschutzerklaerung muss genau das sagen, was der Code tut.
+i) VERSPRECHEN Der Mail-Block verspricht nichts, was die Seite nicht halten
+               kann: kein "Ergebnis per Mail", solange die Antworten den
+               Browser nie verlassen. Dazu: kein Netzaufruf im Check.
 
 Aufruf:  python3 scripts/pruefe-check.py
 """
@@ -35,6 +46,7 @@ REGELN_JS = os.path.join(CHECK, "regeln.js")
 CHECK_JS = os.path.join(CHECK, "check.js")
 VIDEOLINKS_JS = os.path.join(CHECK, "videolinks.js")
 HTML = os.path.join(CHECK, "index.html")
+DATENSCHUTZ = os.path.join(HIER, "datenschutz.html")
 PIPELINE = os.path.expanduser("~/tools/ruhepuls-pipeline/public")
 
 ZUSCHREIBUNG = [
@@ -74,13 +86,54 @@ R.FRAGEN.forEach(function (f) {
     var e = R.werteAus(a);
     out.faelle.push({
       frage: f.id, option: o.text, wert: o.wert,
-      erwartet: f.ausloeser.filter(function (x) { return o.wert >= x.ab; })
-                           .map(function (x) { return x.regel; }),
+      erwartet: f.ausloeser.filter(function (x) {
+                    return o.wert >= x.ab && R.ausloeserGilt(x, a);
+                  }).map(function (x) { return x.regel; }),
       gezeigt: e.treffer.map(function (t) { return t.regelId; }),
       unauffaellig: e.unauffaellig
     });
   });
 });
+
+/* --- g) AUSSCHLUSS: jede Antwortkombination einmal durchspielen. */
+out.konflikte = R.KONFLIKTE || [];
+out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [] };
+(function () {
+  var fs = R.FRAGEN, halten = {}, zaehler = new Array(fs.length).fill(0);
+  R.HALTEN.forEach(function (id) { halten[id] = true; });
+  for (;;) {
+    var a = {};
+    fs.forEach(function (f, k) { a[f.id] = zaehler[k]; });
+    var e = R.werteAus(a);
+    out.sweep.zahl++;
+    /* Erlaubt ist eine Regel nur mit einem Ausloeser, dessen Schwelle UND
+       dessen Voraussetzung erfuellt sind — oder als Halte-Regel. */
+    var erlaubt = {};
+    fs.forEach(function (f) {
+      var o = f.optionen[a[f.id]];
+      f.ausloeser.forEach(function (x) {
+        if (o.wert >= x.ab && R.ausloeserGilt(x, a)) { erlaubt[x.regel] = true; }
+      });
+    });
+    var gezeigt = e.treffer.map(function (t) { return t.regelId; });
+    gezeigt.forEach(function (id) {
+      if (erlaubt[id] || halten[id]) { return; }
+      if (out.sweep.ohneAusloeser.length < 3) {
+        out.sweep.ohneAusloeser.push({ regel: id, antworten: a, gezeigt: gezeigt });
+      }
+    });
+    out.konflikte.forEach(function (paar) {
+      if (gezeigt.indexOf(paar[0]) >= 0 && gezeigt.indexOf(paar[1]) >= 0 &&
+          out.sweep.konflikt.length < 3) {
+        out.sweep.konflikt.push({ paar: paar, antworten: a, gezeigt: gezeigt });
+      }
+    });
+    var k = fs.length - 1;
+    while (k >= 0 && zaehler[k] === fs[k].optionen.length - 1) { zaehler[k] = 0; k--; }
+    if (k < 0) { break; }
+    zaehler[k]++;
+  }
+})();
 var leer = {};
 R.FRAGEN.forEach(function (f) { leer[f.id] = 0; });
 var e0 = R.werteAus(leer);
@@ -241,10 +294,15 @@ def pruefe_video(d):
 
 
 # ---------------------------------------------------------------- f) TON
-def sichtbarer_text(html):
+def sichtbarer_text(html, grenzen=False):
+    """Sichtbarer Text ohne Kommentare und Skripte.
+
+    grenzen=True setzt an jeder Element-Grenze ein ¶. Zwei Saetze in zwei
+    Elementen sind zwei Aussagen — ohne das Zeichen laufen sie im Text
+    zusammen und eine Suche ueber Satzgrenzen findet Unsinn."""
     ohne = re.sub(r"<!--.*?-->", " ", html, flags=re.S)
     ohne = re.sub(r"<script.*?</script>", " ", ohne, flags=re.S)
-    return re.sub(r"<[^>]+>", " ", ohne)
+    return re.sub(r"<[^>]+>", " ¶ " if grenzen else " ", ohne)
 
 
 def pruefe_ton(text, wo):
@@ -260,6 +318,140 @@ def pruefe_ton(text, wo):
             )
 
 
+# --------------------------------------------------------- g) AUSSCHLUSS
+def kurz(antworten, d):
+    """Antwortmuster als lesbare Zeile."""
+    teile = []
+    for f in d["fragen"]:
+        i = antworten.get(f["id"])
+        if i is None:
+            continue
+        teile.append("%s=%s" % (f["id"], f["optionen"][i]["text"]))
+    return " · ".join(teile)
+
+
+def pruefe_ausschluss(d):
+    sweep = d.get("sweep")
+    if not sweep:
+        fehler.append("AUSSCHLUSS: Der Durchlauf aller Antwortmuster fehlt.")
+        return
+    for fall in sweep["ohneAusloeser"]:
+        fehler.append(
+            "AUSSCHLUSS: Die Regel `%s` steht im Ergebnis, obwohl kein "
+            "Ausloeser samt Voraussetzung greift. Antworten: %s"
+            % (fall["regel"], kurz(fall["antworten"], d))
+        )
+    for fall in sweep["konflikt"]:
+        fehler.append(
+            "AUSSCHLUSS: `%s` und `%s` stehen zusammen in einem Ergebnis — "
+            "die beiden widersprechen sich. Antworten: %s"
+            % (fall["paar"][0], fall["paar"][1], kurz(fall["antworten"], d))
+        )
+    bedingt = []
+    for f in d["fragen"]:
+        for a in f["ausloeser"]:
+            if a.get("nurWenn"):
+                bedingt.append("%s (nur wenn %s ab %d)"
+                               % (a["regel"], "/".join(a["nurWenn"]["eineVon"]),
+                                  a["nurWenn"]["ab"]))
+    if not bedingt:
+        fehler.append("AUSSCHLUSS: Keine einzige Regel hat eine Voraussetzung "
+                      "(`nurWenn`). Die KVT-I braucht eine.")
+    hinweise.append("  g) Ausschluss: %d Antwortmuster durchgespielt, %d "
+                    "Konfliktpaar(e), bedingt: %s"
+                    % (sweep["zahl"], len(d.get("konflikte") or []),
+                       ", ".join(bedingt) or "keine"))
+
+
+# ----------------------------------------------------------- h) SPEICHER
+def ohne_kommentare(js):
+    ohne = re.sub(r"/\*.*?\*/", " ", js, flags=re.S)
+    return re.sub(r"(?m)^\s*//.*$", " ", ohne)
+
+
+def pruefe_speicher():
+    code = ohne_kommentare(lies(CHECK_JS))
+    schreibt = "setItem" in code
+    liest = "getItem" in code
+    nutzt = bool(re.search(r"localStorage|sessionStorage|indexedDB", code))
+    if schreibt and not liest:
+        fehler.append(
+            "SPEICHER: check.js schreibt in den Browser-Speicher (setItem), "
+            "liest ihn aber nie (kein getItem). Speichern ohne Zweck ist nach "
+            "§ 25 Abs. 2 Nr. 2 TDDDG nicht „unbedingt erforderlich“ — "
+            "entweder das Ergebnis beim Neuladen wiederherstellen oder das "
+            "Schreiben entfernen."
+        )
+    if not os.path.exists(DATENSCHUTZ):
+        fehler.append("SPEICHER: datenschutz.html fehlt.")
+        return
+    ds = sichtbarer_text(lies(DATENSCHUTZ))
+    nennt = bool(re.search(r"localStorage|im lokalen Speicher", ds))
+    if nutzt and not nennt:
+        fehler.append("SPEICHER: check.js legt etwas auf dem Geraet ab, die "
+                      "Datenschutzerklaerung sagt davon nichts.")
+    if nennt and not nutzt:
+        fehler.append("SPEICHER: Die Datenschutzerklaerung beschreibt einen "
+                      "Browser-Speicher, den der Check gar nicht benutzt.")
+    schluessel = re.findall(r"ruhepuls-check-v\d+", ds)
+    for k in schluessel:
+        if k not in code:
+            fehler.append("SPEICHER: Die Datenschutzerklaerung nennt den "
+                          "Schluessel „%s“ — im Code steht er nicht." % k)
+    hinweise.append("  h) Speicher: check.js benutzt %s, Datenschutz sagt %s"
+                    % ("Browser-Speicher" if nutzt else "keinen Speicher",
+                       "dasselbe" if nennt == nutzt else "etwas anderes"))
+
+
+# ------------------------------------------------------- i) VERSPRECHEN
+VERSPRECHEN_VERBOTEN = [
+    (r"Ergebnis[^.!?¶]{0,60}per Mail", "verspricht das Ergebnis per Mail"),
+    (r"(?:schicke|schicken|sende|senden|zusenden)[^.!?¶]{0,40}Ergebnis",
+     "verspricht, das Ergebnis zu schicken"),
+    (r"Ergebnis[^.!?¶]{0,40}schwarz auf wei", "verspricht das Ergebnis schriftlich"),
+]
+
+
+def pruefe_versprechen(html):
+    for js in (CHECK_JS, REGELN_JS):
+        code = ohne_kommentare(lies(js))
+        for ruf in ("fetch(", "XMLHttpRequest", "sendBeacon", "navigator.geolocation"):
+            if ruf in code:
+                fehler.append(
+                    "VERSPRECHEN: %s enthaelt `%s`. Die Seite sagt, die "
+                    "Antworten verlassen den Browser nie — dann darf es keinen "
+                    "Netzaufruf geben." % (os.path.basename(js), ruf)
+                )
+    start = html.find('class="mailblock"')
+    if start < 0:
+        fehler.append('VERSPRECHEN: Der Mail-Block (class="mailblock") fehlt.')
+        return
+    ende = html.find('class="hinweis"', start)
+    block = sichtbarer_text(html[start:ende if ende > 0 else len(html)], True)
+    block = re.sub(r"[ \t\r\n]+", " ", block)
+    for muster, was in VERSPRECHEN_VERBOTEN:
+        treffer = re.search(muster, block, re.I)
+        if treffer:
+            fehler.append(
+                "VERSPRECHEN: Der Mail-Block %s — das kann er nicht halten, die "
+                "Antworten werden nie uebertragen. Stelle: ...%s..."
+                % (was, treffer.group(0))
+            )
+    if not re.search(r"nicht schicken|nicht zusenden|nicht mitschicken", block, re.I):
+        fehler.append(
+            "VERSPRECHEN: Im Mail-Block fehlt der ehrliche Satz, dass das "
+            "Ergebnis NICHT mitgeschickt werden kann. Ohne ihn liest sich die "
+            "Adressabfrage, als bekaeme man seine Auswertung."
+        )
+    if os.path.exists(DATENSCHUTZ):
+        ds = re.sub(r"[ \t\r\n]+", " ", sichtbarer_text(lies(DATENSCHUTZ), True))
+        if re.search(r"Ergebnis des Schlaf-Checks[^.¶]{0,60}zuzusenden", ds, re.I):
+            fehler.append("VERSPRECHEN: Die Datenschutzerklaerung nennt als "
+                          "Zweck das Zusenden des Ergebnisses.")
+    hinweise.append("  i) Versprechen: Mail-Block haelt, was er sagt; kein "
+                    "Netzaufruf im Check")
+
+
 def main():
     for pfad in (REGELN_JS, CHECK_JS, HTML):
         if not os.path.exists(pfad):
@@ -273,6 +465,7 @@ def main():
         pruefe_quelle(d)
         pruefe_abdeckung(d)
         pruefe_ergebnis(d)
+        pruefe_ausschluss(d)
         pruefe_video(d)
         texte = []
         for r in d["regeln"].values():
@@ -282,11 +475,13 @@ def main():
             texte.append(f["text"])
             for o in f["optionen"]:
                 texte.append(o["text"])
-                texte.append("Du hast angegeben, dass " + o["bezug"] + ".")
+                texte.append("Du hast gesagt: " + o["bezug"] + ".")
         pruefe_ton(" ".join(texte), "check/regeln.js")
 
     pruefe_reihenfolge(html)
     pruefe_ton(sichtbarer_text(html), "check/index.html")
+    pruefe_speicher()
+    pruefe_versprechen(html)
 
     print("Schlaf-Check — Pruefung")
     for z in hinweise:
@@ -297,7 +492,8 @@ def main():
             print("  - %s" % f)
         print("\nROT: Der Schlaf-Check ist nicht abnahmefaehig.")
         return 1
-    print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video und Ton stimmen.")
+    print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, "
+          "Ausschluss, Speicher und Versprechen stimmen.")
     return 0
 
 
