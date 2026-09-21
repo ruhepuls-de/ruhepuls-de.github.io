@@ -1,57 +1,120 @@
 # Schlaf-Check
 
-Die kostenlose Eingangstür: sieben Fragen, sofort ein persönliches Ergebnis mit
-zwei belegten Regeln, **danach** die E-Mail-Abfrage. Live unter
+Die kostenlose Eingangstür: acht Fragen, sofort ein Ergebnis, das sich nach den
+Antworten richtet, **danach** die E-Mail-Abfrage. Live unter
 `https://ruhepuls-de.github.io/check/`.
+
+## Wie das Ergebnis zustande kommt
+
+Es gibt **keine festen Muster** mehr. Jede auffällige Antwort löst ihre eigenen
+Regeln aus. Jede ausgelöste Regel bekommt Punkte (Grundschwere der Regel plus
+den Wert der Antwort), das Ergebnis zeigt die zwei bis drei mit den meisten
+Punkten. Zu jeder Regel steht ein Satz, auf welche Antwort sie sich bezieht
+(„Du hast angegeben, dass …“).
+
+Wer nirgends auffällig antwortet, bekommt ein ehrliches „Bei dir ist nichts
+auffällig“ und zwei Regeln zum Halten.
+
+## Die acht Fragen — und warum jede drin ist
+
+Die Fragen richten sich danach, was einen Schlaf-Check brauchbar macht, nicht
+danach, welche Videos es gibt.
+
+| # | Frage | Warum |
+|---|---|---|
+| 1 | Einschlafdauer | Erstes Kernsymptom der Insomnie. Die S3-Leitlinie (Empfehlung D1) und der Insomnia Severity Index fragen es als Erstes. |
+| 2 | Nachts wach liegen | Zweites Kernsymptom — und in der Bevölkerung das häufigere (Ohayon & Roth 2001: 18 von 100 gegen 10 von 100). |
+| 3 | Zu früh wach | Drittes Kernsymptom. Wird ohne eigene Frage regelmäßig übersehen. |
+| 4 | Seit wann, wie oft | Die Grenze zwischen „schlechte Woche“ und chronischer insomnischer Störung: mehrmals pro Woche, länger als drei Monate (ICD-11). Ohne diese Frage lässt sich der ärztliche Hinweis nicht ehrlich geben. |
+| 5 | Beeinträchtigung am Tag | Erst das macht aus kurzem Schlaf ein Problem. Die Leitlinie fragt in D1 ausdrücklich danach; im ISI ist es das Item mit dem größten Gewicht. |
+| 6 | Was du tust, wenn du wach liegst | Die einzige Frage nach Verhalten im Bett. Sie trifft genau die zwei Anweisungen der Stimuluskontrolle (Tabelle 8 der Leitlinie): nach 15 Minuten aufstehen, das Bett nur zum Schlafen benutzen. |
+| 7 | Aufstehzeit am Wochenende | „Stehen Sie jeden Morgen zur gleichen Uhrzeit auf“ steht als Anweisung in derselben Tabelle. Die Frage misst, wie weit jemand davon weg ist. |
+| 8 | Wann das letzte Koffein | Die einzige Substanz mit belastbarer Zahl zum Abstand (Gardiner 2023) und zugleich eine Zeile in Tabelle 6 der Leitlinie. |
+
+Weggelassen, bewusst: rezeptfreie Schlafmittel (steht im Rechtshinweis unten auf
+der Seite), Schnarchen und Atemaussetzer (ebenda), Alter (wurde in der alten
+Fassung erhoben und nie benutzt). Acht Fragen sind die Obergrenze — mehr, und
+niemand kommt in zwei Minuten durch. `pruefe-check.py` wird rot ab der neunten.
+
+## Die Regeln
+
+Jede Regel in `check/regeln.js` hat
+
+- `titel` — was zu tun ist, als Satz,
+- `tipp` — der Rat, so weit die Quelle ihn hergibt, und nicht weiter,
+- `quelle` — Autor, Jahr, Zeitschrift oder Leitlinie samt Abschnitt,
+- `link` — DOI oder Leitlinien-URL, wird im Ergebnis angeklickt,
+- `video` — eine Video-ID wie `"v43"` **oder `null`**.
+
+**Ein Video ist freiwillig.** Hat eine Regel keins, steht im Ergebnis „Video
+dazu folgt.“ Die Regel hängt an der Quelle, nicht am Video. Regeln ohne Video
+sind damit zugleich die Liste der Video-Kandidaten — `pruefe-check.py` gibt sie
+bei jedem Lauf aus.
+
+Was ein Tipp **nicht** darf: mehr behaupten als die Quelle. Keine selbst
+ausgerechneten Uhrzeiten oder Mengen, Beobachtungsdaten nicht als Ursache
+formulieren, Studien an einer Spezialgruppe nicht auf „du“ verallgemeinern.
+
+## Die Video-Links kommen aus der Pipeline
+
+```bash
+python3 scripts/baue-videolinks.py
+```
+
+Das liest `~/tools/ruhepuls-pipeline/public/v<Zahl>/` (nur Ordner, die exakt so
+heißen; `.verworfen` wird übersprungen) und schreibt `check/videolinks.js`. Die
+Regeln nennen nur die ID, die Links stehen ausschließlich in dieser erzeugten
+Datei. **Nach jedem Upload einmal laufen lassen — dann sind die neuen Links da,
+ohne dass jemand etwas von Hand pflegt.**
+
+Was dabei gilt:
+
+- **TikTok** — steht in `TIKTOK.md` eine echte Video-URL, wird die genommen.
+  Sonst, wenn `auf_tiktok: ja` oder eine Zeile `hochgeladen:` dasteht, das
+  Kanalprofil. Sonst gar kein TikTok-Link.
+- **YouTube** — die `url` aus `YOUTUBE.md`, aber nur wenn das Video öffentlich
+  ist: `sicht: public` oder die geplante Startzeit (`live:`) ist vorbei. Sonst
+  kein YouTube-Link.
+
+Damit beantwortet sich Liams Frage von selbst, warum ein Video nur auf TikTok
+liegt und ein anderes auf beidem: Es steht so in der Pipeline. Wer eine
+TikTok-Video-URL in `TIKTOK.md` schreibt, bekommt sofort einen Link direkt aufs
+Video statt aufs Profil.
 
 ## Was Liam noch tun muss
 
-### 1. MailerLite-Formular einsetzen (der eine offene Punkt)
+### MailerLite-Formular einsetzen (der eine offene Punkt)
 
-1. Konto bei [mailerlite.com](https://www.mailerlite.com) anlegen (Free-Tarif, bis 1.000 Adressen).
-2. Unter **Subscribers → Groups** eine Gruppe `Schlaf-Check` anlegen.
-3. **Forms → Embedded form** → Gruppe `Schlaf-Check` wählen → Formular benennen.
-4. Bei den Formular-Einstellungen **Double-Opt-in einschalten** (in MailerLite:
-   *Settings → Subscribe settings → Enable double opt-in*). Ohne Double-Opt-in ist die
-   Datenschutzerklärung dieser Seite falsch — sie sagt ausdrücklich, dass eine
-   Bestätigungsmail kommt.
-5. Auf **Embed form** klicken und den HTML-Block kopieren.
-6. In `check/index.html` die Zeile `<!-- MAILERLITE_FORM -->` suchen. Den kopierten Block
-   **direkt darunter** einsetzen und das Beispiel-Formular darunter
-   (`<form id="mailBeispiel" ...> ... </form>`) löschen.
-7. `python3 scripts/pruefe-check.py` laufen lassen — muss GRUEN bleiben. Prüft unter
-   anderem, dass das E-Mail-Feld im DOM immer **nach** dem Ergebnis steht.
-8. `git add -A && git commit -m "MailerLite-Formular eingesetzt" && git push origin main`.
+1. Konto bei [mailerlite.com](https://www.mailerlite.com) anlegen (Free, bis 1.000 Adressen).
+2. **Subscribers → Groups** → Gruppe `Schlaf-Check` anlegen.
+3. **Forms → Embedded form** → Gruppe wählen → Formular benennen.
+4. **Double-Opt-in einschalten** (*Settings → Subscribe settings*). Ohne
+   Double-Opt-in ist die Datenschutzerklärung dieser Seite falsch — sie sagt
+   ausdrücklich, dass eine Bestätigungsmail kommt.
+5. **Embed form** klicken, den HTML-Block kopieren.
+6. In `check/index.html` die Zeile `<!-- MAILERLITE_FORM -->` suchen. Den Block
+   **direkt darunter** einsetzen, das Beispiel-Formular
+   (`<form id="mailBeispiel" …>`) löschen.
+7. `python3 scripts/pruefe-check.py` — muss grün bleiben.
 
-Das Formular ist der einzige externe Inhalt auf der ganzen Seite. Bis es eingesetzt ist,
-steht dort ein sichtbarer Platzhalter — der Check funktioniert trotzdem komplett.
-
-### 2. Bio-Link setzen
+### Bio-Link setzen
 
 `ruhepuls-de.github.io/check/` in die TikTok-, YouTube- und Instagram-Bio.
-Das ist die Messstrecke aus der Produktstrategie: Klickrate und Adressen je Klick,
-Entscheidungspunkt **26.09. (≥ 50 Adressen)**.
-
-### 3. YouTube-Links nachziehen (klein, nach dem 12.09.)
-
-In `check.js` hat jede Regel ein Feld `youtube`. Öffentlich und daher verlinkt sind
-bisher nur v26, v28 und v45. v47, v53, v54 und v56 sind auf YouTube noch nicht
-öffentlich (`sicht: private`, geplanter Start 12.09.); ihr Feld steht auf `null`.
-Sobald sie live sind, die URL aus `~/tools/ruhepuls-pipeline/public/<id>/YOUTUBE.md`
-eintragen. Der TikTok-Link (Kanalprofil) steht bei jeder Regel und geht immer.
 
 ## Aufbau
 
 | Datei | Zweck |
 |---|---|
-| `index.html` | Start, Fragebogen-Gerüst, Ergebnis-Abschnitt, E-Mail-Block, Rechtshinweis |
-| `check.js` | Regeln (mit Video-Beleg), Fragen, Muster, Ablauf, Teilen-Knopf |
-| `check.css` | Nur die Check-Regeln; Farben und Schrift kommen aus `../style.css` |
+| `index.html` | Start, Fragen-Gerüst, Ergebnis-Abschnitt, E-Mail-Block, Rechtshinweis |
+| `regeln.js` | Fragen, Regeln, Auswertung — reine Daten und Logik, kein DOM |
+| `videolinks.js` | **Erzeugt.** Video-Links aus der Pipeline. Nicht von Hand ändern. |
+| `check.js` | Anzeige und Ablauf |
+| `check.css` | Nur die Check-Regeln; Farben und Schrift aus `../style.css` |
 | `pruef/` | Screenshots der Abnahme |
 
 Kein Tracking, keine Cookies, kein Server, keine externen Skripte außer dem
-MailerLite-Formular. Die Auswertung ist eine feste Regel im Browser. Gespeichert wird
-nur das letzte Ergebnis in `localStorage` (`ruhepuls-check-v1`).
+MailerLite-Formular. Gespeichert wird nur die letzte Antwortfolge in
+`localStorage` (`ruhepuls-check-v2`).
 
 ## Die Prüfung
 
@@ -61,17 +124,25 @@ python3 scripts/pruefe-check.py
 
 Wird **rot**, wenn
 
-1. eine Regel im Check zu keinem Video-Kommentar passt (Stichwortabgleich gegen
-   `~/tools/ruhepuls-pipeline/public/<id>/KOMMENTAR.md`), oder eine definierte Regel
-   von keinem Muster gezeigt wird,
-2. ein Diagnosewort im Seitentext steht (Insomnie, Schlafstörung als Zuschreibung,
-   „du hast", „du leidest", Diagnose, krankhaft),
-3. das E-Mail-Feld im DOM **vor** dem Ergebnis steht.
+- **a) Quelle** — eine Regel ohne `quelle`, ohne Jahr darin oder ohne gültigen
+  Link. Ein Video ist nicht mehr Pflicht.
+- **b) Abdeckung** — eine Frage ohne Regel, eine Regel ohne Frage, eine Regel,
+  die es nicht gibt, oder mehr als acht Fragen.
+- **c) Ergebnis** — für irgendeine maximal auffällige Antwort fehlt die
+  zugehörige Regel im Ergebnis. Dafür läuft die echte Auswertung aus
+  `regeln.js` in `node`, nicht eine nachgebaute Kopie.
+- **d) Reihenfolge** — das E-Mail-Feld steht im DOM vor dem Ergebnis.
+- **e) Video** — eine genannte Video-ID gibt es in der Pipeline nicht, sie ist
+  verworfen, oder sie hat keinen Link in `videolinks.js`.
+- **f) Ton** — eine Zuschreibung im Seitentext („du hast eine …“, „du leidest“,
+  „krankhaft“, „Diagnose“). Fachbegriffe in einer Quellenangabe sind erlaubt.
 
-Alle drei Zweige wurden am 11.09.2026 absichtlich gebrochen und wieder zurückgenommen.
+Alle sechs Zweige wurden am 21.09.2026 absichtlich gebrochen, rot gesehen und
+zurückgenommen.
 
 ## Regel beim Ergänzen
 
-Eine neue Regel kommt nur in den Check, wenn sie in der `KOMMENTAR.md` eines Videos
-belegt ist. Neuer Eintrag in `REGELN` braucht `video` und `stichworte`, und die
-Stichworte müssen wörtlich in dieser `KOMMENTAR.md` vorkommen. Sonst wird die Prüfung rot.
+Eine neue Regel kommt nur in den Check, wenn sie eine **Quelle mit Link** hat
+und mindestens eine Frage sie auslöst. Ein Video ist schön, aber keine
+Bedingung. Wer eine Frage hinzufügt, braucht dafür mindestens einen Auslöser —
+sonst wird die Prüfung rot.

@@ -18,9 +18,14 @@
 .muster h2{margin:0 0 .4em;color:var(--gold);font-size:1.3rem}
 .regel{border-top:1px solid #2a3b57;padding:18px 0 4px}
 .regel h3{font-size:1.02rem;margin:0 0 .35em}
-.regel .zitat{margin:0 0 .5em;border-left:2px solid var(--gold);padding-left:12px;color:var(--fg)}
-.regel .studie{color:var(--muted);font-size:.9rem;margin:0 0 .6em}
-.regel .videos a{font-size:.9rem;margin-right:16px;white-space:nowrap}
+.regel .bezug{margin:0 0 .5em;border-left:2px solid var(--gold);padding-left:12px;color:var(--muted);font-size:.95rem}
+.regel .tipp{margin:0 0 .6em}
+.regel .studie{color:var(--muted);font-size:.85rem;margin:0 0 .4em;overflow-wrap:break-word}
+.regel .studie a{color:var(--muted);text-decoration:underline}
+.regel .studie a:hover{color:var(--gold)}
+.regel .videos{font-size:.9rem;margin:0 0 .6em;color:var(--muted)}
+.regel .videos a{white-space:nowrap}
+.regel .videos.kein{font-style:italic}
 .mailblock{background:var(--card);border:1px dashed var(--gold);border-radius:12px;padding:20px;margin:28px 0}
 .mailblock h2{margin-top:0}
 .hinweis{font-size:.9rem;color:var(--muted);border-top:1px solid #2a3b57;padding-top:16px;margin-top:28px}
