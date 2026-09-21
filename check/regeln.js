@@ -52,13 +52,13 @@
     },
 
     bettzeit: {
-      titel: "Verbring nicht mehr Zeit im Bett, als du schläfst",
+      titel: "Weniger Zeit im Bett kann helfen — aber nicht im Alleingang",
       tipp:
         "Wer nachts lange wach liegt, geht oft früher ins Bett — und liegt " +
-        "dann noch länger wach. Die Leitlinie macht es andersherum: Du kürzt " +
-        "die Bettzeit auf die Zeit, die du wirklich schläfst, nie unter " +
-        "viereinhalb Stunden. Mach das nicht allein, sondern mit ärztlicher " +
-        "oder therapeutischer Begleitung. Am Anfang wirst du müder. Wenn du " +
+        "dann noch länger wach. Die Leitlinie beschreibt den umgekehrten Weg: " +
+        "Die Bettzeit wird auf die Zeit gekürzt, die man wirklich schläft, nie unter " +
+        "viereinhalb Stunden. Das ist eine Behandlung und gehört in ärztliche " +
+        "oder therapeutische Begleitung. Sprich dort darüber. Am Anfang wird man davon müder. Wenn du " +
         "Auto fährst oder an Maschinen arbeitest, fang damit nicht ohne " +
         "ärztliche Rücksprache an — die Leitlinie warnt genau davor.",
       quelle:
@@ -102,10 +102,10 @@
     abklaeren: {
       titel: "Lass das ärztlich abklären",
       tipp:
-        "Mehrmals pro Woche, länger als drei Monate: Ab da hat das einen " +
-        "Namen. Die internationale Krankheitsklassifikation ICD-11 nennt es " +
-        "eine chronische insomnische Störung. Das gehört in eine " +
-        "Sprechstunde. Die Leitlinie " +
+        "Mehrmals pro Woche, länger als drei Monate: Ab dieser Dauer spricht " +
+        "die internationale Krankheitsklassifikation ICD-11 von " +
+        "einer chronischen insomnischen Störung. Ob das bei dir so ist, kann nur " +
+        "eine Ärztin oder ein Arzt feststellen. Die Leitlinie " +
         "sieht dafür ein Gespräch, eine körperliche Untersuchung und ein " +
         "Schlaftagebuch vor. Nimm dieses Ergebnis mit.",
       quelle: LEITLINIE + ", Empfehlung D1 und die ICD-11-Kriterien",
