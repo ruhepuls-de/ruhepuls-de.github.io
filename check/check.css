@@ -34,3 +34,5 @@
 button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
 .weg{display:none}
 @media (max-width:400px){main{padding:28px 16px 48px}.frage{font-size:1.2rem}}
+.mailblock .naechte{margin:12px 0 16px;padding-left:20px}
+.mailblock .naechte li{margin:6px 0}

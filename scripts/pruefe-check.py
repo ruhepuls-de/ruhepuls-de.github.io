@@ -19,7 +19,7 @@ e) VIDEO       Jede genannte Video-ID gibt es in der Pipeline (genau
 f) TON         Keine Zuschreibung im Seitentext ("du hast eine ...",
                "du leidest", "krankhaft"). Fachbegriffe in einer
                Quellenangabe sind erlaubt.
-g) AUSSCHLUSS  Alle 4^8 Antwortkombinationen laufen durch die echte
+g) AUSSCHLUSS  Alle 4^10 Antwortkombinationen laufen durch die echte
                Auswertung. Keine Regel steht im Ergebnis, ohne dass ein
                Ausloeser samt Voraussetzung (`nurWenn`) erfuellt ist — die
                KVT-I darf nie ohne Insomnie-Symptom erscheinen. Und kein
@@ -203,8 +203,8 @@ def pruefe_abdeckung(d):
     for name in d["halten"]:
         if name not in d["regeln"]:
             fehler.append("ABDECKUNG: Halte-Regel `%s` gibt es nicht." % name)
-    if len(d["fragen"]) > 8:
-        fehler.append("ABDECKUNG: %d Fragen — hoechstens acht sind erlaubt."
+    if len(d["fragen"]) > 10:
+        fehler.append("ABDECKUNG: %d Fragen — hoechstens zehn sind erlaubt."
                       % len(d["fragen"]))
     hinweise.append("  b) Abdeckung: %d Fragen, %d Regeln, alle verdrahtet"
                     % (len(d["fragen"]), len(d["regeln"])))

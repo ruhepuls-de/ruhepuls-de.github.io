@@ -1,14 +1,13 @@
-/* Schlaf-Check — Fragen, Regeln, Auswertung.
-   Reine Daten und Logik, kein DOM. check.js zeigt nur an, was hier
-   herauskommt; scripts/pruefe-check.py laesst dieselbe Datei in node
-   laufen und prueft das Ergebnis.
+/* Schlaf-Check — Fragen, Regeln, Auswertung.  Stand 23.09.2026
+   (Fachprüfung). Reine Daten und Logik, kein DOM.
 
    REGEL (geprueft von scripts/pruefe-check.py):
    - Jede Regel hat quelle + link. Ein Video ist freiwillig.
    - Jede Frage hat mindestens einen Ausloeser.
    - Fuer jede maximal auffaellige Antwort steht die zugehoerige Regel
      im Ergebnis.
-   - Keine Regel erscheint ohne ihre Voraussetzung (`nurWenn`).
+   - Keine Regel erscheint ohne ihre Voraussetzung (`nurWenn`, `undWenn`,
+     `nichtWenn`, `nurAntwort`) — alle vier sitzen in ausloeserGilt().
    - Zwei Regeln aus KONFLIKTE stehen nie im selben Ergebnis.
    - Der Tipp darf nicht mehr sagen als die Quelle.
 */
@@ -21,118 +20,127 @@
     "Schlafforschung und Schlafmedizin";
   var LEITLINIE_LINK = "https://register.awmf.org/de/leitlinien/detail/063-003";
 
+  var DEGAM =
+    "Baum, Lindner, Maisel (2022): DEGAM-Patienteninformation „Müdigkeit“ " +
+    "zur S3-Leitlinie Müdigkeit, AWMF 053-002, Deutsche Gesellschaft für " +
+    "Allgemeinmedizin und Familienmedizin";
+  var DEGAM_LINK = "https://register.awmf.org/de/leitlinien/detail/053-002";
+
+  /* Die drei Insomnie-Kernfragen. "ab 2" heisst: drei- bis viermal pro
+     Woche oder oefter — die Schwelle "mehrmals pro Woche" (ICD-11). */
+  var SYMPTOM = { eineVon: ["einschlafen", "durchschlafen", "frueh"], ab: 2 };
+
   /* ---------------------------------------------------------- Die Regeln */
   var REGELN = {
-    warmDuschen: {
-      titel: "Dusch warm, ein bis zwei Stunden vor dem Bett",
-      tipp:
-        "Zehn Minuten warm duschen oder baden reichen. Wichtig ist der " +
-        "Abstand: ein bis zwei Stunden vorher, nicht kurz vor dem Hinlegen. " +
-        "Eine Auswertung von 17 Studien fand danach eine kürzere Einschlafzeit.",
-      quelle:
-        "Haghayegh u. a. (2019): Before-bedtime passive body heating by warm " +
-        "shower or bath to improve sleep. Sleep Medicine Reviews 46, 124–135",
-      link: "https://doi.org/10.1016/j.smrv.2019.04.008",
-      video: "v43"
-    },
 
-    nichtErzwingen: {
-      titel: "Hör auf, das Einschlafen zu erzwingen",
-      tipp:
-        "Leg dich hin und nimm dir vor, wach zu bleiben. Das klingt verdreht, " +
-        "ist aber eine anerkannte Technik. Sie heißt paradoxe Intention. Die " +
-        "deutsche Leitlinie führt sie als wirksam auf und stützt sich dabei " +
-        "auf eine Übersicht mehrerer Studien.",
-      quelle:
-        LEITLINIE +
-        ", Abschnitt Kognitive Verhaltenstherapie für Insomnie; dort zitiert: " +
-        "Jansson-Fröjmark u. a. (2022), Journal of Sleep Research 31",
-      link: LEITLINIE_LINK,
-      video: "v55"
-    },
-
-    bettzeit: {
-      titel: "Weniger Zeit im Bett kann helfen — aber nicht im Alleingang",
-      tipp:
-        "Wer nachts lange wach liegt, geht oft früher ins Bett — und liegt " +
-        "dann noch länger wach. Die Leitlinie beschreibt den umgekehrten Weg: " +
-        "Die Bettzeit wird auf die Zeit gekürzt, die man wirklich schläft, nie unter " +
-        "viereinhalb Stunden. Das ist eine Behandlung und gehört in ärztliche " +
-        "oder therapeutische Begleitung. Sprich dort darüber. Am Anfang wird man davon müder. Wenn du " +
-        "Auto fährst oder an Maschinen arbeitest, fang damit nicht ohne " +
-        "ärztliche Rücksprache an — die Leitlinie warnt genau davor.",
-      quelle:
-        LEITLINIE +
-        ", Tabelle 7 „Instruktionen der Bettzeitrestriktion“ und der Hinweis " +
-        "zur Vorsicht bei potentiell gefährlichen Tätigkeiten",
-      link: LEITLINIE_LINK,
-      video: null
-    },
-
-    dreiFormen: {
-      titel: "Nachts wach werden ist die häufigere Form",
-      tipp:
-        "Schlecht schlafen heißt nicht nur, abends nicht einschlafen zu " +
-        "können. In einer Befragung von 24.600 Menschen in sechs " +
-        "europäischen Ländern berichteten 18 von 100 mindestens dreimal pro " +
-        "Woche einen unterbrochenen Schlaf und 10 von 100 Einschlafprobleme. " +
-        "Du bist damit nicht der Sonderfall.",
-      quelle:
-        "Ohayon & Roth (2001): What are the contributing factors for insomnia " +
-        "in the general population? Journal of Psychosomatic Research 51(6), " +
-        "745–755",
-      link: "https://doi.org/10.1016/S0022-3999(01)00285-9",
-      video: "v56"
-    },
-
-    weckerTest: {
-      titel: "Rechne nach, wie viele Stunden es wirklich waren",
-      tipp:
-        "Früh wach heißt nicht automatisch zu wenig. Eine Fachgruppe hat die " +
-        "Studienlage gesichtet und empfiehlt Erwachsenen sieben bis neun " +
-        "Stunden, älteren Menschen sieben bis acht. Das ist eine Spanne, " +
-        "keine feste Zahl. Liegst du darin, fehlt dir nichts.",
-      quelle:
-        "Hirshkowitz u. a. (2015): National Sleep Foundation’s sleep time " +
-        "duration recommendations. Sleep Health 1(1), 40–43",
-      link: "https://doi.org/10.1016/j.sleh.2014.12.010",
-      video: "v53"
-    },
+    /* ---------- Sicherheit: aerztlich abklaeren ---------- */
 
     abklaeren: {
       titel: "Lass das ärztlich abklären",
       tipp:
-        "Mehrmals pro Woche, länger als drei Monate: Ab dieser Dauer spricht " +
-        "die internationale Krankheitsklassifikation ICD-11 von " +
-        "einer chronischen insomnischen Störung. Ob das bei dir so ist, kann nur " +
-        "eine Ärztin oder ein Arzt feststellen. Die Leitlinie " +
-        "sieht dafür ein Gespräch, eine körperliche Untersuchung und ein " +
-        "Schlaftagebuch vor. Nimm dieses Ergebnis mit.",
-      quelle: LEITLINIE + ", Empfehlung D1 und die ICD-11-Kriterien",
+        "Mehrmals pro Woche, länger als drei Monate, und du merkst es am Tag: " +
+        "Ab da spricht die ICD-11 von einer chronischen insomnischen Störung. " +
+        "Ob das bei dir so ist, kann nur eine Ärztin oder ein Arzt feststellen " +
+        "— mit Gespräch, Untersuchung und Schlaftagebuch. Frag dort nach der " +
+        "kognitiven Verhaltenstherapie für Insomnie. Die gibt es auch als App " +
+        "auf Rezept.",
+      quelle:
+        LEITLINIE + ", Abschnitt 3.1, Empfehlungen D1 und T1, Abschnitt " +
+        "KVT-I (digitale Gesundheitsanwendungen)",
       link: LEITLINIE_LINK,
       video: null
     },
+
+    muedeTrotzSchlaf: {
+      titel: "Gut geschlafen und trotzdem erschöpft? Sprich es in der Praxis an",
+      tipp:
+        "Die Leitlinie der Hausärzte sagt: Wenn Müdigkeit dich übermäßig " +
+        "belastet oder du keine Ursache findest, sprich sie in der " +
+        "Hausarztpraxis an. Die Gründe reichen von Belastungen und " +
+        "Medikamenten über Atemstörungen im Schlaf bis zu Depression und " +
+        "Angst. Für „Stärkungsmittel“ ist keine Wirkung belegt.",
+      quelle: DEGAM,
+      link: DEGAM_LINK,
+      video: null
+    },
+
+    atemAbklaeren: {
+      titel: "Schnarchen oder Atempausen: lass das abklären",
+      tipp:
+        "Lautes Schnarchen und Atemaussetzer, die jemand beobachtet hat, " +
+        "gehören zu den acht Fragen, mit denen Ärztinnen das Risiko für eine " +
+        "Schlafapnoe einschätzen. Müdigkeit am Tag ist eine weitere. Die " +
+        "deutsche Leitlinie sagt: Bei begründetem Verdacht soll das im " +
+        "Schlaflabor geklärt werden. Der erste Schritt ist die Hausarztpraxis.",
+      quelle:
+        "Chung, Abdullah & Liao (2016): STOP-Bang Questionnaire: A Practical " +
+        "Approach to Screen for Obstructive Sleep Apnea. Chest 149(3), " +
+        "631–638 · " + LEITLINIE + ", Empfehlung D4",
+      link: "https://doi.org/10.1378/chest.15-0903",
+      video: null
+    },
+
+    beineAbklaeren: {
+      titel: "Unruhige Beine am Abend: sprich es an",
+      tipp:
+        "Ein Drang, die Beine zu bewegen, der in Ruhe kommt, abends oder " +
+        "nachts stärker ist und beim Bewegen nachlässt: So beschreibt die " +
+        "internationale Fachgruppe das Restless-Legs-Syndrom. Ob es das ist, " +
+        "muss eine Ärztin klären — andere Beschwerden können sich ähnlich " +
+        "anfühlen. Die deutsche Leitlinie nennt Beinbewegungen im Schlaf als " +
+        "etwas, das ausgeschlossen werden soll.",
+      quelle:
+        "Allen u. a. (2014): Restless legs syndrome/Willis-Ekbom disease " +
+        "diagnostic criteria: updated IRLSSG consensus criteria. Sleep " +
+        "Medicine 15(8), 860–873 · " + LEITLINIE + ", Tabelle 2",
+      link: "https://doi.org/10.1016/j.sleep.2014.03.025",
+      video: null
+    },
+
+    rezeptfreieMittel: {
+      titel: "Frei verkäufliche Schlaftabletten: Die Leitlinie rät ab",
+      tipp:
+        "In Deutschland frei verkäuflich sind Schlaftabletten mit " +
+        "Diphenhydramin oder Doxylamin. Die Leitlinie sagt: Sie sollen zur " +
+        "Behandlung von Schlafstörungen nicht empfohlen werden — die Wirkung " +
+        "ist allenfalls gering, der Körper gewöhnt sich schnell daran. Von " +
+        "pflanzlichen Mitteln rät sie ebenfalls ab, von Melatonin auf Dauer. " +
+        "Sprich in der Apotheke oder Praxis darüber.",
+      quelle:
+        LEITLINIE + ", Empfehlungen T7, T8 und T9, Abschnitt 4.2.5 und " +
+        "Tabelle 15",
+      link: LEITLINIE_LINK,
+      video: null
+    },
+
+    rezeptMittel: {
+      titel: "Schlafmittel auf Rezept: nicht auf Dauer — und nicht allein absetzen",
+      tipp:
+        "Die Leitlinie hält Benzodiazepine und verwandte Mittel für bis zu " +
+        "vier Wochen für wirksam und rät von der Dauereinnahme ab. Setz " +
+        "trotzdem nichts auf eigene Faust ab, sondern besprich es mit der " +
+        "Ärztin, die es verschrieben hat. Frag dort auch nach der kognitiven " +
+        "Verhaltenstherapie für Insomnie — die Leitlinie nennt sie für alle " +
+        "als erste Behandlung.",
+      quelle:
+        LEITLINIE + ", Empfehlungen T1 und T3 · " + DEGAM,
+      link: LEITLINIE_LINK,
+      video: null
+    },
+
+    /* ---------- Behandlung nach Leitlinie ---------- */
 
     kvti: {
       titel: "Die erste Behandlung ist keine Tablette",
       tipp:
-        "So steht es wörtlich in der deutschen Leitlinie: Die kognitive " +
+        "So steht es in der deutschen Leitlinie: Die kognitive " +
         "Verhaltenstherapie für Insomnie „soll bei allen Patientinnen und " +
         "Patienten mit Insomnie als erste Behandlungsoption empfohlen " +
-        "werden“. Frag in der Praxis danach, bevor du zu Mitteln greifst.",
-      quelle: LEITLINIE + ", Empfehlung T1",
-      link: LEITLINIE_LINK,
-      video: null
-    },
-
-    tagIstMassstab: {
-      titel: "Der Tag ist der Maßstab, nicht die Uhr",
-      tipp:
-        "Ob dein Schlaf ein Problem ist, entscheidet nicht die Stundenzahl. " +
-        "Die Leitlinie fragt zuerst, ob du mit deinem Schlaf unzufrieden bist " +
-        "und ob du am Tag etwas davon merkst. Wer kurz schläft und sich " +
-        "tagsüber wohlfühlt, hat kein Schlafproblem.",
-      quelle: LEITLINIE + ", Abschnitt Diagnostik, Empfehlung D1",
+        "werden“. Es gibt sie auch als App auf Rezept: Die Leitlinie nennt " +
+        "somnio und HelloBetter Schlafen. Frag in der Praxis danach.",
+      quelle:
+        LEITLINIE + ", Empfehlung T1 und Abschnitt KVT-I (digitale " +
+        "Gesundheitsanwendungen)",
       link: LEITLINIE_LINK,
       video: null
     },
@@ -140,44 +148,167 @@
     stehAuf: {
       titel: "Steh auf, wenn du nach einer Viertelstunde noch wach bist",
       tipp:
-        "Die Leitlinie sagt es so: Wenn du nach 15 Minuten noch wach bist, " +
-        "steh auf und mach etwas Angenehmes. Geh erst zurück ins Bett, wenn " +
-        "du schläfrig bist. Wiederhol das, so oft es nötig ist.",
-      quelle: LEITLINIE + ", Tabelle 8 „Instruktionen zur Stimuluskontrolle“",
+        "Die Leitlinie sagt es so: Bist du nach 15 Minuten noch wach — abends " +
+        "oder nachts —, steh auf und mach etwas Angenehmes. Geh erst zurück " +
+        "ins Bett, wenn du schläfrig bist. Wiederhol das, so oft es nötig ist. " +
+        "Am Anfang kann dich das müder machen. Fährst du Auto oder arbeitest " +
+        "an Maschinen, sprich vorher ärztlich darüber — die Leitlinie warnt " +
+        "davor.",
+      quelle:
+        LEITLINIE + ", Tabelle 8 „Instruktionen zur Stimuluskontrolle“, " +
+        "Punkte 3 und 4, und der Hinweis zur Vorsicht im Abschnitt KVT-I",
       link: LEITLINIE_LINK,
       video: "v15"
+    },
+
+    erstWennMuede: {
+      titel: "Geh erst ins Bett, wenn du müde bist",
+      tipp:
+        "Zwei Sätze aus der Leitlinie, die zusammengehören: „Gehen Sie abends " +
+        "nur zu Bett, wenn Sie schläfrig sind.“ Und: „Stehen Sie jeden Morgen " +
+        "zur gleichen Uhrzeit auf.“ Die Idee: möglichst wenig Zeit wach im " +
+        "Bett. Am Anfang kann dich das müder machen — fährst du Auto oder " +
+        "arbeitest an Maschinen, sprich vorher ärztlich darüber.",
+      quelle:
+        LEITLINIE + ", Tabelle 8, Punkte 1 und 5, und der Hinweis zur " +
+        "Vorsicht im Abschnitt KVT-I",
+      link: LEITLINIE_LINK,
+      video: null
     },
 
     bettNurZumSchlafen: {
       titel: "Das Bett ist zum Schlafen da",
       tipp:
         "Auch das steht so in der Leitlinie: Benutz das Bett nur zum Schlafen " +
-        "und für Sex. Nicht zum Lesen, Trinken, Rauchen oder Fernsehen. Und " +
-        "schau nachts nicht auf die Uhr.",
+        "und für Sex. Nicht zum Lesen, Trinken, Rauchen oder Fernsehen. " +
+        "Daneben steht: helles, aktivierendes Licht vor dem Zubettgehen " +
+        "vermeiden. Und schau nachts nicht auf die Uhr.",
       quelle: LEITLINIE + ", Tabelle 8 und Tabelle 6 „Regeln für einen gesunden Schlaf“",
       link: LEITLINIE_LINK,
+      video: null
+    },
+
+    gedankenstuhl: {
+      titel: "Gib deinen Gedanken einen Termin — vor dem Bett",
+      tipp:
+        "Wenn dir im Bett die Gedanken kreisen: Die Leitlinie beschreibt dafür " +
+        "den „Gedankenstuhl“. Nimm dir einige Stunden vor dem Schlafen 15 bis " +
+        "20 Minuten und denk die Themen gezielt durch, die sonst nachts " +
+        "kommen. Schreib zu jedem eine mögliche Lösung auf. In einem kleinen " +
+        "Versuch mit Studierenden war der Kopf vor dem Einschlafen danach " +
+        "ruhiger.",
+      quelle:
+        LEITLINIE + ", Abschnitt Kognitive Techniken · Carney & Waters " +
+        "(2006): Effects of a structured problem-solving procedure on " +
+        "pre-sleep cognitive arousal in college students with insomnia. " +
+        "Behavioral Sleep Medicine 4(1), 13–28",
+      link: LEITLINIE_LINK,
+      video: null
+    },
+
+    schlaftagebuch: {
+      titel: "Schreib zwei Wochen lang auf, wie du schläfst",
+      tipp:
+        "Die Leitlinie empfiehlt dafür ein Schlaftagebuch über 7 bis 14 Tage: " +
+        "morgens und abends ein paar Zeilen — wann ins Bett, wie lange wach, " +
+        "wann aufgestanden, wie der Tag war. Nimm es mit, wenn du zur Ärztin " +
+        "gehst. Mit genau diesem Tagebuch beginnt dort auch die Behandlung.",
+      quelle:
+        LEITLINIE + ", Abschnitt 3.2 und Tabelle 7, Schritt 1",
+      link: LEITLINIE_LINK,
+      video: null
+    },
+
+    nichtErzwingen: {
+      titel: "Hör auf, das Einschlafen zu erzwingen",
+      tipp:
+        "Leg dich hin und nimm dir vor, wach zu bleiben. Das klingt verdreht, " +
+        "ist aber eine Technik aus der Therapie. Sie heißt paradoxe Intention " +
+        "und soll den Druck nehmen, einschlafen zu müssen. Die deutsche " +
+        "Leitlinie schreibt, die bisherigen Studien legen eine Wirkung nahe. " +
+        "Die Studien sind allerdings klein.",
+      quelle:
+        LEITLINIE +
+        ", Abschnitt Kognitive Verhaltenstherapie für Insomnie; dort zitiert: " +
+        "Jansson-Fröjmark u. a. (2022), Journal of Sleep Research 31(2), e13464",
+      link: LEITLINIE_LINK,
+      video: "v55"
+    },
+
+    /* ---------- Verhalten und Einzelstudien ---------- */
+
+    alkohol: {
+      titel: "Alkohol ist kein Schlafmittel",
+      tipp:
+        "Die Leitlinie sagt: „Alkohol weitgehend vermeiden und keinesfalls " +
+        "als Schlafmittel einsetzen.“ Eine Übersicht der Studien an Gesunden " +
+        "zeigt, warum der Eindruck täuscht: Mit Alkohol schläft man schneller " +
+        "ein, aber in der zweiten Nachthälfte wird der Schlaf unruhiger — " +
+        "bei jeder untersuchten Menge.",
+      quelle:
+        LEITLINIE + ", Tabelle 6 · Ebrahim u. a. (2013): Alcohol and sleep I: " +
+        "effects on normal sleep. Alcoholism: Clinical and Experimental " +
+        "Research 37(4), 539–549",
+      link: "https://doi.org/10.1111/acer.12006",
+      video: null
+    },
+
+    koffeinAbstand: {
+      titel: "Die letzte Tasse liegt weiter zurück, als du denkst",
+      tipp:
+        "Eine Auswertung von 24 Studien rechnet vor: Eine Tasse Kaffee mit " +
+        "107 Milligramm Koffein sollte mindestens 8,8 Stunden vor dem " +
+        "Zubettgehen getrunken sein, damit sie die Schlafdauer nicht mehr " +
+        "verkürzt. Die deutsche Leitlinie sagt es einfacher: nach dem " +
+        "Mittagessen nichts Koffeinhaltiges mehr — auch keinen schwarzen Tee " +
+        "und keine Cola.",
+      quelle:
+        "Gardiner u. a. (2023): The effect of caffeine on subsequent sleep. " +
+        "Sleep Medicine Reviews 69, 101764 · " + LEITLINIE + ", Tabelle 6",
+      link: "https://doi.org/10.1016/j.smrv.2023.101764",
+      video: "v66"
+    },
+
+    koffeinUnbemerkt: {
+      titel: "Spätes Koffein kostet Schlaf, den du nicht bemerkst",
+      tipp:
+        "In einem Versuch mit 12 Erwachsenen verkürzten 400 Milligramm " +
+        "Koffein, sechs Stunden vor dem Schlafengehen, den gemessenen Schlaf " +
+        "um gut eine Stunde. In ihrem eigenen Schlaftagebuch fiel das den " +
+        "Teilnehmern nicht auf. Die Studie ist klein und die Dosis hoch.",
+      quelle:
+        "Drake, Roehrs, Shambroom & Roth (2013): Caffeine effects on sleep " +
+        "taken 0, 3, or 6 hours before going to bed. Journal of Clinical " +
+        "Sleep Medicine 9(11), 1195–1200",
+      link: "https://doi.org/10.5664/jcsm.3170",
       video: null
     },
 
     festeAufstehzeit: {
       titel: "Steh jeden Morgen zur gleichen Zeit auf",
       tipp:
-        "Ein Satz aus der Leitlinie, ohne Bedingung: „Stehen Sie jeden Morgen " +
-        "zur gleichen Uhrzeit auf.“ Am Wochenende auch. Der Satz danach " +
-        "lautet: „Legen Sie sich tagsüber nicht hin.“",
-      quelle: LEITLINIE + ", Tabelle 8, Punkte 5 und 6",
+        "Die Leitlinie gibt Menschen mit Schlafproblemen diesen Satz mit: " +
+        "„Stehen Sie jeden Morgen zur gleichen Uhrzeit auf.“ Am Wochenende " +
+        "auch. In einer Auswertung von über 60.000 Menschen in Großbritannien " +
+        "hing ein regelmäßiger Schlafrhythmus stärker mit einem längeren " +
+        "Leben zusammen als die Schlafdauer. Das ist ein Zusammenhang, kein " +
+        "Beweis.",
+      quelle:
+        LEITLINIE + ", Tabelle 8, Punkt 5 · Windred u. a. (2024): Sleep " +
+        "regularity is a stronger predictor of mortality risk than sleep " +
+        "duration. Sleep 47(1), zsad253",
       link: LEITLINIE_LINK,
       video: null
     },
 
-    nachholen: {
-      titel: "Ausschlafen holt wenig zurück",
+    wochenendDifferenz: {
+      titel: "Viel länger am Wochenende heißt: unter der Woche fehlt Schlaf",
       tipp:
-        "Am Wochenende länger schlafen gleicht den Rückstand selten aus. In " +
-        "einer Befragung von über 12.000 Erwachsenen in Frankreich hatte rund " +
-        "ein Viertel einen starken Schlafrückstand. Davon holten 18 von 100 " +
-        "ihn am Wochenende auf und 7 von 100 mit einem Nickerchen. Die " +
-        "übrigen taten nichts dagegen.",
+        "Eine französische Studie mit über 12.000 Erwachsenen wertet es so: " +
+        "Wer am Wochenende mehr als zwei Stunden länger schläft als unter der " +
+        "Woche, hat werktags eine starke Schlafeinschränkung. Das betraf 14 " +
+        "von 100. Von denen, denen viel Schlaf fehlte, glich am Wochenende " +
+        "nur knapp jeder Fünfte den Rückstand aus.",
       quelle:
         "Léger u. a. (2020): Napping and weekend catchup sleep do not fully " +
         "compensate for high rates of sleep debt and short sleep at a " +
@@ -186,65 +317,102 @@
       video: "v28"
     },
 
-    koffeinAbstand: {
-      titel: "Die letzte Tasse liegt weiter zurück, als du denkst",
+    morgenlicht: {
+      titel: "Helles Licht am Morgen, wenig helles Licht am Abend",
       tipp:
-        "Eine Auswertung von 24 Studien rechnet vor: Eine normale Tasse " +
-        "Kaffee mit 107 Milligramm Koffein sollte mindestens 8,8 Stunden vor " +
-        "dem Zubettgehen getrunken sein, damit sie die Schlafdauer nicht mehr " +
-        "verkürzt. Die deutsche Leitlinie sagt es kürzer: nach dem " +
-        "Mittagessen nichts Koffeinhaltiges mehr.",
+        "Eine Auswertung von 22 Studien zur Lichttherapie bei Schlafstörungen " +
+        "fand: Helles Licht am Morgen verschob den Schlaf-Wach-Rhythmus nach " +
+        "vorn, Licht am Abend nach hinten. Die deutsche Leitlinie rät, helles, " +
+        "aktivierendes Licht vor dem Zubettgehen zu vermeiden. Die Effekte in " +
+        "den Studien sind klein.",
       quelle:
-        "Gardiner u. a. (2023): The effect of caffeine on subsequent sleep. " +
-        "Sleep Medicine Reviews 69, 101764 · " +
-        LEITLINIE +
-        ", Tabelle 6",
-      link: "https://doi.org/10.1016/j.smrv.2023.101764",
-      video: "v66"
+        "Chambe u. a. (2023): Light therapy in insomnia disorder: A " +
+        "systematic review and meta-analysis. Journal of Sleep Research " +
+        "32(6), e13895 · " + LEITLINIE + ", Tabelle 6 und Empfehlung T10",
+      link: "https://doi.org/10.1111/jsr.13895",
+      video: null
     },
 
-    mehrKoffein: {
-      titel: "Mehr Koffein macht den Kopf nicht wacher",
+    fruehWachDauer: {
+      titel: "Früh wach heißt nicht automatisch zu wenig",
       tipp:
-        "In einem Versuch mit 369 Erwachsenen holte Koffein den täglichen " +
-        "Kaffeetrinkern die Wachheit zurück, die ihnen ohne Kaffee fehlte — " +
-        "mehr nicht. Bei Menschen, die fast nie Koffein trinken, stieg die " +
-        "Wachheit im Kopf gar nicht, weil die Unruhe den Gewinn auffraß. " +
-        "Schneller wurden nur die Finger.",
+        "Eine Fachgruppe hat die Studienlage gesichtet und empfiehlt " +
+        "Erwachsenen sieben bis neun Stunden Schlaf, ab 65 sieben bis acht. " +
+        "Das ist eine Spanne für viele, kein Maß für dich allein. Die " +
+        "Leitlinie fragt deshalb zuerst, ob du am Tag etwas merkst. Wenn das " +
+        "kommt — oder deine Stimmung kippt —, sprich es in der Praxis an.",
       quelle:
-        "Rogers u. a. (2013): Faster but not smarter — effects of caffeine " +
-        "and caffeine withdrawal on alertness and performance. " +
-        "Psychopharmacology 226(2), 229–240",
-      link: "https://doi.org/10.1007/s00213-012-2889-4",
-      video: "v70"
+        "Hirshkowitz u. a. (2015): National Sleep Foundation’s sleep time " +
+        "duration recommendations. Sleep Health 1(1), 40–43 · " + LEITLINIE +
+        ", Abschnitt 3.1 und Empfehlung D2",
+      link: "https://doi.org/10.1016/j.sleh.2014.12.010",
+      video: "v53"
+    },
+
+    bewegung: {
+      titel: "Beweg dich regelmäßig — auch abends ist in Ordnung",
+      tipp:
+        "„Regelmäßige körperliche Aktivität“ steht in der Leitlinie unter den " +
+        "Regeln für gesunden Schlaf. Eine Auswertung von 66 Studien fand " +
+        "durch regelmäßigen Sport kleine bis mittlere Verbesserungen, am " +
+        "deutlichsten bei der Schlafqualität. Gegen Sport am Abend spricht " +
+        "laut einer Übersicht an Gesunden nichts — nur hartes Training, das " +
+        "weniger als eine Stunde vor dem Schlafen endet, kann stören.",
+      quelle:
+        LEITLINIE + ", Tabelle 6 · Kredlow u. a. (2015): The effects of " +
+        "physical activity on sleep: a meta-analytic review. Journal of " +
+        "Behavioral Medicine 38(3), 427–449 · Stutz, Eiholzer & Spengler " +
+        "(2019): Effects of evening exercise on sleep in healthy " +
+        "participants. Sports Medicine 49(2), 269–287",
+      link: "https://doi.org/10.1007/s10865-015-9617-6",
+      video: null
+    },
+
+    warmDuschen: {
+      titel: "Dusch warm, ein bis zwei Stunden vor dem Bett",
+      tipp:
+        "Zehn Minuten warm duschen oder baden, bei etwa 40 bis 42 Grad, ein " +
+        "bis zwei Stunden vor dem Schlafengehen — nicht kurz davor. In einer " +
+        "Auswertung von 13 Studien schliefen die Teilnehmer danach schneller " +
+        "ein. Die Autoren schreiben selbst, dass es dazu noch wenig Forschung " +
+        "gibt.",
+      quelle:
+        "Haghayegh u. a. (2019): Before-bedtime passive body heating by warm " +
+        "shower or bath to improve sleep. Sleep Medicine Reviews 46, 124–135",
+      link: "https://doi.org/10.1016/j.smrv.2019.04.008",
+      video: "v43"
     }
   };
 
   /* --------------------------------------------------------- Die Fragen
-     Acht Fragen. Die ersten fünf bilden nach, wonach die S3-Leitlinie in
-     der Anamnese fragt (Einschlafen, Durchschlafen, frühes Erwachen,
-     Dauer, Beeinträchtigung am Tag). Die letzten drei fragen nach dem
-     Verhalten, für das es in der Leitlinie konkrete Anweisungen gibt.
-     Begründung je Frage: check/README.md. */
+     Zehn Fragen. 1–5 bilden die Anamnese der S3-Leitlinie nach
+     (Einschlafen, Durchschlafen, frueh wach — je als Haeufigkeit —, Dauer,
+     Beeintraechtigung/Sorge am Tag). 6–8 fragen Verhalten, fuer das es
+     konkrete Anweisungen gibt. 9–10 sind die Warnfragen aus Empfehlung D2
+     (schlafmedizinische Erkrankungen, Substanzen). */
+
   var FRAGEN = [
     {
       id: "einschlafen",
-      text: "Wie lange brauchst du abends, bis du eingeschlafen bist?",
-      zusatz: "Geschätzt, an einem normalen Wochentag.",
+      text: "Wie oft brauchst du abends länger als eine halbe Stunde, bis du einschläfst?",
+      zusatz: "Geschätzt, in den letzten vier Wochen.",
       optionen: [
-        { text: "Meistens unter 15 Minuten", wert: 0, bezug: "Du schläfst abends schnell ein" },
-        { text: "15 bis 30 Minuten", wert: 1, bezug: "Du brauchst abends bis zu einer halben Stunde" },
-        { text: "30 bis 60 Minuten", wert: 2, bezug: "Du liegst abends eine halbe bis eine Stunde wach" },
-        { text: "Meistens über eine Stunde", wert: 3, bezug: "Du liegst abends über eine Stunde wach" }
+        { text: "So gut wie nie", wert: 0, bezug: "Du schläfst abends meist schnell ein" },
+        { text: "Ein- bis zweimal pro Woche", wert: 1, bezug: "Du liegst abends ein- bis zweimal pro Woche länger wach" },
+        { text: "Drei- bis viermal pro Woche", wert: 2, bezug: "Du liegst abends an mehreren Abenden pro Woche über eine halbe Stunde wach" },
+        { text: "Fast jeden Abend", wert: 3, bezug: "Du liegst fast jeden Abend über eine halbe Stunde wach" }
       ],
       ausloeser: [
-        { ab: 2, regel: "warmDuschen", schwere: 5 },
-        { ab: 2, regel: "nichtErzwingen", schwere: 5 }
+        { ab: 2, regel: "erstWennMuede", schwere: 5,
+          nurWenn: { eineVon: ["tagsueber"], ab: 1 } },
+        { ab: 2, regel: "gedankenstuhl", schwere: 4 },
+        { ab: 2, regel: "nichtErzwingen", schwere: 2 },
+        { ab: 2, regel: "warmDuschen", schwere: 1 }
       ]
     },
     {
       id: "durchschlafen",
-      text: "Wachst du nachts auf und liegst dann längere Zeit wach?",
+      text: "Wie oft wachst du nachts auf und liegst dann länger als eine halbe Stunde wach?",
       zusatz: "Kurz aufwachen und gleich wieder wegdriften zählt nicht.",
       optionen: [
         { text: "So gut wie nie", wert: 0, bezug: "Du schläfst nachts durch" },
@@ -253,14 +421,15 @@
         { text: "Fast jede Nacht", wert: 3, bezug: "Du liegst fast jede Nacht wach" }
       ],
       ausloeser: [
-        { ab: 1, regel: "dreiFormen", schwere: 2 },
-        { ab: 2, regel: "bettzeit", schwere: 6 }
+        { ab: 2, regel: "erstWennMuede", schwere: 5,
+          nurWenn: { eineVon: ["tagsueber"], ab: 1 } },
+        { ab: 2, regel: "gedankenstuhl", schwere: 4 }
       ]
     },
     {
       id: "frueh",
-      text: "Wachst du morgens zu früh auf und schläfst nicht mehr ein?",
-      zusatz: "Gemeint ist: eine Stunde oder mehr vor dem Wecker.",
+      text: "Wie oft wachst du morgens deutlich früher auf als geplant und schläfst nicht wieder ein?",
+      zusatz: "Deutlich heißt: eine halbe Stunde oder mehr.",
       optionen: [
         { text: "So gut wie nie", wert: 0, bezug: "Du wirst morgens nicht zu früh wach" },
         { text: "Ein- bis zweimal pro Woche", wert: 1, bezug: "Du wirst ein- bis zweimal pro Woche zu früh wach" },
@@ -268,59 +437,65 @@
         { text: "Fast jeden Morgen", wert: 3, bezug: "Du wirst fast jeden Morgen zu früh wach" }
       ],
       ausloeser: [
-        { ab: 1, regel: "dreiFormen", schwere: 2 },
-        { ab: 2, regel: "weckerTest", schwere: 5 }
+        /* Nur ohne deutliche Beeintraechtigung am Tag. Mit ihr greifen
+           kvti bzw. abklaeren — "fehlt dir nichts" waere dann falsch. */
+        { ab: 2, regel: "fruehWachDauer", schwere: 3,
+          nichtWenn: { eineVon: ["tagsueber"], ab: 2 } },
+        /* Tabelle 8 gilt ausdruecklich auch fuers "wieder einschlafen". */
+        { ab: 2, regel: "erstWennMuede", schwere: 5,
+          nurWenn: { eineVon: ["tagsueber"], ab: 1 } }
       ]
     },
     {
       id: "dauer",
-      text: "Seit wann geht das so?",
+      text: "Seit wann hast du solche Nächte?",
       zusatz: "Gemeint sind die Nächte, die dich stören.",
       optionen: [
-        { text: "Ich schlafe eigentlich gut", wert: 0, bezug: "Du schläfst gut" },
-        { text: "Ein paar Nächte, seit Kurzem", wert: 1, bezug: "Bei dir kommt das erst seit Kurzem vor" },
-        { text: "Mehrmals pro Woche, seit weniger als drei Monaten", wert: 2, bezug: "Das kommt mehrmals pro Woche vor, seit weniger als drei Monaten" },
-        { text: "Mehrmals pro Woche, seit mehr als drei Monaten", wert: 3, bezug: "Das kommt mehrmals pro Woche vor, und zwar seit mehr als drei Monaten" }
+        { text: "Ich habe keine schlechten Nächte", wert: 0, bezug: "Du hast keine schlechten Nächte" },
+        { text: "Seit weniger als einem Monat", wert: 1, bezug: "Das geht bei dir seit weniger als einem Monat so" },
+        { text: "Seit einem bis drei Monaten", wert: 2, bezug: "Das geht bei dir seit einem bis drei Monaten so" },
+        { text: "Seit mehr als drei Monaten", wert: 3, bezug: "Das geht bei dir seit mehr als drei Monaten so" }
       ],
       ausloeser: [
-        { ab: 3, regel: "abklaeren", schwere: 10 }
+        /* chronisch = > 3 Monate UND mehrmals pro Woche UND am Tag spuerbar */
+        { ab: 3, regel: "abklaeren", schwere: 10,
+          nurWenn: SYMPTOM, undWenn: { eineVon: ["tagsueber"], ab: 1 } },
+        /* Tagebuch ist harmlos und fuer jede laengere Phase sinnvoll — ohne
+           Bedingung, damit auch widerspruechliche Antworten eine Regel sehen. */
+        { ab: 2, regel: "schlaftagebuch", schwere: 3 }
       ]
     },
     {
       id: "tagsueber",
-      text: "Merkst du tagsüber, wie du geschlafen hast?",
-      zusatz: "Zum Beispiel Müdigkeit, Konzentration, Stimmung, Antrieb.",
+      text: "Wie stark merkst du deinen Schlaf im Alltag?",
+      zusatz: "Müdigkeit, Konzentration, Stimmung — oder die Sorge, wie die nächste Nacht wird.",
       optionen: [
-        { text: "Nein, ich komme gut durch den Tag", wert: 0, bezug: "Du kommst gut durch den Tag" },
+        { text: "Gar nicht, ich komme gut durch den Tag", wert: 0, bezug: "Du kommst gut durch den Tag" },
         { text: "Ein bisschen", wert: 1, bezug: "Du merkst am Tag ein bisschen davon" },
         { text: "Deutlich", wert: 2, bezug: "Du merkst am Tag deutlich etwas davon" },
         { text: "Sehr stark, es zieht sich durch alles", wert: 3, bezug: "Das belastet dich am Tag sehr stark" }
       ],
       ausloeser: [
-        { ab: 1, regel: "tagIstMassstab", schwere: 2 },
-        /* Die KVT-I ist die Behandlung einer Insomnie. Ohne ein einziges
-           Insomnie-Symptom darf sie nicht empfohlen werden — Muedigkeit am
-           Tag allein ist keins. Darum die zweite Bedingung: mindestens eine
-           der Fragen 1 bis 3 (Einschlafen, Durchschlafen, frueh wach) muss
-           auffaellig sein, ab Wert 2 — das ist die Schwelle "mehrmals pro
-           Woche". Geprueft von scripts/pruefe-check.py, Zweig g). */
-        { ab: 2, regel: "kvti", schwere: 8,
-          nurWenn: { eineVon: ["einschlafen", "durchschlafen", "frueh"], ab: 2 } }
+        /* KVT-I nur mit mindestens einem Insomnie-Symptom (mehrmals/Woche). */
+        { ab: 2, regel: "kvti", schwere: 6, nurWenn: SYMPTOM },
+        /* Das Gegenstueck: muede OHNE Insomnie-Symptom -> Hausarzt. */
+        { ab: 2, regel: "muedeTrotzSchlaf", schwere: 8, nichtWenn: SYMPTOM },
+        { ab: 2, regel: "bewegung", schwere: 0 }
       ]
     },
     {
       id: "wachliegen",
-      text: "Wenn du nachts wach liegst — was machst du dann?",
+      text: "Wenn du nicht schlafen kannst — was machst du meistens?",
       zusatz: "",
       optionen: [
         { text: "Das kommt bei mir nicht vor", wert: 0, bezug: "Du liegst nachts nicht wach" },
-        { text: "Ich stehe auf und mache etwas Ruhiges", wert: 0, bezug: "Du stehst dabei auf" },
+        { text: "Ich stehe auf und mache etwas Ruhiges, bis ich müde bin", wert: 0, bezug: "Du stehst dabei auf" },
         { text: "Ich bleibe liegen und warte, bis es wieder klappt", wert: 2, bezug: "Du bleibst liegen und wartest" },
-        { text: "Ich nehme das Handy oder mache den Fernseher an", wert: 3, bezug: "Du greifst im Bett zum Handy oder zum Fernseher" }
+        { text: "Ich nehme im Bett das Handy oder mache den Fernseher an", wert: 3, bezug: "Du greifst im Bett zum Handy oder zum Fernseher" }
       ],
       ausloeser: [
         { ab: 2, regel: "stehAuf", schwere: 6 },
-        { ab: 3, regel: "bettNurZumSchlafen", schwere: 4 }
+        { ab: 3, regel: "bettNurZumSchlafen", schwere: 2 }
       ]
     },
     {
@@ -334,43 +509,85 @@
         { text: "Mehr als zwei Stunden", wert: 3, bezug: "Du stehst am Wochenende mehr als zwei Stunden später auf" }
       ],
       ausloeser: [
-        { ab: 2, regel: "festeAufstehzeit", schwere: 4 },
-        { ab: 3, regel: "nachholen", schwere: 3 }
+        { ab: 2, regel: "festeAufstehzeit", schwere: 2 },
+        { ab: 2, regel: "morgenlicht", schwere: 4,
+          nurWenn: { eineVon: ["einschlafen"], ab: 2 } },
+        { ab: 3, regel: "wochenendDifferenz", schwere: 1 }
       ]
     },
     {
       id: "koffein",
-      text: "Wann kommt bei dir der letzte Kaffee — oder die letzte Cola?",
-      zusatz: "Kaffee, Cola, Energydrink oder schwarzer Tee.",
+      text: "Wie viele Stunden vor dem Schlafengehen trinkst du dein letztes Koffein?",
+      zusatz: "Kaffee, Cola, Energydrink oder schwarzer Tee — an einem normalen Tag.",
       optionen: [
         { text: "Trinke ich nicht", wert: 0, bezug: "Du trinkst kein Koffein" },
-        { text: "Vormittags", wert: 0, bezug: "Du trinkst Koffein nur vormittags" },
-        { text: "Am frühen Nachmittag", wert: 2, bezug: "Du trinkst dein letztes Koffein am frühen Nachmittag" },
-        { text: "Am späten Nachmittag oder abends", wert: 3, bezug: "Du trinkst noch am späten Nachmittag oder abends Koffein" }
+        { text: "Neun Stunden oder mehr vorher", wert: 0, bezug: "Dein letztes Koffein liegt neun Stunden oder mehr zurück" },
+        { text: "Sechs bis neun Stunden vorher", wert: 2, bezug: "Dein letztes Koffein trinkst du sechs bis neun Stunden vor dem Schlafen" },
+        { text: "Weniger als sechs Stunden vorher", wert: 3, bezug: "Dein letztes Koffein trinkst du weniger als sechs Stunden vor dem Schlafen" }
       ],
       ausloeser: [
-        { ab: 2, regel: "koffeinAbstand", schwere: 5 },
-        { ab: 3, regel: "mehrKoffein", schwere: 3 }
+        { ab: 2, regel: "koffeinAbstand", schwere: 3 },
+        { ab: 3, regel: "koffeinUnbemerkt", schwere: 1 }
+      ]
+    },
+    {
+      id: "warnzeichen",
+      text: "Trifft eins davon auf dich zu?",
+      zusatz: "Wenn beides zutrifft, wähl „Beides“.",
+      optionen: [
+        { text: "Nichts davon", wert: 0, bezug: "Du hast keins der beiden Warnzeichen" },
+        { text: "Ich schnarche laut, oder jemand hat Atemaussetzer bei mir bemerkt", wert: 3, bezug: "Du schnarchst laut oder jemand hat Atemaussetzer bemerkt" },
+        { text: "Abends in Ruhe habe ich einen Drang, die Beine zu bewegen — Bewegen hilft", wert: 3, bezug: "Du hast abends in Ruhe einen Drang, die Beine zu bewegen" },
+        { text: "Beides", wert: 3, bezug: "Du schnarchst oder hast Atemaussetzer, und du hast unruhige Beine" }
+      ],
+      ausloeser: [
+        { ab: 3, regel: "atemAbklaeren", schwere: 8,
+          nurAntwort: { frage: "warnzeichen", index: [1, 3] } },
+        { ab: 3, regel: "beineAbklaeren", schwere: 7,
+          nurAntwort: { frage: "warnzeichen", index: [2, 3] } }
+      ]
+    },
+    {
+      id: "einnahme",
+      text: "Nimmst du abends etwas, um besser zu schlafen?",
+      zusatz: "Wenn mehreres zutrifft, wähl das, was du am häufigsten nimmst.",
+      optionen: [
+        { text: "Nein", wert: 0, bezug: "Du nimmst nichts zum Schlafen" },
+        { text: "Alkohol, mehrmals pro Woche", wert: 3, bezug: "Du trinkst abends mehrmals pro Woche Alkohol" },
+        { text: "Etwas ohne Rezept — Schlaftabletten, pflanzliche Mittel oder Melatonin", wert: 3, bezug: "Du nimmst rezeptfreie Mittel zum Schlafen" },
+        { text: "Ein Schlafmittel, das mir verschrieben wurde", wert: 3, bezug: "Du nimmst ein verschriebenes Schlafmittel" }
+      ],
+      ausloeser: [
+        { ab: 3, regel: "alkohol", schwere: 4,
+          nurAntwort: { frage: "einnahme", index: [1] } },
+        { ab: 3, regel: "rezeptfreieMittel", schwere: 7,
+          nurAntwort: { frage: "einnahme", index: [2] } },
+        { ab: 3, regel: "rezeptMittel", schwere: 7,
+          nurAntwort: { frage: "einnahme", index: [3] } }
       ]
     }
   ];
 
   /* Wer nirgends auffaellig ist, bekommt diese zwei Regeln zum Halten. */
-  var HALTEN = ["festeAufstehzeit", "bettNurZumSchlafen"];
+  var HALTEN = ["festeAufstehzeit", "bewegung"];
 
-  /* Regelpaare, die im selben Ergebnis nicht nebeneinander stehen duerfen,
-     weil die eine der anderen widerspricht. „Die erste Behandlung ist keine
-     Tablette“ setzt eine Insomnie voraus, „Der Tag ist der Massstab“ sagt,
-     wann keine vorliegt. Steht beides da, hebt sich das Ergebnis selbst auf.
-     Es bleibt die Regel mit den mehr Punkten. Geprueft: Zweig g). */
-  var KONFLIKTE = [["kvti", "tagIstMassstab"]];
+  /* Regelpaare, die nicht nebeneinander stehen duerfen. Es bleibt die
+     Regel mit den mehr Punkten. */
+  var KONFLIKTE = [
+    ["abklaeren", "kvti"],             // zweimal "geh zur Praxis"
+    ["abklaeren", "schlaftagebuch"],   // abklaeren nennt das Tagebuch schon
+    ["stehAuf", "nichtErzwingen"],     // aufstehen vs. liegen bleiben und wach bleiben wollen
+    ["erstWennMuede", "nichtErzwingen"], // nur muede ins Bett vs. hinlegen und wach bleiben
+    ["erstWennMuede", "festeAufstehzeit"], // erstWennMuede zitiert Punkt 5 schon
+    ["kvti", "fruehWachDauer"],        // behandlungsbeduerftig vs. "nicht automatisch zu wenig"
+    ["kvti", "muedeTrotzSchlaf"]       // Insomnie vs. keine Insomnie
+  ];
 
   var UNAUFFAELLIG = {
     titel: "Bei dir ist nichts auffällig",
     satz:
       "An keiner deiner Antworten klemmt etwas. Dann geht es bei dir nicht " +
-      "ums Reparieren, sondern ums Halten. Diese zwei Regeln sind die, die " +
-      "deinen Schlaf stabil halten."
+      "ums Reparieren, sondern ums Halten. Diese zwei Regeln helfen dabei."
   };
 
   var AUFFAELLIG = {
@@ -380,27 +597,39 @@
       "jeder steht, warum sie hier steht und woher sie kommt."
   };
 
-  /* Ein Ausloeser kann eine zweite Bedingung mitbringen (`nurWenn`): eine
-     der genannten Fragen muss mindestens den Wert `ab` haben. Ohne
-     `nurWenn` gilt er immer. */
-  function ausloeserGilt(a, antworten) {
-    if (!a.nurWenn) { return true; }
-    var noetig = a.nurWenn;
+  /* Eine Bedingung {eineVon, ab}: mindestens eine der Fragen hat einen
+     Wert >= ab. */
+  function bedingung(b, antworten) {
     for (var i = 0; i < FRAGEN.length; i++) {
       var f = FRAGEN[i];
-      if (noetig.eineVon.indexOf(f.id) < 0) { continue; }
+      if (b.eineVon.indexOf(f.id) < 0) { continue; }
       var k = antworten[f.id];
       if (typeof k !== "number" || !f.optionen[k]) { continue; }
-      if (f.optionen[k].wert >= noetig.ab) { return true; }
+      if (f.optionen[k].wert >= b.ab) { return true; }
     }
     return false;
   }
 
+  /* Ein Ausloeser kann bis zu vier Zusatzbedingungen haben:
+     nurWenn / undWenn — muessen beide erfuellt sein,
+     nichtWenn        — darf NICHT erfuellt sein,
+     nurAntwort       — die Frage muss mit einer dieser Optionen
+                        (Index) beantwortet sein.
+     pruefe-check.py ruft nur ausloeserGilt() auf und rechnet damit alle
+     vier automatisch mit. */
+  function ausloeserGilt(a, antworten) {
+    if (a.nurWenn && !bedingung(a.nurWenn, antworten)) { return false; }
+    if (a.undWenn && !bedingung(a.undWenn, antworten)) { return false; }
+    if (a.nichtWenn && bedingung(a.nichtWenn, antworten)) { return false; }
+    if (a.nurAntwort) {
+      var i = antworten[a.nurAntwort.frage];
+      if (typeof i !== "number" || a.nurAntwort.index.indexOf(i) < 0) { return false; }
+    }
+    return true;
+  }
+
   /* ------------------------------------------------------ Die Auswertung
-     antworten: { frageId: gewaehlterIndex }
-     Ergebnis: { unauffaellig, titel, satz, treffer: [ {regelId, regel,
-                 bezug, frageId, punkte} ] } — hoechstens drei, nach
-     Punkten sortiert. */
+     unveraendert gegenueber dem Stand 21.09. */
   function werteAus(antworten) {
     var treffer = [];
     var gesehen = {};
@@ -446,8 +675,6 @@
 
     treffer.sort(function (a, b) { return b.punkte - a.punkte; });
 
-    /* Widersprechende Paare aufloesen: Die weiter hinten stehende Regel
-       (weniger Punkte) faellt raus. */
     KONFLIKTE.forEach(function (paar) {
       var ids = treffer.map(function (t) { return t.regelId; });
       var a = ids.indexOf(paar[0]), b = ids.indexOf(paar[1]);
@@ -457,13 +684,16 @@
 
     var zeigen = treffer.slice(0, 3);
 
-    /* Steht nur eine Regel da, kommt eine Regel zum Halten dazu — damit
-       das Ergebnis nie aus einem einzelnen Satz besteht. */
     if (zeigen.length === 1) {
       for (var k = 0; k < HALTEN.length; k++) {
-        if (HALTEN[k] !== zeigen[0].regelId) {
+        var id = HALTEN[k];
+        var sperrt = KONFLIKTE.some(function (p) {
+          return (p[0] === id && p[1] === zeigen[0].regelId) ||
+                 (p[1] === id && p[0] === zeigen[0].regelId);
+        });
+        if (id !== zeigen[0].regelId && !sperrt) {
           zeigen.push({
-            regelId: HALTEN[k], regel: REGELN[HALTEN[k]],
+            regelId: id, regel: REGELN[id],
             bezug: null, frageId: null, punkte: 0
           });
           break;

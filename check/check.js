@@ -132,7 +132,7 @@
     if (!letztesErgebnis) { return ort(); }
     var titel = letztesErgebnis.treffer.map(function (t) { return t.regel.titel; });
     return "Mein Ergebnis beim Schlaf-Check von Ruhepuls: " +
-      titel.join(" · ") + ". Acht Fragen, zwei Minuten: " + ort();
+      titel.join(" · ") + ". Zehn Fragen, zwei Minuten: " + ort();
   }
 
   function ort() {
