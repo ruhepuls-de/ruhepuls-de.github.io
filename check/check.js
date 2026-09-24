@@ -175,6 +175,8 @@
   /* ---------------------------------------------------------- Verdrahtung */
   document.addEventListener("DOMContentLoaded", function () {
     $("losgehts").addEventListener("click", starte);
+    /* 25.09. Liam: Von der Startseite kommend stand derselbe Einleitungstext ein zweites Mal da. Mit #start geht es direkt zur ersten Frage. */
+    if (location.hash === "#start") starte();
     $("nochmal").addEventListener("click", starte);
     $("zurueck").addEventListener("click", function () {
       if (schritt > 0) { schritt--; male(); window.scrollTo(0, 0); }
