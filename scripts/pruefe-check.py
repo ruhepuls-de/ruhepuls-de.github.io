@@ -47,6 +47,13 @@ n) WORTE       Mail-Block hoechstens 60 Woerter (Produkt & Text 1.4 [D]);
                keine verbotenen Wirkwoerter in Check, Regeln, Kurve und
                Danke-Seiten ("mehr Energie", "du wirst", "hilft gegen",
                "gegen Müdigkeit", "heilt" ...).
+o) ZWECK       Keine Formulierung, die den Check oder die Kurve zu einem
+               Medizinprodukt machen wuerde (Abteilung Recht 24.09.2026,
+               Massstab 3, G1, G3): "erkennt", "findet die Ursache",
+               "Risiko für", "ob du ... hast", "Schlafstörung-Test",
+               "Insomnie-Check", "für den/deinen Arzt", "überwacht",
+               "Woran deine Müdigkeit ...", "Kurve dorthin/zum Arzt".
+               Geprueft in Check, Regeln, Kurve, Danke-Seiten und Startseite.
 
 Aufruf:  python3 scripts/pruefe-check.py
 """
@@ -83,7 +90,27 @@ VERBOTEN_WIRK = [
     "mehr energie", "du wirst", "hilft gegen", "hilft bei müdigkeit",
     "gegen müdigkeit", "heilt", "heilung", "wieder fit", "garantiert",
 ]
-MAILBLOCK_MAX = 60
+# Recht 24.09.2026, Textvorschlag (b): Der Einwilligungssatz braucht 18 statt
+# 16 Woerter ("Ab 16.", G18). "Geht es nicht anders, gewinnt der
+# Einwilligungssatz." Zurueck auf 60, sobald G11 umgesetzt ist (deutsche
+# Bestaetigungsmail, "auf Englisch" faellt weg).
+MAILBLOCK_MAX = 62
+
+# Recht 24.09.2026, Massstab 3 (MDR/MDCG 2019-11), G1, G3: Formulierungen,
+# die eine medizinische Zweckbestimmung ausloesen wuerden.
+VERBOTEN_ZWECK = [
+    (r"\berkennt\b", "erkennt"),
+    (r"findet die ursache", "findet die Ursache"),
+    (r"\brisiko für\b", "Risiko für"),
+    (r"\bob du\b[^.?!¶]{0,40}\bhast\b", "ob du ... hast"),
+    (r"schlafst(?:ö|oe)rung(?:s)?-?test", "Schlafstörung-Test"),
+    (r"insomnie-?check", "Insomnie-Check"),
+    (r"für (?:deinen|den) arzt", "für den/deinen Arzt"),
+    (r"überwacht", "überwacht"),
+    (r"woran deine müdigkeit", "Woran deine Müdigkeit ..."),
+    (r"kurve[^.?!¶]{0,30}(?:dorthin|zum arzt|in die praxis)", "Kurve dorthin/zum Arzt"),
+]
+START_HTML = os.path.join(HIER, "index.html")
 
 # Video-IDs mit .verworfen-Ordner daneben, bei denen von Hand geprueft ist,
 # dass die Regel zum GUELTIGEN Video passt. Mit Begruendung, sonst rot.
@@ -594,7 +621,10 @@ def pruefe_versprechen(html):
                 "Antworten werden nie uebertragen. Stelle: ...%s..."
                 % (was, treffer.group(0))
             )
-    if not re.search(r"nicht schicken|nicht zusenden|nicht mitschicken|Antworten gehen nicht mit", block, re.I):
+    # Recht 24.09.2026, (b): "Deine Antworten gehen nicht mit" ist aus dem
+    # Einwilligungssatz raus; der ehrliche Satz steht im Danke-Feld.
+    if not re.search(r"nicht schicken|nicht zusenden|nicht mitschicken|Antworten gehen nicht mit"
+                     r"|(?:Ergebnis|Antworten) (?:bleibt|bleiben) in deinem Browser", block, re.I):
         fehler.append(
             "VERSPRECHEN: Im Mail-Block fehlt der ehrliche Satz, dass das "
             "Ergebnis NICHT mitgeschickt werden kann. Ohne ihn liest sich die "
@@ -780,12 +810,8 @@ def mailblock_woerter(html):
     return len(WORT.findall(sichtbarer_text(block)))
 
 
-def pruefe_worte(d, html):
-    n = mailblock_woerter(html)
-    if n is None:
-        fehler.append('WORTE: Der Mail-Block (id="mailblock") fehlt.')
-    elif n > MAILBLOCK_MAX:
-        fehler.append("WORTE: Der Mail-Block hat %d Woerter, erlaubt sind %d." % (n, MAILBLOCK_MAX))
+def text_quellen(d, html):
+    """Alle Texte, die Nutzer sehen: Check, Regeln, Kurve, Danke-Seiten."""
     quellen = [("check/index.html", sichtbarer_text(html))]
     if d:
         texte = []
@@ -806,6 +832,16 @@ def pruefe_worte(d, html):
             quellen.append((os.path.relpath(pfad, HIER), sichtbarer_text(lies(pfad))))
     if os.path.exists(KURVE_JS):
         quellen.append(("kurve/kurve.js", " ".join(re.findall(r'"([^"]{12,})"', lies(KURVE_JS)))))
+    return quellen
+
+
+def pruefe_worte(d, html):
+    n = mailblock_woerter(html)
+    if n is None:
+        fehler.append('WORTE: Der Mail-Block (id="mailblock") fehlt.')
+    elif n > MAILBLOCK_MAX:
+        fehler.append("WORTE: Der Mail-Block hat %d Woerter, erlaubt sind %d." % (n, MAILBLOCK_MAX))
+    quellen = text_quellen(d, html)
     for wo, text in quellen:
         klein = re.sub(r"\s+", " ", text.lower())
         for erlaubt in ERLAUBTE_STELLEN:
@@ -817,6 +853,23 @@ def pruefe_worte(d, html):
                               % (wort, wo, klein[max(0, i - 60):i + 60]))
     hinweise.append("  n) Worte: Mail-Block %s Woerter (hoechstens %d), keine Wirkversprechen "
                     "in %d Texten" % (n, MAILBLOCK_MAX, len(quellen)))
+
+
+# ------------------------------------------------------------- o) ZWECK
+def pruefe_zweck(d, html):
+    quellen = text_quellen(d, html)
+    if os.path.exists(START_HTML):
+        quellen.append(("index.html (Startseite)", sichtbarer_text(lies(START_HTML), True)))
+    for wo, text in quellen:
+        klein = re.sub(r"\s+", " ", text.lower())
+        for muster, name in VERBOTEN_ZWECK:
+            m = re.search(muster, klein)
+            if m:
+                fehler.append('ZWECK: "%s" in %s — klingt nach medizinischer Zweckbestimmung '
+                              '(Recht 24.09., Massstab 3) — ...%s...'
+                              % (name, wo, klein[max(0, m.start() - 60):m.end() + 60]))
+    hinweise.append("  o) Zweck: %d Sperren gegen Medizinprodukt-Formulierungen in %d Texten"
+                    % (len(VERBOTEN_ZWECK), len(quellen)))
 
 
 def main():
@@ -857,6 +910,7 @@ def main():
     pruefe_mail(html)
     pruefe_kurve()
     pruefe_worte(d, html)
+    pruefe_zweck(d, html)
 
     print("Energie-Check — Pruefung")
     for z in hinweise:
@@ -868,7 +922,7 @@ def main():
         print("\nROT: Der Energie-Check ist nicht abnahmefaehig.")
         return 1
     print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, Ausschluss, "
-          "Speicher, Versprechen, Mail, Kurve, Warnzeichen, Profile und Worte stimmen.")
+          "Speicher, Versprechen, Mail, Kurve, Warnzeichen, Profile, Worte und Zweck stimmen.")
     return 0
 
 

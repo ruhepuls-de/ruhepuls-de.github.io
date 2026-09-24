@@ -62,9 +62,9 @@
     <!-- MailerLite-Formular (Form 199491451928708547, Double-Opt-in).
          Bewusst OHNE MailerLites eigene Skripte und Zaehlaufrufe: Beim Laden der Seite
          geht nichts an MailerLite. Erst der Klick auf den Button schickt die Adresse — siehe mail.js.
-         OFFEN (Liam, MailerLite): Das Formular haengt noch an der Gruppe „Ruhepuls – 7 Naechte“.
-         Fuer „Deine Energiekurve – 7 Tage“ braucht es die neue Gruppe/Automation; dann hier die
-         Formular-ID tauschen (Produkt & Text 5.1). -->
+         OFFEN (Liam, MailerLite, Recht R3): Liam benennt die Gruppe „Ruhepuls – 7 Naechte“ in
+         „Ruhepuls – Energiekurve 7 Tage“ um und schaltet die alte Automation „Die 7 Naechte“ aus.
+         Formular- und Gruppen-ID bleiben dabei gleich, deshalb hier nichts tauschen. -->
     <form id="mailForm" class="mailform" action="https://assets.mailerlite.com/jsonp/2657658/forms/199491451928708547/subscribe" method="post" target="_blank">
       <label class="sr-only" for="mailFeld">Deine Mailadresse</label>
       <input id="mailFeld" type="email" name="fields[email]" required autocomplete="email" placeholder="deine@mailadresse.de">
@@ -79,7 +79,8 @@
       <p>Schau in dein Postfach und bestätige deine Adresse. Die Mail kommt auf Englisch („Confirm your email address“), ein Klick auf den Knopf reicht. Danach kommt sofort Tag 1. Keine Mail da? Sieh im Spam-Ordner nach.</p>
       <p>Die sieben Mails sind für alle gleich. Dein Ergebnis bleibt in deinem Browser, ich sehe es nicht. Ich sehe, ob Links in den Mails angeklickt werden, nicht, ob du sie öffnest.</p>
     </div>
-    <p class="small">Deine Antworten gehen nicht mit. Später auch Mails zu eigenen Angeboten. Abmelden mit einem Klick. <a href="../datenschutz.html">Datenschutz</a></p>
+    <!-- Einwilligungssatz: Abteilung Recht 24.09.2026, Textvorschlag (b), empfohlene Fassung, woertlich. -->
+    <p class="small">Danach Neues und eigene Angebote, höchstens wöchentlich. Ich sehe, welche Links du klickst. Ab 16. Abmelden jederzeit. <a href="../datenschutz.html">Datenschutz</a></p>
   </div>
 
   <!-- [D'] statt des Mail-Blocks: hartes Warnzeichen oder muedeTrotzSchlaf -->

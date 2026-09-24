@@ -80,13 +80,14 @@
 
     kvti: {
       gruppe: "hebel", domaene: "schlaf",
-      titel: "Die erste Behandlung ist keine Tablette",
+      // Titel und Tipp: Abteilung Recht 24.09.2026, G4, woertlich.
+      titel: "Seit Monaten wach im Bett? Frag nach einer Therapie ohne Tablette",
       tipp:
-        "So steht es in der deutschen Leitlinie: Die kognitive " +
-        "Verhaltenstherapie für Insomnie „soll bei allen Patientinnen und " +
-        "Patienten mit Insomnie als erste Behandlungsoption empfohlen " +
-        "werden“. Es gibt sie auch als App auf Rezept: Die Leitlinie nennt " +
-        "somnio und HelloBetter Schlafen. Frag in der Praxis danach.",
+        "Liegst du seit Monaten mehrmals pro Woche lange wach, sprich es in " +
+        "der Hausarztpraxis an. Ob dahinter eine Schlafstörung steckt, klärt " +
+        "die Praxis, nicht dieser Check. Für diesen Fall nennt die deutsche " +
+        "Schlaf-Leitlinie als erste Behandlung eine Verhaltenstherapie, keine " +
+        "Tablette. Es gibt sie auch als App auf Rezept. Frag in der Praxis danach.",
       kurz: "S3-Leitlinie Insomnie, 2025",
       quelle:
         INSOMNIE + ", AWMF 063-003, Empfehlung T1 und Abschnitt KVT-I " +
@@ -156,7 +157,7 @@
 
     mehrKaffee: {
       gruppe: "hebel", domaene: "trinken",
-      titel: "Noch eine Tasse macht dich nicht wacher",
+      titel: "Noch eine Tasse hebt vor allem den Entzug auf", // Recht 24.09., G5
       tipp:
         "In einem Doppelblindversuch mit 369 Erwachsenen kamen " +
         "Gewohnheitstrinker mit Koffein nur auf die Wachheit, die " +
@@ -176,7 +177,7 @@
 
     alkoholEnergie: {
       gruppe: "hebel", domaene: "trinken",
-      titel: "Das Glas am Abend kostet Erholung",
+      titel: "Das Glas am Abend kann Erholung kosten", // Recht 24.09., G6
       tipp:
         "Die Leitlinie der Hausärzte zur Müdigkeit schreibt: Alkohol am " +
         "Abend kann dazu führen, dass der Schlaf weniger erholsam wird. Eine " +
