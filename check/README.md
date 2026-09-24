@@ -5,7 +5,7 @@
 
 Die kostenlose Eingangstür: acht Fragen, sofort ein Ergebnis, das sich nach den
 Antworten richtet, **danach** die E-Mail-Abfrage. Live unter
-`https://ruhepuls-de.github.io/check/`.
+`https://mein-ruhepuls.de/check/`.
 
 ## Wie das Ergebnis zustande kommt
 
@@ -117,7 +117,7 @@ Video statt aufs Profil.
 
 ### Bio-Link setzen
 
-`ruhepuls-de.github.io/check/` in die TikTok-, YouTube- und Instagram-Bio.
+`mein-ruhepuls.de/check/` in die TikTok-, YouTube- und Instagram-Bio.
 
 ## Aufbau
 
