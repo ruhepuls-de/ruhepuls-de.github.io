@@ -58,7 +58,7 @@
     f.optionen.forEach(function (o, i) {
       var b = el("button", "antwort", o.text);
       b.type = "button";
-      b.addEventListener("click", function () { antworten[f.id] = i; weiter(); });
+      b.addEventListener("click", function () { antworten[f.id] = i; b.blur(); weiter(); });
       box.appendChild(b);
     });
     zeig($("zurueck"), schritt > 0);
