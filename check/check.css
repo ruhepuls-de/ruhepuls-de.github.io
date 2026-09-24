@@ -63,3 +63,8 @@ button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
 .ausserdem-regel[open] > summary{border-radius:10px 10px 0 0}
 .ausserdem-regel > .regel{margin-top:0;border-top:none;border-radius:0 0 10px 10px}
 #zumMailblock{margin:20px 0}
+/* 24.09. Liam: "Fast geschafft" sah aus wie der Text davor. Deutlich abgesetzt. */
+#mailDanke{background:rgba(232,176,75,.14);border:2px solid var(--gold);border-radius:12px;padding:18px 18px 8px;margin:14px 0}
+#mailDanke h3{margin:0 0 10px;font-size:1.45rem;color:var(--gold)}
+#mailDanke .haken{display:inline-block;width:1.6em;height:1.6em;line-height:1.6em;text-align:center;border-radius:50%;background:var(--gold);color:var(--bg);font-size:.9em;margin-right:6px}
+#mailDanke p:first-of-type{color:#fff;font-weight:600}
