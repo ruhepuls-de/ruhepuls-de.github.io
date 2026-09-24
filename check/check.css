@@ -3,12 +3,14 @@
 .fortschritt{height:6px;border-radius:3px;background:#22334f;overflow:hidden;margin:0 0 28px}
 .fortschritt i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s ease}
 .zaehler{font-size:.85rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:0 0 6px}
-.frage{font-size:1.35rem;line-height:1.3;margin:0 0 4px;font-weight:700}
+.frage{font-size:1.45rem;line-height:1.3;margin:0 0 6px;font-weight:800;color:#fff}
 .zusatz{color:var(--muted);font-size:.95rem;margin:0 0 20px}
 .antworten{display:flex;flex-direction:column;gap:10px;margin:0 0 22px}
-.antwort{display:block;width:100%;text-align:left;background:var(--card);color:var(--fg);border:1px solid #2a3b57;border-radius:12px;
-  padding:16px 18px;font:inherit;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.antwort:hover,.antwort:focus-visible{border-color:var(--gold);outline:none}
+.antwort{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#1c2d47;color:#e6eaf1;border:1px solid #3a5075;border-radius:12px;
+  padding:15px 18px;font:inherit;font-size:1rem;font-weight:400;line-height:1.45;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.antwort::before{content:"";flex:0 0 18px;height:18px;border:2px solid var(--gold);border-radius:50%}
+.antwort:hover,.antwort:focus-visible{border-color:var(--gold);background:#243a5c;color:#fff;outline:none}
+.antwort:hover::before,.antwort:focus-visible::before{background:var(--gold);box-shadow:inset 0 0 0 3px #243a5c}
 .antwort:active{transform:scale(.99)}
 .navi{display:flex;gap:14px;align-items:center;min-height:24px}
 .link{background:none;border:none;color:var(--muted);font:inherit;font-size:.95rem;text-decoration:underline;cursor:pointer;padding:0}
@@ -17,7 +19,7 @@
 .muster{background:var(--card);border:1px solid #2a3b57;border-left:4px solid var(--gold);border-radius:12px;padding:20px 20px 4px;margin:0 0 24px}
 .muster h2{margin:0 0 .4em;color:var(--gold);font-size:1.3rem}
 .regel{border-top:1px solid #2a3b57;padding:18px 0 4px}
-.regel h3{font-size:1.02rem;margin:0 0 .35em}
+.regel h3{font-size:1.08rem;margin:0 0 .35em;color:#fff}
 .regel .bezug{margin:0 0 .5em;border-left:2px solid var(--gold);padding-left:12px;color:var(--muted);font-size:.95rem}
 .regel .tipp{margin:0 0 .6em}
 .regel .studie{color:var(--muted);font-size:.85rem;margin:0 0 .4em;overflow-wrap:break-word}
