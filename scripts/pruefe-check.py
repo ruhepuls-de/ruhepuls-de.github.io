@@ -115,7 +115,7 @@ VERBOTEN_WIRK = [
 # 16 Woerter ("Ab 16.", G18). "Geht es nicht anders, gewinnt der
 # Einwilligungssatz." Zurueck auf 60, sobald G11 umgesetzt ist (deutsche
 # Bestaetigungsmail, "auf Englisch" faellt weg).
-MAILBLOCK_MAX = 62
+MAILBLOCK_MAX = 70  # 25.09. Liam: "man versteht gar nicht, was man fuer ein Ergebnis bekommt" - der Nutzen braucht einen Satz mehr; Klarheit vor Wortgrenze
 
 # Recht 24.09.2026, Massstab 3 (MDR/MDCG 2019-11), G1, G3: Formulierungen,
 # die eine medizinische Zweckbestimmung ausloesen wuerden.
