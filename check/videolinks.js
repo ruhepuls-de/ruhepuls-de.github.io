@@ -1,6 +1,6 @@
 /* ERZEUGT von scripts/baue-videolinks.py — nicht von Hand aendern.
    Quelle: ~/tools/ruhepuls-pipeline/public/<id>/TIKTOK.md und YOUTUBE.md
-   Stand: 2026-09-21  ·  72 Videos mit Link
+   Stand: 2026-09-24  ·  79 Videos mit Link
    Neu bauen nach jedem Upload:  python3 scripts/baue-videolinks.py */
 window.RUHEPULS_VIDEOS = {
   "kanal": {
@@ -364,6 +364,41 @@ window.RUHEPULS_VIDEOS = {
     },
     "v79": {
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7687346195982847264",
+      "titel": "",
+      "youtube": null
+    },
+    "v80": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "",
+      "youtube": null
+    },
+    "v81": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "Frühstück ist die wichtigste Mahlzeit des Tages",
+      "youtube": "https://youtu.be/198SnvN64M8"
+    },
+    "v82": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "Wer ständig müde ist, hat einen Vitaminmangel",
+      "youtube": "https://youtu.be/2KwPqC9vsn4"
+    },
+    "v83": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "Jeden Tag Eier essen treibt dein Cholesterin hoch",
+      "youtube": "https://youtu.be/gA7p6II9r9w"
+    },
+    "v84": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "Ab dreißig wird dein Stoffwechsel langsamer",
+      "youtube": "https://youtu.be/GvYrR7qxUNo"
+    },
+    "v85": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "",
+      "youtube": null
+    },
+    "v86": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
       "titel": "",
       "youtube": null
     }

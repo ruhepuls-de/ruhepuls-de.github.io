@@ -1,4 +1,4 @@
-/* Schlaf-Check — eigene Regeln, baut auf ../style.css auf */
+/* Energie-Check — eigene Regeln, baut auf ../style.css auf */
 .check main{max-width:620px}
 .fortschritt{height:6px;border-radius:3px;background:#22334f;overflow:hidden;margin:0 0 28px}
 .fortschritt i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s ease}
@@ -37,8 +37,6 @@
 button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
 .weg{display:none}
 @media (max-width:400px){main{padding:28px 16px 48px}.frage{font-size:1.2rem}}
-.mailblock .naechte{margin:12px 0 16px;padding-left:20px}
-.mailblock .naechte li{margin:6px 0}
 /* Mail-Formular */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 .mailform input[type=email]{width:100%;padding:14px;border-radius:10px;border:1px solid #3a5075;background:var(--bg);color:var(--fg);font:inherit;margin:4px 0 0}
@@ -47,3 +45,24 @@ button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
 .mailform .btn:disabled{opacity:.6;cursor:default}
 #mailDanke{border-left:4px solid var(--gold);padding:4px 0 4px 16px;margin:12px 0}
 #mailDanke h3{margin:0 0 .3em;color:var(--gold)}
+/* Energie-Check (24.09.2026) */
+.zusatzliste{margin:0 0 20px;padding-left:20px;color:#d5dce8;font-size:.95rem}
+.zusatzliste li{margin:6px 0}
+.regel .stelle{margin:0 0 .6em;font-size:.78rem;color:#8193ad}
+.regel .stelle summary{cursor:pointer;text-decoration:underline}
+.regel .stelle p{margin:.4em 0 0;line-height:1.45;overflow-wrap:break-word}
+/* Arzt-Kasten: abgesetzt, heller Hintergrund, kein Rot, kein Warnsymbol */
+.arztkasten{background:#22324c;border:2px solid #9fb0c8;border-radius:12px;padding:18px 18px 6px;margin:0 0 24px}
+.arztkasten h2{margin:0 0 .3em;color:#fff;font-size:1.2rem}
+.arztkasten .regel{background:#1a2a43;border-color:#3a5075}
+#hebelListe{margin:0 0 24px}
+#hebelListe h2{margin-top:0}
+#hebelListe ol{margin:8px 0 0;padding-left:22px}
+#hebelListe li{margin:6px 0}
+.hinweissatz{font-weight:700;color:#fff;border-left:4px solid var(--gold);padding-left:12px}
+.ersatz{background:var(--card);border:1px solid #2a3b57;border-radius:12px;padding:16px 18px;margin:28px 0;color:var(--muted)}
+.ausserdem-regel{margin:10px 0}
+.ausserdem-regel > summary{cursor:pointer;background:#1c2d47;border:1px solid #2f4466;border-radius:10px;padding:12px 16px;font-weight:700;color:#fff}
+.ausserdem-regel[open] > summary{border-radius:10px 10px 0 0}
+.ausserdem-regel > .regel{margin-top:0;border-top:none;border-radius:0 0 10px 10px}
+#zumMailblock{margin:20px 0}

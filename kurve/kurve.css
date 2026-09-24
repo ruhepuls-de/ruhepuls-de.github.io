@@ -1,0 +1,42 @@
+/* Deine Energiekurve — baut auf ../style.css auf */
+.kurve main{max-width:620px}
+.weg{display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.fortschritt-zeile{color:var(--muted);font-size:.95rem;letter-spacing:.02em;margin:0 0 14px;white-space:pre}
+.fortschritt-zeile .punkte{color:var(--gold);letter-spacing:.1em}
+.t2{background:var(--card);border-left:4px solid var(--gold);border-radius:8px;padding:10px 14px;font-weight:700}
+.fehler{color:#ffd9a0;font-weight:700}
+.meldung{background:var(--card);border:1px solid #2a3b57;border-radius:12px;padding:14px 16px}
+.eintrag{background:var(--card);border:1px solid #2a3b57;border-radius:12px;padding:18px;margin:18px 0 28px}
+.eintrag h2{margin:0 0 .6em;color:#fff;font-size:1.2rem}
+.skala{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.stufe{font:inherit;font-weight:700;padding:12px 0;border-radius:8px;border:1px solid #3a5075;background:#1c2d47;color:#e6eaf1;cursor:pointer}
+.stufe:hover,.stufe:focus-visible{border-color:var(--gold);outline:none}
+.stufe.an{background:var(--gold);color:#101820;border-color:var(--gold)}
+.skala-legende{display:flex;justify-content:space-between;gap:12px;font-size:.8rem;color:var(--muted);margin:6px 0 18px}
+.frage-haken{margin:0 0 8px}
+fieldset{border:1px solid #2f4466;border-radius:10px;margin:10px 0;padding:8px 14px 10px}
+legend{color:var(--gold);font-size:.9rem;padding:0 6px}
+fieldset label{display:flex;gap:10px;align-items:flex-start;margin:8px 0;line-height:1.4;cursor:pointer}
+fieldset input{margin-top:.25em;width:18px;height:18px;flex:0 0 18px;accent-color:#e0b45a}
+button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
+.btn.sekundaer{background:none;color:var(--gold);border:2px solid var(--gold)}
+.btn.klein{padding:6px 14px;margin:0 0 0 8px}
+.link{background:none;border:none;color:var(--gold);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
+.diagramm{margin:8px 0}
+.kurve-svg{width:100%;height:auto;display:block}
+.kurve-svg .gitter{stroke:#2a3b57;stroke-width:1}
+.kurve-svg .achse{fill:#b7c0d0;font-size:13px}
+.kurve-svg .achse.klein{font-size:11px}
+.kurve-svg .achse.titel{font-size:12px}
+.kurve-svg .luecke{font-style:italic}
+.kurve-svg .linie{stroke:#e0b45a;stroke-width:3}
+.kurve-svg .punkt{fill:#e0b45a}
+.kurve-svg .wert{fill:#f2f4f8;font-size:13px;font-weight:700}
+.vergleich-liste{padding-left:20px}
+.vergleich-liste li{margin:8px 0}
+.so-liest{font-size:.92rem;color:var(--muted);border-left:2px solid var(--gold);padding-left:12px}
+.hinweis{font-size:.9rem;color:var(--muted);border-top:1px solid #2a3b57;padding-top:16px;margin-top:28px}
+.loeschen{margin:18px 0}
+.loeschen .btn{margin:10px 10px 0 0}
+@media (max-width:420px){main{padding:28px 16px 48px}.skala{grid-template-columns:repeat(5,1fr)}.fortschritt-zeile{white-space:normal}}

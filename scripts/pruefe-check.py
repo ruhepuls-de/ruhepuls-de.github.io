@@ -1,39 +1,52 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Prueft den Schlaf-Check (check/). Rot (Exit 1), wenn etwas bricht.
+"""Prueft den Energie-Check (check/) und die Energiekurve (kurve/).
+Rot (Exit 1), wenn etwas bricht.
 
-Neun Zweige:
-
-a) QUELLE      Jede Regel hat `quelle` und `link` (http/https). Ein Video ist
-               NICHT mehr Pflicht — eine Regel haengt an einer Quelle, nicht
-               an einem Video.
+a) QUELLE      Jede Regel hat titel, tipp, kurz, quelle (mit Jahr), link
+               (http/https) und eine gruppe; Hebel-Regeln eine domaene.
 b) ABDECKUNG   Jede Frage hat mindestens eine Regel. Jede benutzte Regel
                existiert, jede definierte Regel wird irgendwo benutzt.
+               Hoechstens acht Fragen (Entscheidung F1).
 c) ERGEBNIS    Fuer jede einzelne maximal auffaellige Antwort steht die
-               zugehoerige Regel im Ergebnis. Dafuer laeuft die echte
-               Auswertung aus check/regeln.js in node.
+               zugehoerige Regel im Ergebnis (echte Auswertung in node).
 d) REIHENFOLGE Das E-Mail-Feld steht im DOM NACH dem Ergebnis.
-e) VIDEO       Jede genannte Video-ID gibt es in der Pipeline (genau
-               v<Zahl>, nicht .verworfen) und sie hat einen Link in
-               check/videolinks.js.
+e) VIDEO       Jede genannte Video-ID gibt es in der Pipeline und sie hat
+               einen Link in check/videolinks.js.
 f) TON         Keine Zuschreibung im Seitentext ("du hast eine ...",
-               "du leidest", "krankhaft"). Fachbegriffe in einer
-               Quellenangabe sind erlaubt.
-g) AUSSCHLUSS  Alle 4^10 Antwortkombinationen laufen durch die echte
-               Auswertung. Keine Regel steht im Ergebnis, ohne dass ein
-               Ausloeser samt Voraussetzung (`nurWenn`) erfuellt ist — die
-               KVT-I darf nie ohne Insomnie-Symptom erscheinen. Und kein
-               Paar aus KONFLIKTE steht je zusammen im Ergebnis.
-h) SPEICHER    Wer auf dem Geraet schreibt, muss auch lesen (sonst ist die
-               Speicherung nach § 25 TDDDG nicht erforderlich), und die
-               Datenschutzerklaerung muss genau das sagen, was der Code tut.
-i) VERSPRECHEN Der Mail-Block verspricht nichts, was die Seite nicht halten
-               kann: kein "Ergebnis per Mail", solange die Antworten den
-               Browser nie verlassen. Dazu: kein Netzaufruf im Check.
+               "du leidest", "krankhaft", "Diagnose").
+g) AUSSCHLUSS  Alle Antwortkombinationen (4^7 * 5) laufen durch die echte
+               Auswertung. Rot, wenn eine Regel ohne Ausloeser samt
+               Voraussetzung erscheint, ein KONFLIKT-Paar zusammen steht,
+               `bewegungRegelmaessig` bei Anstrengungs-Antwort (PEM)
+               erscheint, HALTEN neben einer Arzt-Regel steht, mehr als drei
+               Hebel oben stehen, die Paar-Regel (zuckerTief -> pauseMachen)
+               verletzt ist, ein HARTES Warnzeichen den Mail-Block zeigt, ein
+               WEICHES ihn ausblendet, oder der Teilen-Text eine Arzt-Regel
+               bzw. bei Arzt-Profilen den Profil-Titel verraet.
+h) SPEICHER    Der Check speichert nichts; die Kurve schreibt UND liest
+               (ruhepuls.kurve.v1); die Datenschutzerklaerung sagt fuer
+               beide genau das (Abschnitt 4 / 4a).
+i) VERSPRECHEN Der Mail-Block verspricht nicht das Ergebnis per Mail und
+               sagt ehrlich, dass die Antworten nicht mitgehen. Kein
+               Netzaufruf im Check.
 j) MAIL        Der einzige Netzaufruf steht in check/mail.js, geht nur an
-               assets.mailerlite.com, schickt nur das Formular (nur die
-               Mailadresse) und kennt weder Antworten noch Speicher. Die Seite
-               laedt kein fremdes Skript (kein webforms.min.js, kein „takel“).
+               assets.mailerlite.com, schickt nur die Mailadresse. Kein
+               fremdes Skript.
+k) KURVE       kurve/ macht keinen Netzaufruf, laedt kein fremdes Skript,
+               hat kein Formular nach draussen, greift nur in try/catch auf
+               den Speicher zu und traegt den Hinweis aus T2 (Safari/Chrome +
+               Lesezeichen).
+l) WARNZEICHEN Jedes Warnzeichen ist hart oder weich (T1). Eine Antwort,
+               die einen harten Listenpunkt einschliessen kann, ist hart
+               (im Zweifel hart). Dazu ein Probelauf mit einer weichen
+               Antwort: Kasten unten, Mail-Block bleibt.
+m) PROFILE     Die sechs Muster aus Fach 4.7 (A–F) ergeben genau das
+               erwartete Ergebnis.
+n) WORTE       Mail-Block hoechstens 60 Woerter (Produkt & Text 1.4 [D]);
+               keine verbotenen Wirkwoerter in Check, Regeln, Kurve und
+               Danke-Seiten ("mehr Energie", "du wirst", "hilft gegen",
+               "gegen Müdigkeit", "heilt" ...).
 
 Aufruf:  python3 scripts/pruefe-check.py
 """
@@ -52,6 +65,10 @@ MAIL_JS = os.path.join(CHECK, "mail.js")
 VIDEOLINKS_JS = os.path.join(CHECK, "videolinks.js")
 HTML = os.path.join(CHECK, "index.html")
 DATENSCHUTZ = os.path.join(HIER, "datenschutz.html")
+KURVE_HTML = os.path.join(HIER, "kurve", "index.html")
+KURVE_JS = os.path.join(HIER, "kurve", "kurve.js")
+DANKE = [os.path.join(HIER, "danke", n, "index.html") for n in ("30-tage", "jahr")]
+KURVE_SCHLUESSEL = "ruhepuls.kurve.v1"
 PIPELINE = os.path.expanduser("~/tools/ruhepuls-pipeline/public")
 
 ZUSCHREIBUNG = [
@@ -59,7 +76,22 @@ ZUSCHREIBUNG = [
     "deine insomnie", "deine schlafstörung", "deine schlafstoerung",
     "bei dir liegt", "krankhaft", "diagnose",
 ]
-ERLAUBTE_STELLEN = ["ersetzt keine ärztliche beratung"]
+ERLAUBTE_STELLEN = ["ersetzt keine ärztliche beratung", "keine diagnose"]
+
+# Produkt & Text 5.3 Nr. 2 + Auftrag Bau: Wirkversprechen (HWG § 3, UWG)
+VERBOTEN_WIRK = [
+    "mehr energie", "du wirst", "hilft gegen", "hilft bei müdigkeit",
+    "gegen müdigkeit", "heilt", "heilung", "wieder fit", "garantiert",
+]
+MAILBLOCK_MAX = 60
+
+# Video-IDs mit .verworfen-Ordner daneben, bei denen von Hand geprueft ist,
+# dass die Regel zum GUELTIGEN Video passt. Mit Begruendung, sonst rot.
+VERWORFEN_GEPRUEFT = {
+    "v82": "v82 = Vitaminmangel, schliesst mit den fuenf Werten aus DEGAM 5.3.1 — "
+           "passt zu muedeTrotzSchlaf/vierWochen. v82.verworfen = die "
+           "Schilddruesen-Fassung. Geprueft 24.09.2026 (Bau).",
+}
 
 fehler = []
 hinweise = []
@@ -76,13 +108,21 @@ var R = require(process.argv[2]);
 var out = { regeln: {}, fragen: [], halten: R.HALTEN, faelle: [] };
 Object.keys(R.REGELN).forEach(function (id) {
   var r = R.REGELN[id];
-  out.regeln[id] = { titel: r.titel, tipp: r.tipp, quelle: r.quelle,
-                     link: r.link, video: r.video || null };
+  out.regeln[id] = { titel: r.titel, tipp: r.tipp, quelle: r.quelle, kurz: r.kurz,
+                     link: r.link, video: r.video || null, gruppe: r.gruppe || null,
+                     domaene: r.domaene || null };
 });
 R.FRAGEN.forEach(function (f) {
-  out.fragen.push({ id: f.id, text: f.text, optionen: f.optionen,
+  out.fragen.push({ id: f.id, text: f.text, zusatz: f.zusatz || "",
+                    zusatzListe: f.zusatzListe || [], optionen: f.optionen,
                     ausloeser: f.ausloeser });
 });
+function idsVon(l) { return l.map(function (t) { return t.regelId; }); }
+function kurzErg(e) {
+  return { profil: e.profil, hebel: idsVon(e.hebel), ausserdem: idsVon(e.ausserdem),
+           arzt: idsVon(e.arzt), warnOben: e.warnOben, zeigeMailblock: e.zeigeMailblock,
+           halten: e.halten };
+}
 R.FRAGEN.forEach(function (f) {
   var max = Math.max.apply(null, f.optionen.map(function (o) { return o.wert; }));
   f.optionen.forEach(function (o, i) {
@@ -94,7 +134,7 @@ R.FRAGEN.forEach(function (f) {
       erwartet: f.ausloeser.filter(function (x) {
                     return o.wert >= x.ab && R.ausloeserGilt(x, a);
                   }).map(function (x) { return x.regel; }),
-      gezeigt: e.treffer.map(function (t) { return t.regelId; }),
+      gezeigt: idsVon(e.treffer),
       unauffaellig: e.unauffaellig
     });
   });
@@ -102,17 +142,21 @@ R.FRAGEN.forEach(function (f) {
 
 /* --- g) AUSSCHLUSS: jede Antwortkombination einmal durchspielen. */
 out.konflikte = R.KONFLIKTE || [];
-out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [] };
+var PAAR = R.PAAR || ["zuckerTief", "pauseMachen"];
+var WF = null;
+R.FRAGEN.forEach(function (f) { if (f.id === "warnzeichen") { WF = f; } });
+var S = out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [], pem: [], haltenArzt: [],
+                      zuViele: [], paar: [], hartMail: [], weichMail: [], teilen: [] };
+function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
 (function () {
   var fs = R.FRAGEN, halten = {}, zaehler = new Array(fs.length).fill(0);
   R.HALTEN.forEach(function (id) { halten[id] = true; });
+  if (fs.some(function (f) { return !f.optionen.length; })) { S.zahl = 0; return; }
   for (;;) {
     var a = {};
     fs.forEach(function (f, k) { a[f.id] = zaehler[k]; });
     var e = R.werteAus(a);
-    out.sweep.zahl++;
-    /* Erlaubt ist eine Regel nur mit einem Ausloeser, dessen Schwelle UND
-       dessen Voraussetzung erfuellt sind — oder als Halte-Regel. */
+    S.zahl++;
     var erlaubt = {};
     fs.forEach(function (f) {
       var o = f.optionen[a[f.id]];
@@ -120,19 +164,58 @@ out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [] };
         if (o.wert >= x.ab && R.ausloeserGilt(x, a)) { erlaubt[x.regel] = true; }
       });
     });
-    var gezeigt = e.treffer.map(function (t) { return t.regelId; });
+    var gezeigt = idsVon(e.treffer);
     gezeigt.forEach(function (id) {
-      if (erlaubt[id] || halten[id]) { return; }
-      if (out.sweep.ohneAusloeser.length < 3) {
-        out.sweep.ohneAusloeser.push({ regel: id, antworten: a, gezeigt: gezeigt });
-      }
+      if (erlaubt[id] || (e.halten && halten[id])) { return; }
+      merk(S.ohneAusloeser, { regel: id, antworten: a, gezeigt: gezeigt });
     });
     out.konflikte.forEach(function (paar) {
-      if (gezeigt.indexOf(paar[0]) >= 0 && gezeigt.indexOf(paar[1]) >= 0 &&
-          out.sweep.konflikt.length < 3) {
-        out.sweep.konflikt.push({ paar: paar, antworten: a, gezeigt: gezeigt });
+      if (gezeigt.indexOf(paar[0]) >= 0 && gezeigt.indexOf(paar[1]) >= 0) {
+        merk(S.konflikt, { paar: paar, antworten: a, gezeigt: gezeigt });
       }
     });
+    /* PEM: nie Bewegung (Fach 4.6 Nr. 4) */
+    if ((a.warnzeichen === 2 || a.warnzeichen === 3) &&
+        gezeigt.indexOf("bewegungRegelmaessig") >= 0) {
+      merk(S.pem, { antworten: a, gezeigt: gezeigt });
+    }
+    /* HALTEN nie neben einer Arzt-Regel */
+    var arztDa = e.arzt.length > 0 ||
+      e.treffer.some(function (t) { return t.regel && t.regel.gruppe === "arzt"; });
+    var haltenDa = e.halten || e.treffer.some(function (t) { return t.halten; });
+    if (haltenDa && arztDa) { merk(S.haltenArzt, { antworten: a, gezeigt: gezeigt }); }
+    if (e.hebel.length > 3) { merk(S.zuViele, { antworten: a, gezeigt: gezeigt }); }
+    /* Paar-Regel */
+    var alle = idsVon(e.hebel.concat(e.ausserdem));
+    var iz = alle.indexOf(PAAR[0]), ip = alle.indexOf(PAAR[1]);
+    if (iz >= 0 && iz < 3 && ip >= 0 && ip !== iz + 1) {
+      merk(S.paar, { antworten: a, gezeigt: alle });
+    }
+    /* T1: hart -> kein Mail-Block, Kasten oben; weich -> Mail-Block bleibt */
+    var o = WF ? WF.optionen[a.warnzeichen] : null;
+    var warnRegel = e.arzt.some(function (t) { return t.frageId === "warnzeichen"; });
+    var muede = idsVon(e.arzt).indexOf("muedeTrotzSchlaf") >= 0;
+    if (warnRegel && o && o.hart && (e.zeigeMailblock || !e.warnOben)) {
+      merk(S.hartMail, { antworten: a, gezeigt: gezeigt });
+    }
+    if (warnRegel && o && !o.hart && (e.warnOben || e.zeigeMailblock !== !muede)) {
+      merk(S.weichMail, { antworten: a, gezeigt: gezeigt });
+    }
+    if (!warnRegel && (e.warnOben || e.zeigeMailblock !== !muede)) {
+      merk(S.weichMail, { antworten: a, gezeigt: gezeigt });
+    }
+    /* Teilen-Text */
+    var tt = R.teilText(e, "https://mein-ruhepuls.de/check/");
+    var verrat = e.arzt.concat(e.treffer).filter(function (t) {
+      return t.regel && t.regel.gruppe === "arzt" && tt.indexOf(t.regel.titel) >= 0;
+    });
+    Object.keys(R.REGELN).forEach(function (id) {
+      if (tt.indexOf(R.REGELN[id].titel) >= 0) { verrat.push({ regel: R.REGELN[id] }); }
+    });
+    if (verrat.length ||
+        ((e.profil === "nurArzt" || e.profil === "nurArztWarn") && tt.indexOf(e.titel) >= 0)) {
+      merk(S.teilen, { antworten: a, text: tt });
+    }
     var k = fs.length - 1;
     while (k >= 0 && zaehler[k] === fs[k].optionen.length - 1) { zaehler[k] = 0; k--; }
     if (k < 0) { break; }
@@ -142,8 +225,33 @@ out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [] };
 var leer = {};
 R.FRAGEN.forEach(function (f) { leer[f.id] = 0; });
 var e0 = R.werteAus(leer);
-out.leer = { unauffaellig: e0.unauffaellig,
-             gezeigt: e0.treffer.map(function (t) { return t.regelId; }) };
+out.leer = { unauffaellig: e0.unauffaellig, gezeigt: idsVon(e0.treffer) };
+
+/* --- m) PROFILE: Fach 4.7, Muster A–F (Index je Frage in Ablauf-Reihenfolge) */
+var MUSTER = {
+  A: [1, 0, 2, 2, 2, 1, 2, 0], B: [2, 3, 0, 0, 0, 0, 3, 0], C: [0, 0, 0, 0, 0, 0, 3, 0],
+  D: [0, 0, 0, 0, 3, 0, 3, 2], E: [0, 0, 0, 0, 0, 0, 0, 0], F: [1, 0, 2, 2, 2, 1, 2, 1]
+};
+out.muster = {};
+Object.keys(MUSTER).forEach(function (k) {
+  var a = {};
+  R.FRAGEN.forEach(function (f, i) { a[f.id] = MUSTER[k][i]; });
+  out.muster[k] = kurzErg(R.werteAus(a));
+});
+
+/* --- l) Probelauf WEICH: die Listen-Antwort voruebergehend weich setzen. */
+out.weich = null;
+if (WF && WF.optionen[1]) {
+  var alt = WF.optionen[1].hart;
+  WF.optionen[1].hart = false;
+  var a = {};
+  R.FRAGEN.forEach(function (f, i) { a[f.id] = MUSTER.F[i]; });
+  var ew = kurzErg(R.werteAus(a));
+  a.schlafdauer = 0; a.koffein = 0; a.alkohol = 0; a.bewegung = 0; a.tief = 0;
+  var ew2 = kurzErg(R.werteAus(a));
+  WF.optionen[1].hart = alt;
+  out.weich = { mitHebeln: ew, ohneHebel: ew2 };
+}
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -177,9 +285,13 @@ def hole_daten():
 def pruefe_quelle(d):
     for name in sorted(d["regeln"]):
         r = d["regeln"][name]
-        for feld in ("titel", "tipp", "quelle", "link"):
+        for feld in ("titel", "tipp", "kurz", "quelle", "link"):
             if not (r.get(feld) or "").strip():
                 fehler.append("QUELLE: Regel `%s` hat kein Feld `%s`." % (name, feld))
+        if r.get("gruppe") not in ("hebel", "arzt"):
+            fehler.append("QUELLE: Regel `%s` hat keine gruppe hebel/arzt." % name)
+        if r.get("gruppe") == "hebel" and r.get("domaene") not in ("schlaf", "trinken", "tag"):
+            fehler.append("QUELLE: Hebel-Regel `%s` hat keine domaene schlaf/trinken/tag." % name)
         link = (r.get("link") or "").strip()
         if link and not re.match(r"^https?://\S+$", link):
             fehler.append("QUELLE: Regel `%s` hat keinen gueltigen Link: %r" % (name, link))
@@ -208,9 +320,15 @@ def pruefe_abdeckung(d):
     for name in d["halten"]:
         if name not in d["regeln"]:
             fehler.append("ABDECKUNG: Halte-Regel `%s` gibt es nicht." % name)
-    if len(d["fragen"]) > 10:
-        fehler.append("ABDECKUNG: %d Fragen — hoechstens zehn sind erlaubt."
+    if len(d["fragen"]) > 8:
+        fehler.append("ABDECKUNG: %d Fragen — hoechstens acht sind erlaubt (F1)."
                       % len(d["fragen"]))
+    for f in d["fragen"]:
+        if not f["optionen"]:
+            fehler.append("ABDECKUNG: Frage `%s` hat keine Antworten." % f["id"])
+        for o in f["optionen"]:
+            if not (o.get("text") or "").strip() or not (o.get("bezug") or "").strip():
+                fehler.append("ABDECKUNG: Frage `%s` hat eine Antwort ohne text/bezug." % f["id"])
     hinweise.append("  b) Abdeckung: %d Fragen, %d Regeln, alle verdrahtet"
                     % (len(d["fragen"]), len(d["regeln"])))
 
@@ -285,7 +403,7 @@ def pruefe_video(d):
             fehler.append("VIDEO: Eine Regel nennt `%s` — den Ordner gibt es in der "
                           "Pipeline nicht." % vid)
             continue
-        if os.path.isdir(ordner + ".verworfen"):
+        if os.path.isdir(ordner + ".verworfen") and vid not in VERWORFEN_GEPRUEFT:
             fehler.append("VIDEO: `%s` hat einen .verworfen-Ordner daneben — pruefen, "
                           "ob die Regel noch zum Video passt." % vid)
         if vid not in links:
@@ -337,7 +455,7 @@ def kurz(antworten, d):
 
 def pruefe_ausschluss(d):
     sweep = d.get("sweep")
-    if not sweep:
+    if not sweep or not sweep.get("zahl"):
         fehler.append("AUSSCHLUSS: Der Durchlauf aller Antwortmuster fehlt.")
         return
     for fall in sweep["ohneAusloeser"]:
@@ -352,6 +470,22 @@ def pruefe_ausschluss(d):
             "die beiden widersprechen sich. Antworten: %s"
             % (fall["paar"][0], fall["paar"][1], kurz(fall["antworten"], d))
         )
+    melde = [
+        ("pem", "`bewegungRegelmaessig` steht im Ergebnis, obwohl die Anstrengungs-Antwort (PEM) gewaehlt ist"),
+        ("haltenArzt", "HALTEN steht neben einer Arzt-Regel"),
+        ("zuViele", "mehr als drei Hebel oben"),
+        ("paar", "zuckerTief steht in den Top 3, pauseMachen aber nicht direkt dahinter"),
+        ("hartMail", "HARTES Warnzeichen, aber der Mail-Block steht oder der Kasten nicht oben"),
+        ("weichMail", "WEICHES oder kein Warnzeichen, aber der Mail-Block fehlt bzw. der Kasten steht oben"),
+    ]
+    for schluessel, was in melde:
+        for fall in sweep.get(schluessel, []):
+            fehler.append("AUSSCHLUSS: %s. Antworten: %s · Ergebnis: %s"
+                          % (was, kurz(fall["antworten"], d), ", ".join(fall["gezeigt"])))
+    for fall in sweep.get("teilen", []):
+        fehler.append("AUSSCHLUSS: Der Teilen-Text verraet eine Arzt-Regel oder den "
+                      "Arzt-Profil-Titel: „%s“ · Antworten: %s"
+                      % (fall["text"], kurz(fall["antworten"], d)))
     bedingt = []
     for f in d["fragen"]:
         for a in f["ausloeser"]:
@@ -374,38 +508,55 @@ def ohne_kommentare(js):
     return re.sub(r"(?m)^\s*//.*$", " ", ohne)
 
 
+def ds_abschnitt(ds, kopf):
+    """Text eines Abschnitts der Datenschutzerklaerung (bis zur naechsten <h2>)."""
+    i = ds.find(kopf)
+    if i < 0:
+        return None
+    j = ds.find("<h2>", i + len(kopf))
+    return ds[i:j if j > 0 else len(ds)]
+
+
 def pruefe_speicher():
     code = ohne_kommentare(lies(CHECK_JS))
-    schreibt = "setItem" in code
-    liest = "getItem" in code
-    nutzt = bool(re.search(r"localStorage|sessionStorage|indexedDB", code))
-    if schreibt and not liest:
-        fehler.append(
-            "SPEICHER: check.js schreibt in den Browser-Speicher (setItem), "
-            "liest ihn aber nie (kein getItem). Speichern ohne Zweck ist nach "
-            "§ 25 Abs. 2 Nr. 2 TDDDG nicht „unbedingt erforderlich“ — "
-            "entweder das Ergebnis beim Neuladen wiederherstellen oder das "
-            "Schreiben entfernen."
-        )
+    nutzt = bool(re.search(r"localStorage|sessionStorage|indexedDB|document\.cookie", code))
+    if nutzt:
+        fehler.append("SPEICHER: check.js legt etwas auf dem Geraet ab. Der Check "
+                      "speichert nichts (Produkt & Text 2, Zweig h bleibt).")
     if not os.path.exists(DATENSCHUTZ):
         fehler.append("SPEICHER: datenschutz.html fehlt.")
         return
-    ds = sichtbarer_text(lies(DATENSCHUTZ))
-    nennt = bool(re.search(r"localStorage|im lokalen Speicher", ds))
-    if nutzt and not nennt:
-        fehler.append("SPEICHER: check.js legt etwas auf dem Geraet ab, die "
-                      "Datenschutzerklaerung sagt davon nichts.")
-    if nennt and not nutzt:
-        fehler.append("SPEICHER: Die Datenschutzerklaerung beschreibt einen "
-                      "Browser-Speicher, den der Check gar nicht benutzt.")
-    schluessel = re.findall(r"ruhepuls-check-v\d+", ds)
-    for k in schluessel:
-        if k not in code:
-            fehler.append("SPEICHER: Die Datenschutzerklaerung nennt den "
-                          "Schluessel „%s“ — im Code steht er nicht." % k)
-    hinweise.append("  h) Speicher: check.js benutzt %s, Datenschutz sagt %s"
-                    % ("Browser-Speicher" if nutzt else "keinen Speicher",
-                       "dasselbe" if nennt == nutzt else "etwas anderes"))
+    ds = lies(DATENSCHUTZ)
+    vier = ds_abschnitt(ds, "<h2>4. Der Energie-Check</h2>")
+    viera = ds_abschnitt(ds, "<h2>4a. Die Energiekurve</h2>")
+    if vier is None:
+        fehler.append("SPEICHER: Datenschutz-Abschnitt „4. Der Energie-Check“ fehlt.")
+    elif re.search(r"localStorage|im lokalen Speicher", sichtbarer_text(vier)):
+        fehler.append("SPEICHER: Abschnitt 4 sagt, der Check speichere im Browser — "
+                      "der Check tut das nicht.")
+    if os.path.exists(KURVE_JS):
+        kc = ohne_kommentare(lies(KURVE_JS))
+        if "setItem" in kc and "getItem" not in kc:
+            fehler.append("SPEICHER: kurve.js schreibt (setItem), liest aber nie (getItem) "
+                          "— Speichern ohne Zweck ist nach § 25 Abs. 2 Nr. 2 TDDDG nicht "
+                          "„unbedingt erforderlich“.")
+        if KURVE_SCHLUESSEL not in kc:
+            fehler.append("SPEICHER: kurve.js benutzt nicht den Schluessel %s." % KURVE_SCHLUESSEL)
+        if re.search(r"sessionStorage|indexedDB|document\.cookie", kc):
+            fehler.append("SPEICHER: kurve.js benutzt einen anderen Speicher als localStorage.")
+        if viera is None:
+            fehler.append("SPEICHER: Die Kurve speichert im Browser, die Datenschutzerklaerung "
+                          "hat keinen Abschnitt „4a. Die Energiekurve“.")
+        else:
+            t = sichtbarer_text(viera)
+            if "localStorage" not in t:
+                fehler.append("SPEICHER: Abschnitt 4a nennt den localStorage nicht.")
+            if "kurve" not in t.lower():
+                fehler.append("SPEICHER: Abschnitt 4a nennt die Seite /kurve/ nicht.")
+    elif viera is not None:
+        fehler.append("SPEICHER: Abschnitt 4a beschreibt eine Kurve, die es nicht gibt.")
+    hinweise.append("  h) Speicher: Check speichert nichts, Kurve schreibt+liest %s, "
+                    "Datenschutz 4/4a passt" % KURVE_SCHLUESSEL)
 
 
 # ------------------------------------------------------- i) VERSPRECHEN
@@ -431,8 +582,9 @@ def pruefe_versprechen(html):
     if start < 0:
         fehler.append('VERSPRECHEN: Der Mail-Block (class="mailblock") fehlt.')
         return
-    ende = html.find('class="hinweis"', start)
-    block = sichtbarer_text(html[start:ende if ende > 0 else len(html)], True)
+    ende = html.find('id="keinMailblock"', start)
+    ende = html.rfind("<", 0, ende) if ende > 0 else len(html)
+    block = sichtbarer_text(html[start:ende], True)
     block = re.sub(r"[ \t\r\n]+", " ", block)
     for muster, was in VERSPRECHEN_VERBOTEN:
         treffer = re.search(muster, block, re.I)
@@ -442,7 +594,7 @@ def pruefe_versprechen(html):
                 "Antworten werden nie uebertragen. Stelle: ...%s..."
                 % (was, treffer.group(0))
             )
-    if not re.search(r"nicht schicken|nicht zusenden|nicht mitschicken", block, re.I):
+    if not re.search(r"nicht schicken|nicht zusenden|nicht mitschicken|Antworten gehen nicht mit", block, re.I):
         fehler.append(
             "VERSPRECHEN: Im Mail-Block fehlt der ehrliche Satz, dass das "
             "Ergebnis NICHT mitgeschickt werden kann. Ohne ihn liest sich die "
@@ -450,7 +602,7 @@ def pruefe_versprechen(html):
         )
     if os.path.exists(DATENSCHUTZ):
         ds = re.sub(r"[ \t\r\n]+", " ", sichtbarer_text(lies(DATENSCHUTZ), True))
-        if re.search(r"Ergebnis des Schlaf-Checks[^.¶]{0,60}zuzusenden", ds, re.I):
+        if re.search(r"Ergebnis des (?:Schlaf|Energie)-Checks[^.¶]{0,60}zuzusenden", ds, re.I):
             fehler.append("VERSPRECHEN: Die Datenschutzerklaerung nennt als "
                           "Zweck das Zusenden des Ergebnisses.")
     hinweise.append("  i) Versprechen: Mail-Block haelt, was er sagt; kein "
@@ -496,6 +648,177 @@ def pruefe_mail(html):
                     "kein fremdes Skript")
 
 
+# ------------------------------------------------------------- k) KURVE
+def pruefe_kurve():
+    for pfad in (KURVE_HTML, KURVE_JS):
+        if not os.path.exists(pfad):
+            fehler.append("KURVE: %s fehlt." % os.path.relpath(pfad, HIER))
+            return
+    html = lies(KURVE_HTML)
+    code = ohne_kommentare(lies(KURVE_JS))
+    for ruf in ("fetch(", "XMLHttpRequest", "sendBeacon", "WebSocket", "EventSource",
+                "import(", "new Image", "navigator.geolocation", "window.open"):
+        if ruf in code:
+            fehler.append("KURVE: kurve.js enthaelt `%s` — nichts darf das Geraet verlassen." % ruf)
+    urls = [u for u in re.findall(r"https?://[^\s\"')]+", code)
+            if not u.startswith("http://www.w3.org/2000/svg")]
+    if urls:
+        fehler.append("KURVE: kurve.js nennt eine Adresse im Netz: %s" % ", ".join(urls))
+    ohne = re.sub(r"<!--.*?-->", " ", html, flags=re.S)
+    fremd = re.findall(r'<(?:script|link|img|iframe)[^>]+(?:src|href)="(https?:[^"]+)"', ohne, re.I)
+    if fremd:
+        fehler.append("KURVE: kurve/index.html laedt etwas von aussen: %s" % ", ".join(fremd))
+    if re.search(r"<form[^>]+action=", ohne, re.I):
+        fehler.append("KURVE: kurve/index.html hat ein Formular mit action — nichts wird gesendet.")
+    skripte = re.findall(r'<script[^>]*src="([^"]+)"', ohne, re.I)
+    if skripte != ["kurve.js"]:
+        fehler.append("KURVE: Erwartet genau ein Skript kurve.js, gefunden: %s" % skripte)
+    # jeder Speicherzugriff in try/catch
+    for m in re.finditer(r"localStorage\.", code):
+        davor = code[:m.start()]
+        t = davor.rfind("try {")
+        c = davor.rfind("catch")
+        if t < 0 or c > t:
+            zeile = davor.count("\n") + 1
+            fehler.append("KURVE: Speicherzugriff ohne try/catch (kurve.js, etwa Zeile %d)." % zeile)
+    sichtbar = re.sub(r"\s+", " ", sichtbarer_text(html))
+    if not (re.search(r"Safari", sichtbar) and re.search(r"Chrome", sichtbar)
+            and re.search(r"Lesezeichen", sichtbar)):
+        fehler.append("KURVE: Der Hinweis aus T2 fehlt (in Safari/Chrome öffnen + Lesezeichen setzen).")
+    hinweise.append("  k) Kurve: kein Netzaufruf, kein fremdes Skript, Speicher nur in "
+                    "try/catch, T2-Hinweis steht")
+
+
+# ------------------------------------------------------- l) WARNZEICHEN
+def pruefe_warnzeichen(d):
+    wf = [f for f in d["fragen"] if f["id"] == "warnzeichen"]
+    if not wf:
+        fehler.append("WARNZEICHEN: Die Frage `warnzeichen` fehlt.")
+        return
+    wf = wf[0]
+    liste = wf.get("zusatzListe") or []
+    if not liste:
+        fehler.append("WARNZEICHEN: Frage 8 hat keine Liste (zusatzListe).")
+    for p in liste:
+        if not isinstance(p, dict) or not isinstance(p.get("hart"), bool) or not p.get("text"):
+            fehler.append("WARNZEICHEN: Listenpunkt ohne text oder ohne hart: true/false: %r" % (p,))
+    irgendein_hart = any(isinstance(p, dict) and p.get("hart") is True for p in liste)
+    for i, o in enumerate(wf["optionen"]):
+        if o["wert"] == 0:
+            continue
+        if not isinstance(o.get("hart"), bool):
+            fehler.append("WARNZEICHEN: Antwort %d „%s“ ist weder hart noch weich." % (i, o["text"]))
+        if o.get("liste") and irgendein_hart and o.get("hart") is not True:
+            fehler.append("WARNZEICHEN: Antwort %d „%s“ schliesst harte Listenpunkte ein, ist "
+                          "aber weich. Im Zweifel hart (T1)." % (i, o["text"]))
+    w = d.get("weich")
+    if not w:
+        fehler.append("WARNZEICHEN: Der Probelauf mit einer weichen Antwort fehlt.")
+    else:
+        m, o = w["mitHebeln"], w["ohneHebel"]
+        if m["warnOben"] or not m["zeigeMailblock"] or "arztKasten" not in m["arzt"]:
+            fehler.append("WARNZEICHEN: Weiches Warnzeichen mit Hebeln — erwartet Kasten unten, "
+                          "Mail-Block da, arztKasten im Kasten; bekommen: %s" % m)
+        if o["warnOben"] or not o["zeigeMailblock"] or o["profil"] != "nurArzt":
+            fehler.append("WARNZEICHEN: Weiches Warnzeichen ohne Hebel — erwartet Profil nurArzt, "
+                          "Kasten unten, Mail-Block da; bekommen: %s" % o)
+    harte = sum(1 for p in liste if isinstance(p, dict) and p.get("hart") is True)
+    hinweise.append("  l) Warnzeichen: %d hart, %d weich; Probelauf weich: Mail-Block bleibt"
+                    % (harte, len(liste) - harte))
+
+
+# ----------------------------------------------------------- m) PROFILE
+MUSTER_ERWARTET = {
+    # Fach 4.7 (von Hand durchgespielt), hier gegen die echte Auswertung
+    "A": {"profil": "schlaf", "hebel": ["schlafDauer", "bewegungRegelmaessig", "koffeinAbstand"],
+          "ausserdem": ["alkoholEnergie", "zuckerTief", "pauseMachen"], "arzt": ["vierWochen"],
+          "warnOben": False, "zeigeMailblock": True, "halten": False},
+    "B": {"profil": "schlaf", "hebel": ["stehAuf", "kvti"], "ausserdem": [],
+          "arzt": ["vierWochen"], "warnOben": False, "zeigeMailblock": True, "halten": False},
+    "C": {"profil": "nurArzt", "hebel": [], "ausserdem": [], "arzt": ["muedeTrotzSchlaf"],
+          "warnOben": False, "zeigeMailblock": False, "halten": False},
+    "D": {"profil": "nurArztWarn", "hebel": [], "ausserdem": [], "arzt": ["pemKasten"],
+          "warnOben": True, "zeigeMailblock": False, "halten": False},
+    "E": {"profil": "unauffaellig", "hebel": ["bewegungRegelmaessig", "festeAufstehzeit"],
+          "ausserdem": [], "arzt": [], "warnOben": False, "zeigeMailblock": True, "halten": True},
+    "F": {"profil": "schlaf", "hebel": ["schlafDauer", "bewegungRegelmaessig", "koffeinAbstand"],
+          "ausserdem": ["alkoholEnergie", "zuckerTief", "pauseMachen"], "arzt": ["arztKasten"],
+          "warnOben": True, "zeigeMailblock": False, "halten": False},
+}
+
+
+def pruefe_profile(d):
+    ist = d.get("muster") or {}
+    for k, soll in sorted(MUSTER_ERWARTET.items()):
+        e = ist.get(k)
+        if not e:
+            fehler.append("PROFILE: Muster %s wurde nicht durchgespielt." % k)
+            continue
+        abw = ["%s: soll %s, ist %s" % (f, soll[f], e.get(f)) for f in soll if e.get(f) != soll[f]]
+        if abw:
+            fehler.append("PROFILE: Muster %s (Fach 4.7) weicht ab — %s" % (k, "; ".join(abw)))
+    hinweise.append("  m) Profile: Muster A–F aus Fach 4.7 durchgespielt")
+
+
+# ------------------------------------------------------------- n) WORTE
+WORT = re.compile(r"[0-9A-Za-zÄÖÜäöüß]+(?:[-'’][0-9A-Za-zÄÖÜäöüß]+)*")
+
+
+def mailblock_woerter(html):
+    start = html.find('id="mailblock"')
+    if start < 0:
+        return None
+    start = html.rfind("<div", 0, start)
+    ende = html.find('id="keinMailblock"', start)
+    ende = html.rfind("<", 0, ende) if ende > 0 else len(html)
+    block = html[start:ende]
+    block = re.sub(r"<!--.*?-->", " ", block, flags=re.S)
+    # nicht gezaehlt (1.4 [D]): unsichtbare Feldbeschriftung, Fehlertext, Danke-Feld
+    block = re.sub(r'<label class="sr-only".*?</label>', " ", block, flags=re.S)
+    block = re.sub(r'<p[^>]*id="mailFehler".*?</p>', " ", block, flags=re.S)
+    block = re.sub(r'<div[^>]*id="mailDanke".*?</div>', " ", block, flags=re.S)
+    return len(WORT.findall(sichtbarer_text(block)))
+
+
+def pruefe_worte(d, html):
+    n = mailblock_woerter(html)
+    if n is None:
+        fehler.append('WORTE: Der Mail-Block (id="mailblock") fehlt.')
+    elif n > MAILBLOCK_MAX:
+        fehler.append("WORTE: Der Mail-Block hat %d Woerter, erlaubt sind %d." % (n, MAILBLOCK_MAX))
+    quellen = [("check/index.html", sichtbarer_text(html))]
+    if d:
+        texte = []
+        for r in d["regeln"].values():
+            texte += [r["titel"], r["tipp"]]
+        for f in d["fragen"]:
+            texte += [f["text"], f.get("zusatz") or ""]
+            texte += [p.get("text", "") for p in f.get("zusatzListe") or [] if isinstance(p, dict)]
+            for o in f["optionen"]:
+                texte += [o["text"], o["bezug"]]
+        quellen.append(("check/regeln.js", " ".join(texte)))
+        prof = lies(REGELN_JS)
+        quellen.append(("check/regeln.js (Profile/Teilen)",
+                        " ".join(re.findall(r'(?:titel|satz): "([^"]+)"', prof) +
+                                 re.findall(r'return "([^"]+)"', prof))))
+    for pfad in [KURVE_HTML] + DANKE:
+        if os.path.exists(pfad):
+            quellen.append((os.path.relpath(pfad, HIER), sichtbarer_text(lies(pfad))))
+    if os.path.exists(KURVE_JS):
+        quellen.append(("kurve/kurve.js", " ".join(re.findall(r'"([^"]{12,})"', lies(KURVE_JS)))))
+    for wo, text in quellen:
+        klein = re.sub(r"\s+", " ", text.lower())
+        for erlaubt in ERLAUBTE_STELLEN:
+            klein = klein.replace(erlaubt, " ")
+        for wort in VERBOTEN_WIRK:
+            i = klein.find(wort)
+            if i >= 0:
+                fehler.append('WORTE: Wirkversprechen "%s" in %s — ...%s...'
+                              % (wort, wo, klein[max(0, i - 60):i + 60]))
+    hinweise.append("  n) Worte: Mail-Block %s Woerter (hoechstens %d), keine Wirkversprechen "
+                    "in %d Texten" % (n, MAILBLOCK_MAX, len(quellen)))
+
+
 def main():
     for pfad in (REGELN_JS, CHECK_JS, HTML):
         if not os.path.exists(pfad):
@@ -511,12 +834,15 @@ def main():
         pruefe_ergebnis(d)
         pruefe_ausschluss(d)
         pruefe_video(d)
+        pruefe_warnzeichen(d)
+        pruefe_profile(d)
         texte = []
         for r in d["regeln"].values():
             texte.append(r["titel"])
             texte.append(r["tipp"])
         for f in d["fragen"]:
             texte.append(f["text"])
+            texte += [p.get("text", "") for p in f.get("zusatzListe") or [] if isinstance(p, dict)]
             for o in f["optionen"]:
                 texte.append(o["text"])
                 texte.append("Du hast gesagt: " + o["bezug"] + ".")
@@ -524,21 +850,25 @@ def main():
 
     pruefe_reihenfolge(html)
     pruefe_ton(sichtbarer_text(html), "check/index.html")
+    if os.path.exists(KURVE_HTML):
+        pruefe_ton(sichtbarer_text(lies(KURVE_HTML)), "kurve/index.html")
     pruefe_speicher()
     pruefe_versprechen(html)
     pruefe_mail(html)
+    pruefe_kurve()
+    pruefe_worte(d, html)
 
-    print("Schlaf-Check — Pruefung")
+    print("Energie-Check — Pruefung")
     for z in hinweise:
         print(z)
     if fehler:
         print("\nROT — %d Punkt(e):" % len(fehler))
         for f in fehler:
             print("  - %s" % f)
-        print("\nROT: Der Schlaf-Check ist nicht abnahmefaehig.")
+        print("\nROT: Der Energie-Check ist nicht abnahmefaehig.")
         return 1
-    print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, "
-          "Ausschluss, Speicher, Versprechen und Mail stimmen.")
+    print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, Ausschluss, "
+          "Speicher, Versprechen, Mail, Kurve, Warnzeichen, Profile und Worte stimmen.")
     return 0
 
 

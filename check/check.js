@@ -1,14 +1,14 @@
-/* Schlaf-Check — Anzeige und Ablauf.
+/* Energie-Check — Anzeige und Ablauf.
    Alles laeuft im Browser. Kein Server, kein Tracking, keine Cookies.
    Es wird auch nichts auf dem Geraet gespeichert: kein localStorage, kein
-   sessionStorage. Ein Neuladen faengt neu an. Wer speichern will, muss die
-   Antworten auch wieder einlesen — sonst ist die Speicherung zwecklos und
-   nach § 25 TDDDG nicht "unbedingt erforderlich". Geprueft: Zweig h) in
+   sessionStorage. Ein Neuladen faengt neu an. Geprueft: Zweig h) in
    scripts/pruefe-check.py.
 
-   Fragen, Regeln und Auswertung stehen in regeln.js.
+   Fragen, Regeln, Auswertung und Teilen-Text stehen in regeln.js.
    Die Video-Links stehen in videolinks.js und werden von
    scripts/baue-videolinks.py aus der Pipeline erzeugt.
+   Ablauf des Ergebnisses: Produkt & Text 1.4 [A]–[L].
+   Texte aus Daten nur per textContent, nie per innerHTML.
 */
 (function () {
   "use strict";
@@ -21,9 +21,18 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var zeig = function (el, an) { el.classList[an ? "remove" : "add"]("weg"); };
+  var leere = function (el) { while (el.firstChild) { el.removeChild(el.firstChild); } };
+
+  function el(tag, klasse, text) {
+    var e = document.createElement(tag);
+    if (klasse) { e.className = klasse; }
+    if (text != null) { e.textContent = text; }
+    return e;
+  }
 
   function starte() {
     antworten = {}; schritt = 0; letztesErgebnis = null;
+    $("teilenStatus").textContent = "";
     zeig($("start"), false); zeig($("ergebnis"), false); zeig($("fragen"), true);
     male();
     window.scrollTo(0, 0);
@@ -35,13 +44,20 @@
     $("balken").style.width = Math.round((schritt / FRAGEN.length) * 100) + "%";
     $("fragetext").textContent = f.text;
     $("fragezusatz").textContent = f.zusatz || "";
+    zeig($("fragezusatz"), !!f.zusatz);
+
+    var liste = $("fragezusatzListe");
+    leere(liste);
+    (f.zusatzListe || []).forEach(function (p) {
+      liste.appendChild(el("li", null, p.text));
+    });
+    zeig(liste, !!(f.zusatzListe && f.zusatzListe.length));
+
     var box = $("antworten");
-    box.innerHTML = "";
+    leere(box);
     f.optionen.forEach(function (o, i) {
-      var b = document.createElement("button");
+      var b = el("button", "antwort", o.text);
       b.type = "button";
-      b.className = "antwort";
-      b.textContent = o.text;
       b.addEventListener("click", function () { antworten[f.id] = i; weiter(); });
       box.appendChild(b);
     });
@@ -50,89 +66,129 @@
 
   function weiter() {
     schritt++;
-    if (schritt >= FRAGEN.length) { auswerten(); }
+    if (schritt >= FRAGEN.length) { zeigeErgebnis(R.werteAus(antworten)); }
     else { male(); window.scrollTo(0, 0); }
   }
 
-  function auswerten() {
-    zeigeErgebnis(R.werteAus(antworten));
-  }
-
-  /* Baut die Zeile mit den Video-Links — oder den Satz, dass keins da ist. */
-  function videoZeile(regel) {
-    var p = document.createElement("p");
-    p.className = "videos";
+  /* Zeile mit den Video-Links — oder der Satz, dass keins da ist.
+     Im Arzt-Kasten nur, wenn es wirklich ein Video gibt. */
+  function videoZeile(regel, stillWennKeins) {
     var v = regel.video ? V.videos[regel.video] : null;
     if (!v || (!v.tiktok && !v.youtube)) {
-      p.className = "videos kein";
-      p.textContent = "Video dazu folgt.";
-      return p;
+      return stillWennKeins ? null : el("p", "videos kein", "Video dazu folgt.");
     }
+    var p = el("p", "videos");
     p.appendChild(document.createTextNode("Video dazu: "));
     var links = [];
     if (v.tiktok) { links.push(["auf TikTok", v.tiktok]); }
     if (v.youtube) { links.push(["auf YouTube", v.youtube]); }
     links.forEach(function (l, i) {
       if (i) { p.appendChild(document.createTextNode(" · ")); }
-      var a = document.createElement("a");
+      var a = el("a", null, l[0] + " →");
       a.href = l[1]; a.target = "_blank"; a.rel = "noopener";
-      a.textContent = l[0] + " →";
       p.appendChild(a);
     });
     return p;
   }
 
+  /* Eine Karte: Titel, „Du hast gesagt“, Tipp, Quelle, Genaue Stelle, Video.
+     titel === null: ohne Ueberschrift (fuer „Außerdem“, dort steht der
+     Titel im <summary>). */
+  function karte(t, titel, anker, arzt) {
+    var r = t.regel;
+    var d = el("div", "regel");
+    if (anker) { d.id = anker; }
+    if (titel !== null) { d.appendChild(el("h3", null, titel)); }
+
+    d.appendChild(el("p", "bezug", t.halten
+      ? "Das läuft bei dir schon. Hier geht es ums Halten."
+      : "Du hast gesagt: " + t.bezug + "."));
+
+    d.appendChild(el("p", "tipp", r.tipp));
+
+    var q = el("p", "studie");
+    q.appendChild(document.createTextNode("Quelle: "));
+    var a = el("a", null, r.kurz + " ↗");
+    a.href = r.link; a.target = "_blank"; a.rel = "noopener";
+    q.appendChild(a);
+    d.appendChild(q);
+
+    var det = el("details", "stelle");
+    det.appendChild(el("summary", null, "Genaue Stelle"));
+    det.appendChild(el("p", null, r.quelle));
+    d.appendChild(det);
+
+    var v = videoZeile(r, arzt);
+    if (v) { d.appendChild(v); }
+    return d;
+  }
+
   function zeigeErgebnis(e) {
     letztesErgebnis = e;
+    var fluss = $("fluss");
+    var nurArzt = e.profil === "nurArzt" || e.profil === "nurArztWarn";
+    var arztUnten = e.arzt.length > 0 && !e.warnOben;
+
+    /* [B] */
     $("ergebnisTitel").textContent = e.titel;
     $("ergebnisSatz").textContent = e.satz;
 
-    var box = $("regeln");
-    box.innerHTML = "";
-    e.treffer.forEach(function (t, i) {
-      var r = t.regel;
-      var d = document.createElement("div");
-      d.className = "regel";
+    /* [A] / [H] Arzt-Karten */
+    var ziel = e.warnOben ? $("warnObenKarten") : $("arztUntenKarten");
+    leere($("warnObenKarten")); leere($("arztUntenKarten"));
+    e.arzt.forEach(function (t) { ziel.appendChild(karte(t, t.regel.titel, null, true)); });
 
-      var h = document.createElement("h3");
-      h.textContent = (i + 1) + ". " + r.titel;
-      d.appendChild(h);
-
-      var bezug = document.createElement("p");
-      bezug.className = "bezug";
-      bezug.textContent = t.bezug
-        ? "Du hast gesagt: " + t.bezug + "."
-        : "Die Regel hält, was bei dir schon gut läuft.";
-      d.appendChild(bezug);
-
-      var tipp = document.createElement("p");
-      tipp.className = "tipp";
-      tipp.textContent = r.tipp;
-      d.appendChild(tipp);
-
-      var q = document.createElement("p");
-      q.className = "studie";
-      q.appendChild(document.createTextNode("Quelle: "));
-      var a = document.createElement("a");
-      a.href = r.link; a.target = "_blank"; a.rel = "noopener";
-      a.textContent = r.quelle;
-      q.appendChild(a);
-      d.appendChild(q);
-
-      d.appendChild(videoZeile(r));
-      box.appendChild(d);
+    /* [C] Kurzliste + [F] Karten */
+    var ol = $("hebelListeOl"), karten = $("hebelKartenListe");
+    leere(ol); leere(karten);
+    e.hebel.forEach(function (t, i) {
+      var anker = "hebel-" + (i + 1);
+      karten.appendChild(karte(t, (i + 1) + ". " + t.regel.titel, anker, false));
+      var li = el("li");
+      var a = el("a", null, t.regel.titel);
+      a.href = "#" + anker;
+      li.appendChild(a);
+      ol.appendChild(li);
     });
+
+    /* [G] Außerdem */
+    var aus = $("ausserdemListe");
+    leere(aus);
+    e.ausserdem.forEach(function (t) {
+      var det = el("details", "ausserdem-regel");
+      det.appendChild(el("summary", null, t.regel.titel));
+      det.appendChild(karte(t, null, null, false));
+      aus.appendChild(det);
+    });
+
+    /* Reihenfolge je Fall (1.4 und „Sonderfälle der Reihenfolge“) */
+    var mail = e.zeigeMailblock ? "mailblock" : "keinMailblock";
+    var folge;
+    if (e.halten) {
+      folge = ["profil", "hebelKarten", mail];
+    } else if (nurArzt) {
+      folge = e.warnOben ? ["warnOben", "profil", mail]
+                         : ["profil", "arztUnten", mail];
+    } else {
+      folge = [];
+      if (e.warnOben) { folge.push("warnOben"); }
+      folge.push("profil", "hebelListe", mail, "hebelKarten");
+      if (e.ausserdem.length) { folge.push("ausserdem"); }
+      if (arztUnten) { folge.push("arztUnten"); }
+      if (e.zeigeMailblock) { folge.push("zumMailblock"); }
+    }
+    ["warnOben", "profil", "hebelListe", "mailblock", "keinMailblock",
+     "hebelKarten", "ausserdem", "arztUnten", "zumMailblock"].forEach(function (id) {
+      zeig($(id), folge.indexOf(id) >= 0);
+    });
+    folge.forEach(function (id) { fluss.appendChild($(id)); });
+
+    /* [E] Hinweissatz: Hebel da UND Arzt-Kasten unten */
+    zeig($("hinweisUnten"), !e.halten && e.hebel.length > 0 && arztUnten);
 
     $("balken").style.width = "100%";
     zeig($("fragen"), false); zeig($("ergebnis"), true);
     window.scrollTo(0, 0);
-  }
-
-  function teilText() {
-    if (!letztesErgebnis) { return ort(); }
-    var titel = letztesErgebnis.treffer.map(function (t) { return t.regel.titel; });
-    return "Mein Ergebnis beim Schlaf-Check von Ruhepuls: " +
-      titel.join(" · ") + ". Zehn Fragen, zwei Minuten: " + ort();
   }
 
   function ort() {
@@ -148,16 +204,16 @@
     });
     $("teilen").addEventListener("click", function () {
       var status = $("teilenStatus");
-      var text = teilText();
+      var text = R.teilText(letztesErgebnis, ort());
       if (navigator.share) {
-        navigator.share({ title: "Schlaf-Check von Ruhepuls", text: text, url: ort() })
+        navigator.share({ title: "Energie-Check von Ruhepuls", text: text, url: ort() })
           .catch(function () {});
         return;
       }
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(
           function () { status.textContent = "Link und Ergebnis kopiert."; },
-          function () { status.textContent = "Kopieren hat nicht geklappt — der Link steht oben in der Adresszeile."; }
+          function () { status.textContent = "Kopieren hat nicht geklappt, der Link steht oben in der Adresszeile."; }
         );
       } else {
         status.textContent = "Der Link steht oben in der Adresszeile.";

@@ -1,75 +1,124 @@
 <!doctype html><html lang="de" class="check"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Schlaf-Check — Ruhepuls</title>
-<meta name="description" content="Zehn Fragen, zwei bis drei Minuten: Was an deinen Nächten auffällt — und zu jeder Antwort eine Regel mit der Studie dahinter, verlinkt.">
+<title>Energie-Check: Warum bist du so oft müde? · Ruhepuls</title>
+<meta name="description" content="Acht Fragen, unter zwei Minuten: Was in deinem Alltag mit Müdigkeit zusammenhängen kann und was du selbst ändern kannst. Zu jedem Punkt die Studie, verlinkt.">
 <link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="check.css">
 <meta name="robots" content="index,follow"></head><body><main>
+<!-- Texte: „(C) Abteilung Produkt & Text — Energie-Check, 7 Tage, Tag-7-Angebot
+     (24.09.2026)“, Abschnitt 1, woertlich. Ablauf des Ergebnisses: 1.4 [A]–[L].
+     Die Reihenfolge der Ergebnis-Bausteine setzt check.js je nach Fall. -->
 
 <!-- ===== 1. Start ===== -->
 <section id="start">
-  <h1>Der Schlaf-Check</h1>
-  <p class="lead">Zehn Fragen, zwei bis drei Minuten. Danach siehst du, was an deinen Nächten auffällt — und die Regeln dazu. Hinter jeder steht die Studie, verlinkt zum Nachlesen.</p>
-  <p class="small">Die ersten fünf Fragen folgen dem, wonach die deutsche Schlaf-Leitlinie im Arztgespräch fragen lässt. Die letzten zwei fragen nach Warnzeichen, die man nicht übersehen sollte. Keine Anmeldung, keine Cookies, kein Tracking. Deine Antworten bleiben in deinem Browser.</p>
+  <h1>Warum bist du so oft müde?</h1>
+  <p class="lead">Acht Fragen, unter zwei Minuten. Danach siehst du, was in deinem Alltag mit Müdigkeit zusammenhängen kann und was du selbst ändern kannst. Zu jedem Punkt steht die Studie, verlinkt zum Nachlesen.</p>
+  <p class="small">Die meisten Fragen folgen dem, wonach die Leitlinie der Hausärzte bei Müdigkeit fragen lässt. Keine Anmeldung, keine Cookies, kein Tracking. Deine Antworten bleiben in deinem Browser.</p>
+  <p class="small">Die letzte Frage fragt nach Warnzeichen. Trifft eins zu, steht der Hinweis dazu ganz oben in deinem Ergebnis.</p>
   <button class="btn" id="losgehts" type="button">Check starten</button>
 </section>
 
 <!-- ===== 2. Fragen ===== -->
 <section id="fragen" class="weg">
   <div class="fortschritt"><i id="balken"></i></div>
-  <p class="zaehler" id="zaehler">Frage 1 von 10</p>
+  <p class="zaehler" id="zaehler">Frage 1 von 8</p>
   <p class="frage" id="fragetext"></p>
   <p class="zusatz" id="fragezusatz"></p>
+  <ul class="zusatzliste weg" id="fragezusatzListe"></ul>
   <div class="antworten" id="antworten"></div>
   <div class="navi">
     <button class="link weg" id="zurueck" type="button">Zurück</button>
   </div>
 </section>
 
-<!-- ===== 3. Ergebnis — steht IMMER vor dem E-Mail-Block ===== -->
+<!-- ===== 3. Ergebnis — steht IMMER vor dem E-Mail-Block im DOM ===== -->
 <section id="ergebnis" class="weg">
-  <p class="zaehler">Dein Ergebnis</p>
-  <div class="muster">
-    <h2 id="ergebnisTitel"></h2>
-    <p id="ergebnisSatz"></p>
-    <div id="regeln"></div>
+  <div id="fluss">
+
+  <!-- [A] Warn-Kasten oben: nur bei hartem Warnzeichen -->
+  <div class="arztkasten weg" id="warnOben">
+    <h2>Zuerst das hier</h2>
+    <div id="warnObenKarten"></div>
   </div>
 
+  <!-- [B] Profil -->
+  <div class="muster" id="profil">
+    <p class="zaehler">Dein Ergebnis</p>
+    <h2 id="ergebnisTitel"></h2>
+    <p id="ergebnisSatz"></p>
+  </div>
+
+  <!-- [C] Kurzliste -->
+  <div class="weg" id="hebelListe">
+    <h2>Deine größten Hebel</h2>
+    <p class="small">Hebel heißt hier: etwas, das du selbst ändern kannst und das in Studien mit Schlaf oder Müdigkeit zusammenhängt.</p>
+    <ol id="hebelListeOl"></ol>
+  </div>
+
+  <!-- [D] Mail-Block, hoechstens 60 Woerter (pruefe-check.py) -->
+  <div class="mailblock" id="mailblock">
+    <h2>Deine Energiekurve – 7 Tage</h2>
+    <p class="lead">Sieben Abende lang eine kurze Mail mit einem Hebel. Du trägst in einer Minute ein, wie dein Tag war. Am Tag 7 siehst du deine Kurve.</p>
+    <!-- MAILERLITE_FORM -->
+    <!-- MailerLite-Formular (Form 199491451928708547, Double-Opt-in).
+         Bewusst OHNE MailerLites eigene Skripte und Zaehlaufrufe: Beim Laden der Seite
+         geht nichts an MailerLite. Erst der Klick auf den Button schickt die Adresse — siehe mail.js.
+         OFFEN (Liam, MailerLite): Das Formular haengt noch an der Gruppe „Ruhepuls – 7 Naechte“.
+         Fuer „Deine Energiekurve – 7 Tage“ braucht es die neue Gruppe/Automation; dann hier die
+         Formular-ID tauschen (Produkt & Text 5.1). -->
+    <form id="mailForm" class="mailform" action="https://assets.mailerlite.com/jsonp/2657658/forms/199491451928708547/subscribe" method="post" target="_blank">
+      <label class="sr-only" for="mailFeld">Deine Mailadresse</label>
+      <input id="mailFeld" type="email" name="fields[email]" required autocomplete="email" placeholder="deine@mailadresse.de">
+      <input type="hidden" name="ml-submit" value="1">
+      <input type="hidden" name="anticsrf" value="true">
+      <button class="btn" type="submit">Kostenlos mitmachen</button>
+      <p class="small">Danach kommt eine Bestätigungsmail auf Englisch. Ein Klick darin startet Tag 1.</p>
+      <p class="small weg" id="mailFehler" role="alert">Das hat nicht geklappt. Prüf die Adresse und versuch es noch einmal.</p>
+    </form>
+    <div class="weg" id="mailDanke" aria-live="polite">
+      <h3>Fast geschafft</h3>
+      <p>Schau in dein Postfach und bestätige deine Adresse. Die Mail kommt auf Englisch („Confirm your email address“), ein Klick auf den Knopf reicht. Danach kommt sofort Tag 1. Keine Mail da? Sieh im Spam-Ordner nach.</p>
+      <p>Die sieben Mails sind für alle gleich. Dein Ergebnis bleibt in deinem Browser, ich sehe es nicht. Ich sehe, ob Links in den Mails angeklickt werden, nicht, ob du sie öffnest.</p>
+    </div>
+    <p class="small">Deine Antworten gehen nicht mit. Später auch Mails zu eigenen Angeboten. Abmelden mit einem Klick. <a href="../datenschutz.html">Datenschutz</a></p>
+  </div>
+
+  <!-- [D'] statt des Mail-Blocks: hartes Warnzeichen oder muedeTrotzSchlaf -->
+  <p class="ersatz weg" id="keinMailblock">Die 7 Tage biete ich dir hier bewusst nicht an. Sie sind für Müdigkeit aus Alltagsgewohnheiten gebaut, und bei dir gehört ein Punkt zuerst in die Praxis. Den Check kannst du jederzeit noch einmal machen.</p>
+
+  <!-- [E] + [F] Hebel-Karten -->
+  <div class="weg" id="hebelKarten">
+    <h2>So sieht es im Einzelnen aus</h2>
+    <p class="hinweissatz weg" id="hinweisUnten">Ganz unten steht ein Punkt, den du nicht überspringen solltest.</p>
+    <div id="hebelKartenListe"></div>
+  </div>
+
+  <!-- [G] Außerdem aufgefallen -->
+  <div class="weg" id="ausserdem">
+    <h2>Außerdem aufgefallen</h2>
+    <p class="small">Diese Punkte haben weniger Gewicht. Tipp auf einen Titel, dann klappt er auf.</p>
+    <div id="ausserdemListe"></div>
+  </div>
+
+  <!-- [H] Arzt-Kasten unten -->
+  <div class="arztkasten weg" id="arztUnten">
+    <h2>Für die Hausarztpraxis</h2>
+    <div id="arztUntenKarten"></div>
+  </div>
+
+  <!-- [I] zurueck zum Mail-Block -->
+  <p class="weg" id="zumMailblock"><a href="#mailblock">Deine Energiekurve – 7 Tage: nach oben zum Eintragen ↑</a></p>
+
+  </div>
+
+  <!-- [J] Teilen · Noch einmal -->
   <div class="teilen">
     <button class="btn sekundaer" id="teilen" type="button">Ergebnis teilen</button>
     <button class="btn sekundaer" id="nochmal" type="button">Noch einmal</button>
   </div>
   <p class="small" id="teilenStatus" aria-live="polite"></p>
 
-  <!-- ===== 4. E-Mail — bewusst NACH dem vollständigen Ergebnis ===== -->
-  <div class="mailblock">
-    <h2>Die 7 Nächte</h2>
-    <p class="lead">Wissen allein ändert keine Nacht. Deshalb kommt sieben Abende lang um 20 Uhr eine kurze Mail: eine Regel aus der deutschen Schlaf-Leitlinie — und was du genau heute Abend damit machst.</p>
-    <ul class="naechte">
-      <li><b>Nacht 1–4:</b> die vier Regeln, die in der Leitlinie für alle gelten — Aufstehzeit, Koffein, Bett, die 15-Minuten-Regel.</li>
-      <li><b>Nacht 5–6:</b> was du tust, wenn der Kopf nicht aufhört — und was dem Einschlafen wirklich hilft.</li>
-      <li><b>Nacht 7:</b> du machst den Check noch einmal und siehst, was sich verändert hat.</li>
-    </ul>
-    <p class="small">Dein Ergebnis oben bleibt in deinem Browser — ich sehe es nicht und kann es dir deshalb auch nicht schicken. Die 7 Nächte sind für alle gleich. Nach dem Eintragen kommt eine Bestätigungsmail (auf Englisch: „Confirm your email address“), erst danach schicke ich etwas.</p>
-    <!-- MAILERLITE_FORM -->
-    <!-- MailerLite-Formular (Form 199491451928708547, Gruppe „Ruhepuls – 7 Nächte“, Double-Opt-in).
-         Bewusst OHNE MailerLites eigene Skripte und Zaehlaufrufe: Beim Laden der Seite
-         geht nichts an MailerLite. Erst der Klick auf den Button schickt die Adresse — siehe mail.js. -->
-    <form id="mailForm" class="mailform" action="https://assets.mailerlite.com/jsonp/2657658/forms/199491451928708547/subscribe" method="post" target="_blank">
-      <label class="sr-only" for="mailFeld">Deine Mailadresse</label>
-      <input id="mailFeld" type="email" name="fields[email]" required autocomplete="email" placeholder="deine@mailadresse.de">
-      <input type="hidden" name="ml-submit" value="1">
-      <input type="hidden" name="anticsrf" value="true">
-      <button class="btn" type="submit">Ich will die 7 Nächte</button>
-      <p class="small weg" id="mailFehler" role="alert">Das hat nicht geklappt. Prüf die Adresse und versuch es noch einmal.</p>
-    </form>
-    <div class="weg" id="mailDanke" aria-live="polite">
-      <h3>Fast geschafft</h3>
-      <p>Schau in dein Postfach und bestätige deine Adresse. Die Bestätigungsmail kommt auf Englisch („Confirm your email address“), ein Klick auf den Button reicht. Erst danach kommt Nacht 1. Keine Mail da? Sieh im Spam-Ordner nach.</p>
-    </div>
-    <p class="small">Kein Zwang: Dein Ergebnis oben ist vollständig, auch ohne Adresse. Abmelden geht jederzeit mit einem Klick. Ich sehe, ob Links in den Mails angeklickt werden, nicht, ob du sie öffnest. Was mit deiner Adresse passiert, steht in der <a href="../datenschutz.html">Datenschutzerklärung</a>.</p>
-  </div>
-
-  <p class="hinweis">Dieser Check ist eine Einordnung, keine Untersuchung, und er ersetzt keine ärztliche Beratung. Geh zur Hausärztin oder zum Hausarzt, wenn dich deine Nächte mehrmals pro Woche belasten, und das länger als drei Monate (ab dieser Grenze spricht die <a href="https://register.awmf.org/de/leitlinien/detail/063-003" target="_blank" rel="noopener">S3-Leitlinie „Insomnie bei Erwachsenen“</a> von einer chronischen insomnischen Störung); wenn jemand Atemaussetzer bei dir bemerkt hat; wenn du regelmäßig Mittel zum Schlafen nimmst; oder wenn du tagsüber so müde bist, dass es dich im Alltag oder am Steuer gefährdet. Wenn es dir seelisch schlecht geht: Die TelefonSeelsorge ist rund um die Uhr kostenlos erreichbar, 0800 111 0 111 oder 0800 111 0 222. Schichtarbeit verändert den Schlaf auf eigene Weise — dafür ist dieser Check nicht gebaut.</p>
+  <!-- [K] Hinweis, immer -->
+  <p class="hinweis">Dieser Check ist eine Einordnung, keine Untersuchung, und er ersetzt keine ärztliche Beratung. Er fragt nach Gewohnheiten, nicht nach Krankheiten. Bist du seit über vier Wochen oft müde und findest keine Ursache, sprich es in der Hausarztpraxis an. Nimm mit, seit wann und wie stark, und alle Medikamente, auch die selbst gekauften. Wenn es dir seelisch schlecht geht: Die TelefonSeelsorge ist rund um die Uhr kostenlos erreichbar, 0800 111 0 111 oder 0800 111 0 222. Schichtarbeit verändert Schlaf und Müdigkeit auf eigene Weise. Dafür ist dieser Check nicht gebaut.</p>
 </section>
 
 <footer><a href="../index.html">Start</a><a href="../impressum.html">Impressum</a><a href="../datenschutz.html">Datenschutz</a></footer>
