@@ -38,3 +38,11 @@ button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
 @media (max-width:400px){main{padding:28px 16px 48px}.frage{font-size:1.2rem}}
 .mailblock .naechte{margin:12px 0 16px;padding-left:20px}
 .mailblock .naechte li{margin:6px 0}
+/* Mail-Formular */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.mailform input[type=email]{width:100%;padding:14px;border-radius:10px;border:1px solid #3a5075;background:var(--bg);color:var(--fg);font:inherit;margin:4px 0 0}
+.mailform input[type=email]:focus{border-color:var(--gold);outline:none}
+.mailform .btn{width:100%;margin:12px 0 4px}
+.mailform .btn:disabled{opacity:.6;cursor:default}
+#mailDanke{border-left:4px solid var(--gold);padding:4px 0 4px 16px;margin:12px 0}
+#mailDanke h3{margin:0 0 .3em;color:var(--gold)}

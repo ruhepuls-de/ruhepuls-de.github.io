@@ -30,6 +30,10 @@ h) SPEICHER    Wer auf dem Geraet schreibt, muss auch lesen (sonst ist die
 i) VERSPRECHEN Der Mail-Block verspricht nichts, was die Seite nicht halten
                kann: kein "Ergebnis per Mail", solange die Antworten den
                Browser nie verlassen. Dazu: kein Netzaufruf im Check.
+j) MAIL        Der einzige Netzaufruf steht in check/mail.js, geht nur an
+               assets.mailerlite.com, schickt nur das Formular (nur die
+               Mailadresse) und kennt weder Antworten noch Speicher. Die Seite
+               laedt kein fremdes Skript (kein webforms.min.js, kein „takel“).
 
 Aufruf:  python3 scripts/pruefe-check.py
 """
@@ -44,6 +48,7 @@ HIER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHECK = os.path.join(HIER, "check")
 REGELN_JS = os.path.join(CHECK, "regeln.js")
 CHECK_JS = os.path.join(CHECK, "check.js")
+MAIL_JS = os.path.join(CHECK, "mail.js")
 VIDEOLINKS_JS = os.path.join(CHECK, "videolinks.js")
 HTML = os.path.join(CHECK, "index.html")
 DATENSCHUTZ = os.path.join(HIER, "datenschutz.html")
@@ -452,6 +457,45 @@ def pruefe_versprechen(html):
                     "Netzaufruf im Check")
 
 
+# ------------------------------------------------------------- j) MAIL
+MAIL_ZIEL = "https://assets.mailerlite.com/jsonp/"
+
+
+def pruefe_mail(html):
+    fremd = re.findall(r'<script[^>]+src="(https?:[^"]+)"', html, re.I)
+    if fremd:
+        fehler.append("MAIL: Die Seite laedt ein fremdes Skript (%s). Beim "
+                      "Laden darf nichts an Dritte gehen." % ", ".join(fremd))
+    for spur in ("webforms.min.js", "takel", "universal.js"):
+        if spur in html:
+            fehler.append("MAIL: MailerLite-Zaehler/Skript `%s` in index.html." % spur)
+    if not os.path.exists(MAIL_JS):
+        fehler.append("MAIL: check/mail.js fehlt — das Formular kann nichts senden.")
+        return
+    code = ohne_kommentare(lies(MAIL_JS))
+    if code.count("fetch(") != 1:
+        fehler.append("MAIL: mail.js muss genau einen fetch( enthalten, hat %d."
+                      % code.count("fetch("))
+    for verboten in ("localStorage", "sessionStorage", "RUHEPULS_REGELN",
+                     "antwort", "XMLHttpRequest", "sendBeacon", "http"):
+        if verboten in code:
+            fehler.append("MAIL: mail.js benutzt `%s` — es darf nur die "
+                          "Formular-Adresse senden, an die form-action." % verboten)
+    if "new FormData(form)" not in code:
+        fehler.append("MAIL: mail.js sendet nicht das Formular selbst (new FormData(form)).")
+    m = re.search(r'<form id="mailForm"[^>]*action="([^"]+)"', html)
+    if not m or not m.group(1).startswith(MAIL_ZIEL):
+        fehler.append("MAIL: Das Formular #mailForm schickt nicht an %s." % MAIL_ZIEL)
+    else:
+        form = html[m.start():html.find("</form>", m.start())]
+        namen = set(re.findall(r'name="([^"]+)"', form))
+        if namen != {"fields[email]", "ml-submit", "anticsrf"}:
+            fehler.append("MAIL: Das Formular sendet mehr oder anderes als die "
+                          "Mailadresse: %s" % sorted(namen))
+    hinweise.append("  j) Mail: ein Netzaufruf, nur die Adresse, nur nach Klick, "
+                    "kein fremdes Skript")
+
+
 def main():
     for pfad in (REGELN_JS, CHECK_JS, HTML):
         if not os.path.exists(pfad):
@@ -482,6 +526,7 @@ def main():
     pruefe_ton(sichtbarer_text(html), "check/index.html")
     pruefe_speicher()
     pruefe_versprechen(html)
+    pruefe_mail(html)
 
     print("Schlaf-Check — Pruefung")
     for z in hinweise:
@@ -493,7 +538,7 @@ def main():
         print("\nROT: Der Schlaf-Check ist nicht abnahmefaehig.")
         return 1
     print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, "
-          "Ausschluss, Speicher und Versprechen stimmen.")
+          "Ausschluss, Speicher, Versprechen und Mail stimmen.")
     return 0
 
 

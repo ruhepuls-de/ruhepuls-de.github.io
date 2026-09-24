@@ -49,15 +49,23 @@
       <li><b>Nacht 5–6:</b> was du tust, wenn der Kopf nicht aufhört — und was dem Einschlafen wirklich hilft.</li>
       <li><b>Nacht 7:</b> du machst den Check noch einmal und siehst, was sich verändert hat.</li>
     </ul>
-    <p class="small">Dein Ergebnis oben bleibt in deinem Browser — ich sehe es nicht und kann es dir deshalb auch nicht schicken. Die 7 Nächte sind für alle gleich. Nach dem Eintragen kommt eine Bestätigungsmail, erst danach schicke ich etwas.</p>
+    <p class="small">Dein Ergebnis oben bleibt in deinem Browser — ich sehe es nicht und kann es dir deshalb auch nicht schicken. Die 7 Nächte sind für alle gleich. Nach dem Eintragen kommt eine Bestätigungsmail (auf Englisch: „Confirm your email address“), erst danach schicke ich etwas.</p>
     <!-- MAILERLITE_FORM -->
-    <!-- Liam: Den Einbettungscode aus MailerLite (Free, Double-Opt-in aktiv) GENAU HIER einsetzen
-         und das Beispiel-Markup darunter loeschen. Anleitung: check/README.md -->
-    <form id="mailBeispiel" onsubmit="return false;">
-      <p class="small">Platzhalter — hier kommt das MailerLite-Formular hin.</p>
-      <p><input type="email" placeholder="deine@mailadresse.de" style="width:100%;padding:14px;border-radius:10px;border:1px solid #2a3b57;background:#0f1b2d;color:#f2f4f8;font:inherit"></p>
+    <!-- MailerLite-Formular (Form 199491451928708547, Gruppe „Ruhepuls – 7 Nächte“, Double-Opt-in).
+         Bewusst OHNE MailerLites eigene Skripte und Zaehlaufrufe: Beim Laden der Seite
+         geht nichts an MailerLite. Erst der Klick auf den Button schickt die Adresse — siehe mail.js. -->
+    <form id="mailForm" class="mailform" action="https://assets.mailerlite.com/jsonp/2657658/forms/199491451928708547/subscribe" method="post" target="_blank">
+      <label class="sr-only" for="mailFeld">Deine Mailadresse</label>
+      <input id="mailFeld" type="email" name="fields[email]" required autocomplete="email" placeholder="deine@mailadresse.de">
+      <input type="hidden" name="ml-submit" value="1">
+      <input type="hidden" name="anticsrf" value="true">
       <button class="btn" type="submit">Ich will die 7 Nächte</button>
+      <p class="small weg" id="mailFehler" role="alert">Das hat nicht geklappt. Prüf die Adresse und versuch es noch einmal.</p>
     </form>
+    <div class="weg" id="mailDanke" aria-live="polite">
+      <h3>Fast geschafft</h3>
+      <p>Schau in dein Postfach und bestätige deine Adresse. Die Bestätigungsmail kommt auf Englisch („Confirm your email address“), ein Klick auf den Button reicht. Erst danach kommt Nacht 1. Keine Mail da? Sieh im Spam-Ordner nach.</p>
+    </div>
     <p class="small">Kein Zwang: Dein Ergebnis oben ist vollständig, auch ohne Adresse. Abmelden geht jederzeit mit einem Klick. Was mit deiner Adresse passiert, steht in der <a href="../datenschutz.html">Datenschutzerklärung</a>.</p>
   </div>
 
@@ -69,4 +77,5 @@
 <script src="regeln.js"></script>
 <script src="videolinks.js"></script>
 <script src="check.js"></script>
+<script src="mail.js"></script>
 </body></html>

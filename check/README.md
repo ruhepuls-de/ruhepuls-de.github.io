@@ -1,5 +1,8 @@
 # Schlaf-Check
 
+> **Stand 24.09.2026:** Seit der Fachprüfung vom 23.09. hat der Check **zehn Fragen und 22 Regeln**; `pruefe-check.py` wird rot ab der elften. Die Fragentabelle unten beschreibt noch die acht der alten Fassung — maßgeblich ist `regeln.js`. **Das MailerLite-Formular ist eingebaut** (24.09., ohne MailerLite-Skripte, Versand nur nach Klick über `mail.js`, Prüfung Zweig j).
+
+
 Die kostenlose Eingangstür: acht Fragen, sofort ein Ergebnis, das sich nach den
 Antworten richtet, **danach** die E-Mail-Abfrage. Live unter
 `https://ruhepuls-de.github.io/check/`.
@@ -93,7 +96,7 @@ Video statt aufs Profil.
 
 ## Was Liam noch tun muss
 
-### MailerLite-Formular einsetzen (der eine offene Punkt)
+### MailerLite-Formular einsetzen (erledigt 24.09.2026 — Anleitung bleibt für einen Neuaufbau)
 
 1. Konto bei [mailerlite.com](https://www.mailerlite.com) anlegen. **Free =
    250 Abonnenten und 2.500 Mails im Monat**, dazu ein MailerLite-Logo unter
@@ -145,7 +148,7 @@ Wird **rot**, wenn
 - **a) Quelle** — eine Regel ohne `quelle`, ohne Jahr darin oder ohne gültigen
   Link. Ein Video ist nicht mehr Pflicht.
 - **b) Abdeckung** — eine Frage ohne Regel, eine Regel ohne Frage, eine Regel,
-  die es nicht gibt, oder mehr als acht Fragen.
+  die es nicht gibt, oder mehr als zehn Fragen.
 - **c) Ergebnis** — für irgendeine maximal auffällige Antwort fehlt die
   zugehörige Regel im Ergebnis. Dafür läuft die echte Auswertung aus
   `regeln.js` in `node`, nicht eine nachgebaute Kopie.
@@ -177,3 +180,5 @@ auslösende Frage nicht abfragt, gehört eine `nurWenn`-Bedingung dazu;
 widerspricht sie einer bestehenden Regel, ein Eintrag in `KONFLIKTE`. Ein Video ist schön, aber keine
 Bedingung. Wer eine Frage hinzufügt, braucht dafür mindestens einen Auslöser —
 sonst wird die Prüfung rot.
+
+- **j) Mail** — ein fremdes Skript auf der Seite, mehr als ein Netzaufruf in `mail.js`, ein Netzaufruf anderswo, Speicherzugriff in `mail.js`, oder ein Formularfeld außer der Mailadresse. Bruchgetestet 24.09. (vier Brüche, alle rot).
