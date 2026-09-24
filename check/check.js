@@ -71,7 +71,7 @@
   }
 
   /* Zeile mit den Video-Links — oder der Satz, dass keins da ist.
-     Im Arzt-Kasten nur, wenn es wirklich ein Video gibt. */
+     Im Arzt-Kasten unten nur, wenn es wirklich ein Video gibt. */
   function videoZeile(regel, stillWennKeins) {
     var v = regel.video ? V.videos[regel.video] : null;
     if (!v || (!v.tiktok && !v.youtube)) {
@@ -123,20 +123,24 @@
     return d;
   }
 
+  /* Alle Bausteine, die check.js ein- oder ausblendet. Welche davon in
+     welcher Reihenfolge stehen, sagt R.reihenfolge(e) — dort steht der
+     Mail-Block in jedem Fall (U2). */
+  var BAUSTEINE = ["profil", "hebelListe", "mailblock", "hebelKarten",
+                   "ausserdem", "arztUnten", "zumMailblock"];
+
   function zeigeErgebnis(e) {
     letztesErgebnis = e;
     var fluss = $("fluss");
-    var nurArzt = e.profil === "nurArzt" || e.profil === "nurArztWarn";
-    var arztUnten = e.arzt.length > 0 && !e.warnOben;
 
     /* [B] */
     $("ergebnisTitel").textContent = e.titel;
     $("ergebnisSatz").textContent = e.satz;
 
-    /* [A] / [H] Arzt-Karten */
-    var ziel = e.warnOben ? $("warnObenKarten") : $("arztUntenKarten");
-    leere($("warnObenKarten")); leere($("arztUntenKarten"));
-    e.arzt.forEach(function (t) { ziel.appendChild(karte(t, t.regel.titel, null, true)); });
+    /* [H] Arzt-Karten (nur aus seitWann: vierWochen / muedeTrotzSchlaf) */
+    var arztZiel = $("arztUntenKarten");
+    leere(arztZiel);
+    e.arzt.forEach(function (t) { arztZiel.appendChild(karte(t, t.regel.titel, null, true)); });
 
     /* [C] Kurzliste + [F] Karten */
     var ol = $("hebelListeOl"), karten = $("hebelKartenListe");
@@ -161,30 +165,13 @@
       aus.appendChild(det);
     });
 
-    /* Reihenfolge je Fall (1.4 und „Sonderfälle der Reihenfolge“) */
-    var mail = e.zeigeMailblock ? "mailblock" : "keinMailblock";
-    var folge;
-    if (e.halten) {
-      folge = ["profil", "hebelKarten", mail];
-    } else if (nurArzt) {
-      folge = e.warnOben ? ["warnOben", "profil", mail]
-                         : ["profil", "arztUnten", mail];
-    } else {
-      folge = [];
-      if (e.warnOben) { folge.push("warnOben"); }
-      folge.push("profil", "hebelListe", mail, "hebelKarten");
-      if (e.ausserdem.length) { folge.push("ausserdem"); }
-      if (arztUnten) { folge.push("arztUnten"); }
-      if (e.zeigeMailblock) { folge.push("zumMailblock"); }
-    }
-    ["warnOben", "profil", "hebelListe", "mailblock", "keinMailblock",
-     "hebelKarten", "ausserdem", "arztUnten", "zumMailblock"].forEach(function (id) {
-      zeig($(id), folge.indexOf(id) >= 0);
-    });
+    /* Reihenfolge je Fall: regeln.js, reihenfolge() */
+    var folge = R.reihenfolge(e);
+    BAUSTEINE.forEach(function (id) { zeig($(id), folge.indexOf(id) >= 0); });
     folge.forEach(function (id) { fluss.appendChild($(id)); });
 
     /* [E] Hinweissatz: Hebel da UND Arzt-Kasten unten */
-    zeig($("hinweisUnten"), !e.halten && e.hebel.length > 0 && arztUnten);
+    zeig($("hinweisUnten"), !e.halten && e.hebel.length > 0 && e.arzt.length > 0);
 
     $("balken").style.width = "100%";
     zeig($("fragen"), false); zeig($("ergebnis"), true);

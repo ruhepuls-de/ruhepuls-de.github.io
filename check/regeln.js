@@ -6,7 +6,9 @@
    Fragen, Ausloeser, Konflikte, Profil-Logik: „(C) Abteilung Fach —
    Energie-Check, Fragen und Regeln (24.09.2026)“, Abschnitt 4.
    Entscheidungen: „(C) Entscheidungen Energie-Check — Liam (24.09.2026)“,
-   F1–F6, T1 (Warnzeichen hart/weich).
+   F1–F6 und der Umbau U1–U3 (Nachtrag ~18:00): Der Check ist ein Werkzeug
+   fuer Gesunde, kein Symptom-Check. Keine Warnzeichen-Frage, keine
+   Triage, jeder bekommt den Mail-Block. Sieben Fragen.
 
    REGEL (geprueft von scripts/pruefe-check.py):
    - Jede Regel hat titel, tipp, kurz, quelle (mit Jahr), link, gruppe.
@@ -14,11 +16,10 @@
    - Fuer jede maximal auffaellige Antwort steht die zugehoerige Regel
      im Ergebnis.
    - Keine Regel erscheint ohne ihre Voraussetzung (`nurWenn`, `undWenn`,
-     `nichtWenn`, `nurAntwort`, `nichtWennAntwort`) — alle sitzen in
-     ausloeserGilt().
+     `nichtWenn`, `nurAntwort`) — alle sitzen in ausloeserGilt().
    - Zwei Regeln aus KONFLIKTE stehen nie im selben Ergebnis.
-   - Ein HARTES Warnzeichen: Arzt-Kasten oben, kein Mail-Block.
-     Ein WEICHES: Arzt-Hinweis unten, Mail-Block bleibt (T1).
+   - Jede Reihenfolge (reihenfolge()) enthaelt den Mail-Block (U2).
+   - Die Bewegungs-Regel traegt den PEM-Satz (U1).
    - Der Tipp darf nicht mehr sagen als die Quelle.
 */
 (function (global) {
@@ -32,7 +33,8 @@
 
   /* ---------------------------------------------------------- Die Regeln
      gruppe "hebel": etwas, das man selbst aendern kann (Karten).
-     gruppe "arzt":  gehoert in die Praxis (Kasten). */
+     gruppe "arzt":  der Satz, wann die Praxis der naechste Schritt ist
+                     (Kasten unten). Nur aus `seitWann`, nie aus Symptomen. */
   var REGELN = {
 
     /* ---------- Hebel, Domaene schlaf ---------- */
@@ -199,7 +201,9 @@
 
     /* ---------- Hebel, Domaene tag ---------- */
 
-    /* auch HALTEN. Nie zusammen mit pemKasten (nichtWennAntwort + KONFLIKT). */
+    /* auch HALTEN. Traegt den PEM-Satz (U1): Die Frage nach Anstrengung
+       gibt es nicht mehr, deshalb steht die Sicherheit im Text selbst
+       (DEGAM 6.5 C). Geprueft in pruefe-check.py, Zweig s. */
     bewegungRegelmaessig: {
       gruppe: "hebel", domaene: "tag",
       titel: "Regelmäßig bewegen: mittel, nicht hart",
@@ -210,14 +214,15 @@
         "trainierte und wer nicht, entschied dabei der Zufall. Die Effekte " +
         "sind klein bis mittel. Die Leitlinie der Hausärzte nennt Bewegung " +
         "bei Müdigkeit mit einem Zusatz: beobachten, wie du darauf " +
-        "reagierst, und anpassen. Geht es dir nach Anstrengung tagelang " +
-        "schlechter, hör auf und sprich es in der Praxis an.",
+        "reagierst, und anpassen. Haut dich schon leichte Anstrengung " +
+        "tagelang um, lass das erst abklären, bevor du mehr machst.",
       kurz: "Wender u. a., Frontiers in Psychology 2022",
       quelle:
         "Wender, Manninen & O'Connor (2022): The Effect of Chronic Exercise " +
         "on Energy and Fatigue States: A Systematic Review and Meta-Analysis " +
         "of Randomized Trials. Frontiers in Psychology 13, 907637 · DEGAM " +
-        "S3-Leitlinie „Müdigkeit“ (2022), AWMF 053-002, Empfehlung 6.5 B",
+        "S3-Leitlinie „Müdigkeit“ (2022), AWMF 053-002, Empfehlungen 6.5 B " +
+        "und 6.5 C",
       link: "https://doi.org/10.3389/fpsyg.2022.907637",
       video: "v78"
     },
@@ -258,45 +263,6 @@
     },
 
     /* ---------- Arzt ---------- */
-
-    arztKasten: {
-      gruppe: "arzt",
-      titel: "Sprich das in der Hausarztpraxis an",
-      tipp:
-        "Was du angekreuzt hast, gehört zu den Punkten, nach denen die " +
-        "Leitlinie der Hausärzte bei Müdigkeit ausdrücklich fragen lässt. " +
-        "Deshalb gehört es in ein Gespräch in der Praxis, nicht in einen " +
-        "Online-Check. Nimm mit: seit wann, wie stark, und alle Medikamente, " +
-        "auch die selbst gekauften. Setz nichts ohne Rücksprache ab. Wenn es " +
-        "dir seelisch schlecht geht: Die TelefonSeelsorge ist rund um die " +
-        "Uhr kostenlos erreichbar, 0800 111 0 111 oder 0800 111 0 222.",
-      kurz: "DEGAM-Leitlinie Müdigkeit, 2022",
-      quelle:
-        "DEGAM S3-Leitlinie „Müdigkeit“ (2022), AWMF 053-002, Empfehlungen " +
-        "5.1.3 und 5.1.4, Kurzfassung „Diagnostische Hilfen“ · " +
-        "DEGAM-Patienteninformation „Müdigkeit“ (2022)",
-      link: DEGAM_LINK,
-      video: null
-    },
-
-    pemKasten: {
-      gruppe: "arzt",
-      titel: "Wenn Anstrengung dich tagelang zurückwirft: erst klären, dann mehr bewegen",
-      tipp:
-        "Geht es dir nach körperlicher oder geistiger Anstrengung oft einen " +
-        "Tag oder länger deutlich schlechter, fragt die Leitlinie der " +
-        "Hausärzte gezielt danach. Denn dann ist der sonst hilfreiche Rat, " +
-        "sich mehr zu bewegen, laut Leitlinie nicht sinnvoll. Er kann den " +
-        "Zustand verschlechtern. Sprich das in der Praxis an, bevor du dein " +
-        "Training steigerst.",
-      kurz: "DEGAM-Leitlinie Müdigkeit, 2022",
-      quelle:
-        "DEGAM S3-Leitlinie „Müdigkeit“ (2022), AWMF 053-002, Empfehlungen " +
-        "5.1.4 und 6.5 C, Kapitel 5.7 · DEGAM-Patienteninformation " +
-        "„Müdigkeit“ (2022)",
-      link: DEGAM_LINK,
-      video: null
-    },
 
     /* nur, wenn KEIN Hebel gefunden wurde */
     muedeTrotzSchlaf: {
@@ -342,10 +308,10 @@
     eineVon: ["schlafdauer", "wachliegen", "koffein", "alkohol", "bewegung", "tief"],
     ab: 2
   };
-  var PEM = { frage: "warnzeichen", index: [2, 3] };
 
   /* --------------------------------------------------------- Die Fragen
-     Acht Fragen (F1). Reihenfolge = Ablauf. `wert` 0–3. */
+     Sieben Fragen (F1, Umbau U1: die Warnzeichen-Frage ist raus).
+     Reihenfolge = Ablauf. `wert` 0–3. */
   var FRAGEN = [
     {
       id: "schlafdauer",
@@ -416,8 +382,8 @@
         { text: "An keinem", wert: 3, bezug: "Du bewegst dich an keinem Tag pro Woche eine halbe Stunde" }
       ],
       ausloeser: [
-        /* PEM: Aktivierung kann schaden (DEGAM 6.5 C). Fach 4.6 Nr. 1. */
-        { ab: 2, regel: "bewegungRegelmaessig", schwere: 7, nichtWennAntwort: PEM }
+        /* PEM-Sicherheit steht im Tipp selbst (U1), keine Sperre mehr. */
+        { ab: 2, regel: "bewegungRegelmaessig", schwere: 7 }
       ]
     },
     {
@@ -454,37 +420,6 @@
         { ab: 2, regel: "muedeTrotzSchlaf", schwere: 8, nichtWenn: HEBEL_FRAGEN },
         { ab: 2, regel: "vierWochen", schwere: 1, nurWenn: HEBEL_FRAGEN }
       ]
-    },
-    {
-      id: "warnzeichen",
-      text: "Trifft etwas davon auf dich zu?",
-      zusatz: "",
-      /* T1: jedes Warnzeichen hart oder weich. Einteilung mit Begruendung
-         in Produkt & Text, Abschnitt „Einteilung hart/weich (Bau, zur
-         Pruefung durch Recht/Fach)“. Im Zweifel hart. */
-      zusatzListe: [
-        { text: "Du hast abgenommen, ohne es zu wollen.", hart: true },
-        { text: "Du hast Fieber oder schwitzt nachts stark.", hart: true },
-        /* hart wegen „einschlafen … am Steuer“; Schnarchen allein waere weich */
-        { text: "Du schnarchst laut, jemand hat Atempausen bei dir bemerkt, oder du schläfst tagsüber ein, ohne es zu wollen, zum Beispiel am Steuer.", hart: true },
-        /* Stimmung = hart (T1); Anspannung allein waere weich */
-        { text: "Du fühlst dich seit Wochen oft niedergeschlagen, hast kaum Freude an Dingen oder bist ständig angespannt.", hart: true },
-        { text: "Die Müdigkeit kam mit einem neuen Medikament.", hart: false },
-        { text: "Es sind neue Beschwerden dazugekommen, etwa Atemnot oder Schmerzen.", hart: true }
-      ],
-      /* `hart` je Antwort: Die Seite weiss nicht, WELCHER Listenpunkt
-         zutrifft. Eine Antwort, die einen harten Punkt einschliessen kann,
-         ist hart (im Zweifel hart). pruefe-check.py prueft das nach. */
-      optionen: [
-        { text: "Nichts davon", wert: 0, hart: false, bezug: "Keiner der Punkte trifft auf dich zu" },
-        { text: "Mindestens eins aus der Liste", wert: 3, hart: true, liste: true, bezug: "Mindestens ein Punkt aus der Liste trifft auf dich zu" },
-        { text: "Nach Anstrengung, körperlich oder im Kopf, geht es mir oft einen Tag oder länger deutlich schlechter", wert: 3, hart: true, bezug: "Nach Anstrengung geht es dir oft einen Tag oder länger deutlich schlechter" },
-        { text: "Beides: etwas aus der Liste und das mit der Anstrengung", wert: 3, hart: true, liste: true, bezug: "Ein Punkt aus der Liste trifft zu, und nach Anstrengung geht es dir oft länger schlechter" }
-      ],
-      ausloeser: [
-        { ab: 3, regel: "arztKasten", schwere: 10, nurAntwort: { frage: "warnzeichen", index: [1, 3] } },
-        { ab: 3, regel: "pemKasten", schwere: 10, nurAntwort: { frage: "warnzeichen", index: [2, 3] } }
-      ]
     }
   ];
 
@@ -494,11 +429,7 @@
   /* Regelpaare, die nicht nebeneinander stehen duerfen. Es bleibt die
      Regel mit den mehr Punkten. */
   var KONFLIKTE = [
-    ["pemKasten", "bewegungRegelmaessig"], // PEM: Aktivierung kann schaden (DEGAM 6.5 C)
     ["schlafDauer", "stehAuf"],            // mehr Bettzeit vs. Stimuluskontrolle (Netz zu nichtWenn)
-    ["arztKasten", "muedeTrotzSchlaf"],    // zweimal "Praxis"
-    ["arztKasten", "vierWochen"],
-    ["pemKasten", "vierWochen"],
     ["muedeTrotzSchlaf", "vierWochen"]     // schliessen sich per Bedingung aus; Netz
   ];
 
@@ -519,10 +450,6 @@
     tag: {
       titel: "Dein größter Hebel ist dein Tag",
       satz: "Die meisten deiner Antworten betreffen Bewegung und das Nachmittagstief. Die Effekte in den Studien dazu sind klein bis mittel."
-    },
-    nurArztWarn: {
-      titel: "Das gehört in die Hausarztpraxis",
-      satz: "An deinen Alltagsantworten klemmt wenig. Den Punkt oben solltest du aber ärztlich ansprechen."
     },
     nurArzt: {
       titel: "Das gehört in die Hausarztpraxis",
@@ -558,13 +485,11 @@
     return typeof i === "number" && b.index.indexOf(i) >= 0;
   }
 
-  /* Ein Ausloeser kann bis zu fuenf Zusatzbedingungen haben:
+  /* Ein Ausloeser kann bis zu vier Zusatzbedingungen haben:
      nurWenn / undWenn — muessen erfuellt sein,
      nichtWenn        — darf NICHT erfuellt sein,
      nurAntwort       — die Frage muss mit einer dieser Optionen
-                        (Index) beantwortet sein,
-     nichtWennAntwort — die Frage darf NICHT mit einer dieser Optionen
-                        beantwortet sein (Gegenstueck zu nurAntwort).
+                        (Index) beantwortet sein.
      pruefe-check.py ruft nur ausloeserGilt() auf und rechnet damit alle
      automatisch mit. */
   function ausloeserGilt(a, antworten) {
@@ -572,19 +497,7 @@
     if (a.undWenn && !bedingung(a.undWenn, antworten)) { return false; }
     if (a.nichtWenn && bedingung(a.nichtWenn, antworten)) { return false; }
     if (a.nurAntwort && !antwortIst(a.nurAntwort, antworten)) { return false; }
-    if (a.nichtWennAntwort && antwortIst(a.nichtWennAntwort, antworten)) { return false; }
     return true;
-  }
-
-  /* Ist die Antwort auf die Warnfrage hart? (T1) */
-  function warnHart(antworten) {
-    for (var i = 0; i < FRAGEN.length; i++) {
-      var f = FRAGEN[i];
-      if (f.id !== "warnzeichen") { continue; }
-      var k = antworten.warnzeichen;
-      return typeof k === "number" && !!f.optionen[k] && !!f.optionen[k].hart;
-    }
-    return false;
   }
 
   function halteEintrag(id) {
@@ -596,7 +509,7 @@
 
   /* ------------------------------------------------------ Die Auswertung
      Rueckgabe (Produkt & Text 5.2):
-     { profil, titel, satz, warnOben, zeigeMailblock, hebel: [Top 3],
+     { profil, titel, satz, hebel: [Top 3],
        ausserdem: [..], arzt: [..], halten: bool, treffer: [alle],
        unauffaellig: bool } */
   function werteAus(antworten) {
@@ -661,13 +574,6 @@
     var top = hebel.slice(0, 3);
     var ausserdem = hebel.slice(3);
 
-    /* T1: hart -> Kasten oben, kein Mail-Block. weich -> Kasten unten,
-       Mail-Block bleibt. */
-    var warnRegel = arzt.some(function (t) { return t.frageId === "warnzeichen"; });
-    var warnOben = warnRegel && warnHart(antworten);
-    var muede = ids(arzt).indexOf("muedeTrotzSchlaf") >= 0;
-    var zeigeMailblock = !warnOben && !muede;
-
     var profil, halten = false;
     if (top.length) {
       var summe = { schlaf: 0, trinken: 0, tag: 0 };
@@ -675,7 +581,7 @@
       profil = DOMAENEN[0];
       DOMAENEN.forEach(function (d) { if (summe[d] > summe[profil]) { profil = d; } });
     } else if (arzt.length) {
-      profil = warnOben ? "nurArztWarn" : "nurArzt";
+      profil = "nurArzt";
     } else {
       halten = true;
       top = HALTEN.map(halteEintrag);
@@ -686,8 +592,6 @@
       profil: profil,
       titel: PROFILE[profil].titel,
       satz: PROFILE[profil].satz,
-      warnOben: warnOben,
-      zeigeMailblock: zeigeMailblock,
       hebel: top,
       ausserdem: ausserdem,
       arzt: arzt,
@@ -697,14 +601,32 @@
     };
   }
 
-  /* Teilen-Text (Produkt & Text 1.4 [J]): nur der Profil-Titel, nie eine
-     Regel. Bei Arzt-Profilen ein neutraler Satz ohne Titel. */
+  /* Reihenfolge der Ergebnis-Bausteine (Produkt & Text 1.4, Umbau U2):
+     Der Mail-Block steht in JEDEM Fall direkt unter dem Ergebnis. Es gibt
+     keinen Zweig ohne ihn. check.js zeigt genau diese Bausteine in genau
+     dieser Reihenfolge; pruefe-check.py (Zweig p) spielt jede
+     Antwortkombination durch. */
+  function reihenfolge(e) {
+    if (e.halten) { return ["profil", "hebelKarten", "mailblock"]; }
+    if (!e.hebel.length) { return ["profil", "arztUnten", "mailblock"]; }
+    var folge = ["profil", "hebelListe", "mailblock", "hebelKarten"];
+    if (e.ausserdem.length) { folge.push("ausserdem"); }
+    if (e.arzt.length) { folge.push("arztUnten"); }
+    folge.push("zumMailblock");
+    return folge;
+  }
+
+  /* Teilen-Text (Produkt & Text 1.4 [J], Ueberschrift U3): nur der
+     Profil-Titel, nie eine Regel. Beim Arzt-Profil ein neutraler Satz
+     ohne Titel. */
+  var FRAGE_OBEN = "Was kostet dich im Alltag Energie?";
   function teilText(e, url) {
-    if (!e || e.profil === "nurArzt" || e.profil === "nurArztWarn") {
-      return "Ich habe den Energie-Check von Ruhepuls gemacht. Acht Fragen, unter zwei Minuten: " + url;
+    if (!e || e.profil === "nurArzt") {
+      return "Ich habe den Energie-Check von Ruhepuls gemacht: " + FRAGE_OBEN +
+        " Sieben Fragen, unter zwei Minuten: " + url;
     }
-    return "Mein Energie-Profil bei Ruhepuls: " + e.titel +
-      ". Acht Fragen, unter zwei Minuten: " + url;
+    return "Mein Energie-Profil bei Ruhepuls: " + e.titel + ". " + FRAGE_OBEN +
+      " Sieben Fragen, unter zwei Minuten: " + url;
   }
 
   var API = {
@@ -716,6 +638,7 @@
     PROFILE: PROFILE,
     ausloeserGilt: ausloeserGilt,
     werteAus: werteAus,
+    reihenfolge: reihenfolge,
     teilText: teilText
   };
 

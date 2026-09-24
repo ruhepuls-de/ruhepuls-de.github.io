@@ -7,7 +7,8 @@ a) QUELLE      Jede Regel hat titel, tipp, kurz, quelle (mit Jahr), link
                (http/https) und eine gruppe; Hebel-Regeln eine domaene.
 b) ABDECKUNG   Jede Frage hat mindestens eine Regel. Jede benutzte Regel
                existiert, jede definierte Regel wird irgendwo benutzt.
-               Hoechstens acht Fragen (Entscheidung F1).
+               Hoechstens sieben Fragen (F1, Umbau U1), und jeder Text, der
+               die Fragen zaehlt ("Sieben Fragen"), nennt die echte Zahl.
 c) ERGEBNIS    Fuer jede einzelne maximal auffaellige Antwort steht die
                zugehoerige Regel im Ergebnis (echte Auswertung in node).
 d) REIHENFOLGE Das E-Mail-Feld steht im DOM NACH dem Ergebnis.
@@ -15,15 +16,13 @@ e) VIDEO       Jede genannte Video-ID gibt es in der Pipeline und sie hat
                einen Link in check/videolinks.js.
 f) TON         Keine Zuschreibung im Seitentext ("du hast eine ...",
                "du leidest", "krankhaft", "Diagnose").
-g) AUSSCHLUSS  Alle Antwortkombinationen (4^7 * 5) laufen durch die echte
+g) AUSSCHLUSS  Alle Antwortkombinationen (4^6 * 5) laufen durch die echte
                Auswertung. Rot, wenn eine Regel ohne Ausloeser samt
                Voraussetzung erscheint, ein KONFLIKT-Paar zusammen steht,
-               `bewegungRegelmaessig` bei Anstrengungs-Antwort (PEM)
-               erscheint, HALTEN neben einer Arzt-Regel steht, mehr als drei
-               Hebel oben stehen, die Paar-Regel (zuckerTief -> pauseMachen)
-               verletzt ist, ein HARTES Warnzeichen den Mail-Block zeigt, ein
-               WEICHES ihn ausblendet, oder der Teilen-Text eine Arzt-Regel
-               bzw. bei Arzt-Profilen den Profil-Titel verraet.
+               HALTEN neben einer Arzt-Regel steht, mehr als drei Hebel oben
+               stehen, die Paar-Regel (zuckerTief -> pauseMachen) verletzt
+               ist, oder der Teilen-Text eine Arzt-Regel bzw. beim
+               Arzt-Profil den Profil-Titel verraet.
 h) SPEICHER    Der Check speichert nichts; die Kurve schreibt UND liest
                (ruhepuls.kurve.v1); die Datenschutzerklaerung sagt fuer
                beide genau das (Abschnitt 4 / 4a).
@@ -37,12 +36,9 @@ k) KURVE       kurve/ macht keinen Netzaufruf, laedt kein fremdes Skript,
                hat kein Formular nach draussen, greift nur in try/catch auf
                den Speicher zu und traegt den Hinweis aus T2 (Safari/Chrome +
                Lesezeichen).
-l) WARNZEICHEN Jedes Warnzeichen ist hart oder weich (T1). Eine Antwort,
-               die einen harten Listenpunkt einschliessen kann, ist hart
-               (im Zweifel hart). Dazu ein Probelauf mit einer weichen
-               Antwort: Kasten unten, Mail-Block bleibt.
-m) PROFILE     Die sechs Muster aus Fach 4.7 (A–F) ergeben genau das
-               erwartete Ergebnis.
+l) (entfallen, Umbau 24.09.: Warnzeichen hart/weich gibt es nicht mehr)
+m) PROFILE     Die Muster aus Fach 4.7 (A–E, ohne Frage 8; F entfiel mit
+               ihr) ergeben genau das erwartete Ergebnis.
 n) WORTE       Mail-Block hoechstens 60 Woerter (Produkt & Text 1.4 [D]);
                keine verbotenen Wirkwoerter in Check, Regeln, Kurve und
                Danke-Seiten ("mehr Energie", "du wirst", "hilft gegen",
@@ -54,6 +50,21 @@ o) ZWECK       Keine Formulierung, die den Check oder die Kurve zu einem
                "Insomnie-Check", "für den/deinen Arzt", "überwacht",
                "Woran deine Müdigkeit ...", "Kurve dorthin/zum Arzt".
                Geprueft in Check, Regeln, Kurve, Danke-Seiten und Startseite.
+p) MAILBLOCK   Kein Pfad endet ohne Mail-Block (U2): reihenfolge() enthaelt
+               ihn fuer JEDE Antwortkombination, check.js nimmt genau diese
+               Reihenfolge, jeder Baustein existiert in index.html, es gibt
+               keinen Ersatz-Zweig („biete ich dir bewusst nicht an“) und
+               keine Warnzeichen-Weiche (keine Frage mit Liste oder hart).
+q) UEBERSCHRIFT Keine Ueberschrift fragt nach dem Symptom (U3): <title>,
+               <h1>, <h2> von Check und Startseite, Profil-Titel,
+               Teilen-Text und Teilen-Titel ohne „müde“, „Müdigkeit“,
+               „erschöpft“, „schlapp“ … Im Fliesstext ist das erlaubt.
+r) HINWEIS     Der feste Hinweis (#festerHinweis) steht am Ende des
+               Ergebnisses, hat hoechstens 2 Saetze, sagt „ersetzt keinen
+               Arzt“ und nennt nur Alarmzeichen aus der DEGAM-Grundlage der
+               Fach-Datei. Keine Seelsorge-Box im Check (U1).
+s) PEM         Der Tipp der Bewegungs-Regel enthaelt den PEM-Satz (U1):
+               „leichte Anstrengung … tagelang … abklären“.
 
 Aufruf:  python3 scripts/pruefe-check.py
 """
@@ -111,6 +122,14 @@ VERBOTEN_ZWECK = [
     (r"kurve[^.?!¶]{0,30}(?:dorthin|zum arzt|in die praxis)", "Kurve dorthin/zum Arzt"),
 ]
 START_HTML = os.path.join(HIER, "index.html")
+MAX_FRAGEN = 7
+ZAHLWORT = {"fünf": 5, "sechs": 6, "sieben": 7, "acht": 8, "neun": 9, "zehn": 10}
+
+# q) Symptom-Woerter, die in keiner Ueberschrift stehen duerfen (U3)
+SYMPTOM = re.compile(r"müde|muede|müdigkeit|muedigkeit|erschöpf|erschoepf|schlapp|"
+                     r"kraftlos|antriebslos|ausgelaugt|energielos|schlaflos", re.I)
+# r) Alarmzeichen aus der DEGAM-Grundlage der Fach-Datei (2.1 und Abb. 2)
+DEGAM_ALARM = ["vier wochen", "fieber", "nachtschweiß", "gewichtsverlust", "atempausen"]
 
 # Video-IDs mit .verworfen-Ordner daneben, bei denen von Hand geprueft ist,
 # dass die Regel zum GUELTIGEN Video passt. Mit Begruendung, sonst rot.
@@ -147,7 +166,8 @@ R.FRAGEN.forEach(function (f) {
 function idsVon(l) { return l.map(function (t) { return t.regelId; }); }
 function kurzErg(e) {
   return { profil: e.profil, hebel: idsVon(e.hebel), ausserdem: idsVon(e.ausserdem),
-           arzt: idsVon(e.arzt), warnOben: e.warnOben, zeigeMailblock: e.zeigeMailblock,
+           arzt: idsVon(e.arzt),
+           mailblock: R.reihenfolge(e).indexOf("mailblock") >= 0,
            halten: e.halten };
 }
 R.FRAGEN.forEach(function (f) {
@@ -170,10 +190,9 @@ R.FRAGEN.forEach(function (f) {
 /* --- g) AUSSCHLUSS: jede Antwortkombination einmal durchspielen. */
 out.konflikte = R.KONFLIKTE || [];
 var PAAR = R.PAAR || ["zuckerTief", "pauseMachen"];
-var WF = null;
-R.FRAGEN.forEach(function (f) { if (f.id === "warnzeichen") { WF = f; } });
-var S = out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [], pem: [], haltenArzt: [],
-                      zuViele: [], paar: [], hartMail: [], weichMail: [], teilen: [] };
+var S = out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [], haltenArzt: [],
+                      zuViele: [], paar: [], ohneMail: [], teilen: [] };
+var folgen = {}, teiltexte = {};
 function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
 (function () {
   var fs = R.FRAGEN, halten = {}, zaehler = new Array(fs.length).fill(0);
@@ -201,11 +220,6 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
         merk(S.konflikt, { paar: paar, antworten: a, gezeigt: gezeigt });
       }
     });
-    /* PEM: nie Bewegung (Fach 4.6 Nr. 4) */
-    if ((a.warnzeichen === 2 || a.warnzeichen === 3) &&
-        gezeigt.indexOf("bewegungRegelmaessig") >= 0) {
-      merk(S.pem, { antworten: a, gezeigt: gezeigt });
-    }
     /* HALTEN nie neben einer Arzt-Regel */
     var arztDa = e.arzt.length > 0 ||
       e.treffer.some(function (t) { return t.regel && t.regel.gruppe === "arzt"; });
@@ -218,21 +232,15 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
     if (iz >= 0 && iz < 3 && ip >= 0 && ip !== iz + 1) {
       merk(S.paar, { antworten: a, gezeigt: alle });
     }
-    /* T1: hart -> kein Mail-Block, Kasten oben; weich -> Mail-Block bleibt */
-    var o = WF ? WF.optionen[a.warnzeichen] : null;
-    var warnRegel = e.arzt.some(function (t) { return t.frageId === "warnzeichen"; });
-    var muede = idsVon(e.arzt).indexOf("muedeTrotzSchlaf") >= 0;
-    if (warnRegel && o && o.hart && (e.zeigeMailblock || !e.warnOben)) {
-      merk(S.hartMail, { antworten: a, gezeigt: gezeigt });
-    }
-    if (warnRegel && o && !o.hart && (e.warnOben || e.zeigeMailblock !== !muede)) {
-      merk(S.weichMail, { antworten: a, gezeigt: gezeigt });
-    }
-    if (!warnRegel && (e.warnOben || e.zeigeMailblock !== !muede)) {
-      merk(S.weichMail, { antworten: a, gezeigt: gezeigt });
+    /* p) U2: jeder Pfad endet mit Mail-Block */
+    var folge = R.reihenfolge ? R.reihenfolge(e) : [];
+    folgen[folge.join(",")] = folge;
+    if (folge.indexOf("mailblock") < 0) {
+      merk(S.ohneMail, { antworten: a, gezeigt: gezeigt, folge: folge });
     }
     /* Teilen-Text */
     var tt = R.teilText(e, "https://mein-ruhepuls.de/check/");
+    teiltexte[e.profil] = tt;
     var verrat = e.arzt.concat(e.treffer).filter(function (t) {
       return t.regel && t.regel.gruppe === "arzt" && tt.indexOf(t.regel.titel) >= 0;
     });
@@ -240,7 +248,7 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
       if (tt.indexOf(R.REGELN[id].titel) >= 0) { verrat.push({ regel: R.REGELN[id] }); }
     });
     if (verrat.length ||
-        ((e.profil === "nurArzt" || e.profil === "nurArztWarn") && tt.indexOf(e.titel) >= 0)) {
+        (e.profil === "nurArzt" && tt.indexOf(e.titel) >= 0)) {
       merk(S.teilen, { antworten: a, text: tt });
     }
     var k = fs.length - 1;
@@ -249,15 +257,20 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
     zaehler[k]++;
   }
 })();
+out.folgen = Object.keys(folgen).map(function (k) { return folgen[k]; });
+out.teiltexte = teiltexte;
+out.profile = Object.keys(R.PROFILE).map(function (k) { return R.PROFILE[k].titel; });
+out.bewegungTipp = R.REGELN.bewegungRegelmaessig ? R.REGELN.bewegungRegelmaessig.tipp : "";
 var leer = {};
 R.FRAGEN.forEach(function (f) { leer[f.id] = 0; });
 var e0 = R.werteAus(leer);
 out.leer = { unauffaellig: e0.unauffaellig, gezeigt: idsVon(e0.treffer) };
 
-/* --- m) PROFILE: Fach 4.7, Muster A–F (Index je Frage in Ablauf-Reihenfolge) */
+/* --- m) PROFILE: Fach 4.7, Muster A–E (Index je Frage in Ablauf-Reihenfolge).
+   Frage 8 ist raus (U1); F war A plus Warnzeichen und ist damit gleich A. */
 var MUSTER = {
-  A: [1, 0, 2, 2, 2, 1, 2, 0], B: [2, 3, 0, 0, 0, 0, 3, 0], C: [0, 0, 0, 0, 0, 0, 3, 0],
-  D: [0, 0, 0, 0, 3, 0, 3, 2], E: [0, 0, 0, 0, 0, 0, 0, 0], F: [1, 0, 2, 2, 2, 1, 2, 1]
+  A: [1, 0, 2, 2, 2, 1, 2], B: [2, 3, 0, 0, 0, 0, 3], C: [0, 0, 0, 0, 0, 0, 3],
+  D: [0, 0, 0, 0, 3, 0, 3], E: [0, 0, 0, 0, 0, 0, 0]
 };
 out.muster = {};
 Object.keys(MUSTER).forEach(function (k) {
@@ -266,19 +279,6 @@ Object.keys(MUSTER).forEach(function (k) {
   out.muster[k] = kurzErg(R.werteAus(a));
 });
 
-/* --- l) Probelauf WEICH: die Listen-Antwort voruebergehend weich setzen. */
-out.weich = null;
-if (WF && WF.optionen[1]) {
-  var alt = WF.optionen[1].hart;
-  WF.optionen[1].hart = false;
-  var a = {};
-  R.FRAGEN.forEach(function (f, i) { a[f.id] = MUSTER.F[i]; });
-  var ew = kurzErg(R.werteAus(a));
-  a.schlafdauer = 0; a.koffein = 0; a.alkohol = 0; a.bewegung = 0; a.tief = 0;
-  var ew2 = kurzErg(R.werteAus(a));
-  WF.optionen[1].hart = alt;
-  out.weich = { mitHebeln: ew, ohneHebel: ew2 };
-}
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -347,9 +347,20 @@ def pruefe_abdeckung(d):
     for name in d["halten"]:
         if name not in d["regeln"]:
             fehler.append("ABDECKUNG: Halte-Regel `%s` gibt es nicht." % name)
-    if len(d["fragen"]) > 8:
-        fehler.append("ABDECKUNG: %d Fragen — hoechstens acht sind erlaubt (F1)."
-                      % len(d["fragen"]))
+    if len(d["fragen"]) > MAX_FRAGEN:
+        fehler.append("ABDECKUNG: %d Fragen — hoechstens %d sind erlaubt (F1, Umbau U1)."
+                      % (len(d["fragen"]), MAX_FRAGEN))
+    # Jeder Text, der die Fragen zaehlt, nennt die echte Zahl.
+    texte = [("check/index.html", sichtbarer_text(lies(HTML)))]
+    if os.path.exists(START_HTML):
+        texte.append(("index.html (Startseite)", sichtbarer_text(lies(START_HTML))))
+    texte += [("Teilen-Text", t) for t in (d.get("teiltexte") or {}).values()]
+    for wo, text in texte:
+        for m in re.finditer(r"\b(\w+) Fragen\b", text):
+            n = ZAHLWORT.get(m.group(1).lower())
+            if n is not None and n != len(d["fragen"]):
+                fehler.append("ABDECKUNG: %s sagt „%s“, es sind aber %d Fragen."
+                              % (wo, m.group(0), len(d["fragen"])))
     for f in d["fragen"]:
         if not f["optionen"]:
             fehler.append("ABDECKUNG: Frage `%s` hat keine Antworten." % f["id"])
@@ -455,6 +466,21 @@ def sichtbarer_text(html, grenzen=False):
     return re.sub(r"<[^>]+>", " ¶ " if grenzen else " ", ohne)
 
 
+def element_mit_id(html, ident):
+    """Das ganze Element mit id=ident, samt verschachtelter Elemente
+    gleichen Namens. None, wenn es fehlt."""
+    m = re.search(r'<(\w+)[^>]*\bid="%s"' % re.escape(ident), html)
+    if not m:
+        return None
+    tag = m.group(1)
+    tiefe, pos = 0, m.start()
+    for t in re.finditer(r"<(/?)%s\b[^>]*>" % tag, html[m.start():]):
+        tiefe += -1 if t.group(1) else 1
+        if tiefe == 0:
+            return html[m.start():m.start() + t.end()]
+    return html[m.start():]
+
+
 def pruefe_ton(text, wo):
     klein = text.lower()
     for erlaubt in ERLAUBTE_STELLEN:
@@ -498,12 +524,9 @@ def pruefe_ausschluss(d):
             % (fall["paar"][0], fall["paar"][1], kurz(fall["antworten"], d))
         )
     melde = [
-        ("pem", "`bewegungRegelmaessig` steht im Ergebnis, obwohl die Anstrengungs-Antwort (PEM) gewaehlt ist"),
         ("haltenArzt", "HALTEN steht neben einer Arzt-Regel"),
         ("zuViele", "mehr als drei Hebel oben"),
         ("paar", "zuckerTief steht in den Top 3, pauseMachen aber nicht direkt dahinter"),
-        ("hartMail", "HARTES Warnzeichen, aber der Mail-Block steht oder der Kasten nicht oben"),
-        ("weichMail", "WEICHES oder kein Warnzeichen, aber der Mail-Block fehlt bzw. der Kasten steht oben"),
     ]
     for schluessel, was in melde:
         for fall in sweep.get(schluessel, []):
@@ -605,13 +628,11 @@ def pruefe_versprechen(html):
                     "Antworten verlassen den Browser nie — dann darf es keinen "
                     "Netzaufruf geben." % (os.path.basename(js), ruf)
                 )
-    start = html.find('class="mailblock"')
-    if start < 0:
-        fehler.append('VERSPRECHEN: Der Mail-Block (class="mailblock") fehlt.')
+    roh = element_mit_id(html, "mailblock")
+    if roh is None:
+        fehler.append('VERSPRECHEN: Der Mail-Block (id="mailblock") fehlt.')
         return
-    ende = html.find('id="keinMailblock"', start)
-    ende = html.rfind("<", 0, ende) if ende > 0 else len(html)
-    block = sichtbarer_text(html[start:ende], True)
+    block = sichtbarer_text(roh, True)
     block = re.sub(r"[ \t\r\n]+", " ", block)
     for muster, was in VERSPRECHEN_VERBOTEN:
         treffer = re.search(muster, block, re.I)
@@ -719,61 +740,21 @@ def pruefe_kurve():
                     "try/catch, T2-Hinweis steht")
 
 
-# ------------------------------------------------------- l) WARNZEICHEN
-def pruefe_warnzeichen(d):
-    wf = [f for f in d["fragen"] if f["id"] == "warnzeichen"]
-    if not wf:
-        fehler.append("WARNZEICHEN: Die Frage `warnzeichen` fehlt.")
-        return
-    wf = wf[0]
-    liste = wf.get("zusatzListe") or []
-    if not liste:
-        fehler.append("WARNZEICHEN: Frage 8 hat keine Liste (zusatzListe).")
-    for p in liste:
-        if not isinstance(p, dict) or not isinstance(p.get("hart"), bool) or not p.get("text"):
-            fehler.append("WARNZEICHEN: Listenpunkt ohne text oder ohne hart: true/false: %r" % (p,))
-    irgendein_hart = any(isinstance(p, dict) and p.get("hart") is True for p in liste)
-    for i, o in enumerate(wf["optionen"]):
-        if o["wert"] == 0:
-            continue
-        if not isinstance(o.get("hart"), bool):
-            fehler.append("WARNZEICHEN: Antwort %d „%s“ ist weder hart noch weich." % (i, o["text"]))
-        if o.get("liste") and irgendein_hart and o.get("hart") is not True:
-            fehler.append("WARNZEICHEN: Antwort %d „%s“ schliesst harte Listenpunkte ein, ist "
-                          "aber weich. Im Zweifel hart (T1)." % (i, o["text"]))
-    w = d.get("weich")
-    if not w:
-        fehler.append("WARNZEICHEN: Der Probelauf mit einer weichen Antwort fehlt.")
-    else:
-        m, o = w["mitHebeln"], w["ohneHebel"]
-        if m["warnOben"] or not m["zeigeMailblock"] or "arztKasten" not in m["arzt"]:
-            fehler.append("WARNZEICHEN: Weiches Warnzeichen mit Hebeln — erwartet Kasten unten, "
-                          "Mail-Block da, arztKasten im Kasten; bekommen: %s" % m)
-        if o["warnOben"] or not o["zeigeMailblock"] or o["profil"] != "nurArzt":
-            fehler.append("WARNZEICHEN: Weiches Warnzeichen ohne Hebel — erwartet Profil nurArzt, "
-                          "Kasten unten, Mail-Block da; bekommen: %s" % o)
-    harte = sum(1 for p in liste if isinstance(p, dict) and p.get("hart") is True)
-    hinweise.append("  l) Warnzeichen: %d hart, %d weich; Probelauf weich: Mail-Block bleibt"
-                    % (harte, len(liste) - harte))
-
-
 # ----------------------------------------------------------- m) PROFILE
 MUSTER_ERWARTET = {
-    # Fach 4.7 (von Hand durchgespielt), hier gegen die echte Auswertung
+    # Fach 4.7 (von Hand durchgespielt), hier gegen die echte Auswertung.
+    # Umbau 24.09. abends: Mail-Block ueberall (U2); D ohne PEM-Frage = Bewegung.
     "A": {"profil": "schlaf", "hebel": ["schlafDauer", "bewegungRegelmaessig", "koffeinAbstand"],
           "ausserdem": ["alkoholEnergie", "zuckerTief", "pauseMachen"], "arzt": ["vierWochen"],
-          "warnOben": False, "zeigeMailblock": True, "halten": False},
+          "mailblock": True, "halten": False},
     "B": {"profil": "schlaf", "hebel": ["stehAuf", "kvti"], "ausserdem": [],
-          "arzt": ["vierWochen"], "warnOben": False, "zeigeMailblock": True, "halten": False},
+          "arzt": ["vierWochen"], "mailblock": True, "halten": False},
     "C": {"profil": "nurArzt", "hebel": [], "ausserdem": [], "arzt": ["muedeTrotzSchlaf"],
-          "warnOben": False, "zeigeMailblock": False, "halten": False},
-    "D": {"profil": "nurArztWarn", "hebel": [], "ausserdem": [], "arzt": ["pemKasten"],
-          "warnOben": True, "zeigeMailblock": False, "halten": False},
+          "mailblock": True, "halten": False},
+    "D": {"profil": "tag", "hebel": ["bewegungRegelmaessig"], "ausserdem": [],
+          "arzt": ["vierWochen"], "mailblock": True, "halten": False},
     "E": {"profil": "unauffaellig", "hebel": ["bewegungRegelmaessig", "festeAufstehzeit"],
-          "ausserdem": [], "arzt": [], "warnOben": False, "zeigeMailblock": True, "halten": True},
-    "F": {"profil": "schlaf", "hebel": ["schlafDauer", "bewegungRegelmaessig", "koffeinAbstand"],
-          "ausserdem": ["alkoholEnergie", "zuckerTief", "pauseMachen"], "arzt": ["arztKasten"],
-          "warnOben": True, "zeigeMailblock": False, "halten": False},
+          "ausserdem": [], "arzt": [], "mailblock": True, "halten": True},
 }
 
 
@@ -787,7 +768,7 @@ def pruefe_profile(d):
         abw = ["%s: soll %s, ist %s" % (f, soll[f], e.get(f)) for f in soll if e.get(f) != soll[f]]
         if abw:
             fehler.append("PROFILE: Muster %s (Fach 4.7) weicht ab — %s" % (k, "; ".join(abw)))
-    hinweise.append("  m) Profile: Muster A–F aus Fach 4.7 durchgespielt")
+    hinweise.append("  m) Profile: Muster A–E aus Fach 4.7 durchgespielt")
 
 
 # ------------------------------------------------------------- n) WORTE
@@ -795,13 +776,9 @@ WORT = re.compile(r"[0-9A-Za-zÄÖÜäöüß]+(?:[-'’][0-9A-Za-zÄÖÜäöüß
 
 
 def mailblock_woerter(html):
-    start = html.find('id="mailblock"')
-    if start < 0:
+    block = element_mit_id(html, "mailblock")
+    if block is None:
         return None
-    start = html.rfind("<div", 0, start)
-    ende = html.find('id="keinMailblock"', start)
-    ende = html.rfind("<", 0, ende) if ende > 0 else len(html)
-    block = html[start:ende]
     block = re.sub(r"<!--.*?-->", " ", block, flags=re.S)
     # nicht gezaehlt (1.4 [D]): unsichtbare Feldbeschriftung, Fehlertext, Danke-Feld
     block = re.sub(r'<label class="sr-only".*?</label>', " ", block, flags=re.S)
@@ -872,6 +849,110 @@ def pruefe_zweck(d, html):
                     % (len(VERBOTEN_ZWECK), len(quellen)))
 
 
+# ---------------------------------------------------------- p) MAILBLOCK
+def pruefe_mailblock(d, html):
+    sweep = d.get("sweep") or {}
+    for fall in sweep.get("ohneMail", []):
+        fehler.append("MAILBLOCK: Ein Pfad endet ohne Mail-Block (U2). Reihenfolge: %s · "
+                      "Antworten: %s" % (", ".join(fall["folge"]) or "keine",
+                                         kurz(fall["antworten"], d)))
+    folgen = d.get("folgen") or []
+    if not folgen:
+        fehler.append("MAILBLOCK: regeln.js liefert keine reihenfolge() — die Anzeige "
+                      "ist nicht pruefbar.")
+    for folge in folgen:
+        for baustein in folge:
+            if 'id="%s"' % baustein not in html:
+                fehler.append("MAILBLOCK: reihenfolge() nennt den Baustein `%s`, den es in "
+                              "check/index.html nicht gibt." % baustein)
+    code = ohne_kommentare(lies(CHECK_JS))
+    if "R.reihenfolge(e)" not in code:
+        fehler.append("MAILBLOCK: check.js nimmt die Reihenfolge nicht aus R.reihenfolge(e) — "
+                      "dann prueft Zweig p nicht, was angezeigt wird.")
+    if "zeigeMailblock" in code:
+        fehler.append("MAILBLOCK: check.js kennt noch einen Schalter `zeigeMailblock`.")
+    sichtbar = re.sub(r"\s+", " ", sichtbarer_text(html))
+    if 'id="keinMailblock"' in html or "bewusst nicht an" in sichtbar:
+        fehler.append("MAILBLOCK: Es gibt wieder einen Ersatz-Zweig statt des Mail-Blocks "
+                      "(„biete ich dir bewusst nicht an“).")
+    for f in d["fragen"]:
+        if f["id"] == "warnzeichen" or f.get("zusatzListe") or \
+                any("hart" in o for o in f["optionen"]):
+            fehler.append("MAILBLOCK: Frage `%s` ist eine Warnzeichen-Weiche (Liste oder "
+                          "hart/weich). Der Check triagiert nicht (Regel, 24.09.)." % f["id"])
+    hinweise.append("  p) Mail-Block: in allen %d Antwortmustern, %d verschiedene "
+                    "Reihenfolgen, keine Weiche"
+                    % (sweep.get("zahl", 0), len(folgen)))
+
+
+# ------------------------------------------------------- q) UEBERSCHRIFT
+def pruefe_ueberschrift(d, html):
+    stellen = []
+    for wo, quelle in (("check/index.html", html),
+                       ("index.html (Startseite)",
+                        lies(START_HTML) if os.path.exists(START_HTML) else "")):
+        ohne = re.sub(r"<!--.*?-->", " ", quelle, flags=re.S)
+        for tag in ("title", "h1", "h2"):
+            for m in re.finditer(r"<%s\b[^>]*>(.*?)</%s>" % (tag, tag), ohne, re.S | re.I):
+                stellen.append(("%s <%s>" % (wo, tag), re.sub(r"<[^>]+>", " ", m.group(1))))
+    stellen += [("Profil-Titel", t) for t in d.get("profile") or []]
+    stellen += [("Teilen-Text (%s)" % k, t) for k, t in (d.get("teiltexte") or {}).items()]
+    code = ohne_kommentare(lies(CHECK_JS))
+    stellen += [("check.js Teilen-Titel", t)
+                for t in re.findall(r'navigator\.share\(\{\s*title:\s*"([^"]+)"', code)]
+    for wo, text in stellen:
+        m = SYMPTOM.search(text)
+        if m:
+            fehler.append("UEBERSCHRIFT: %s fragt nach dem Symptom („%s“): %s (U3)"
+                          % (wo, m.group(0), " ".join(text.split())))
+    hinweise.append("  q) Ueberschrift: %d Ueberschriften ohne Symptom-Wort" % len(stellen))
+
+
+# ------------------------------------------------------------ r) HINWEIS
+def pruefe_hinweis(html):
+    roh = element_mit_id(html, "festerHinweis")
+    if roh is None:
+        fehler.append('HINWEIS: Der feste Hinweis (id="festerHinweis") fehlt (U1).')
+        return
+    text = " ".join(sichtbarer_text(roh).split())
+    saetze = [x for x in re.split(r"(?<=[.!?])\s+", text) if x.strip()]
+    if len(saetze) > 2:
+        fehler.append("HINWEIS: Der feste Hinweis hat %d Saetze, erlaubt sind 2: %s"
+                      % (len(saetze), text))
+    klein = text.lower()
+    if "ersetzt keinen arzt" not in klein:
+        fehler.append("HINWEIS: Der feste Hinweis sagt nicht „ersetzt keinen Arzt“.")
+    if not any(w in klein for w in DEGAM_ALARM):
+        fehler.append("HINWEIS: Der feste Hinweis nennt keins der Alarmzeichen aus der "
+                      "DEGAM-Grundlage (%s)." % ", ".join(DEGAM_ALARM))
+    if "arztkasten" in roh or 'class="hinweis"' not in roh:
+        fehler.append("HINWEIS: Der feste Hinweis ist kein ruhiger Satz mehr "
+                      "(class=hinweis, kein Kasten).")
+    pos, ende = html.find('id="festerHinweis"'), html.find("</section>", html.find('id="ergebnis"'))
+    teilen = html.find('class="teilen"')
+    if not (0 <= teilen < pos < ende):
+        fehler.append("HINWEIS: Der feste Hinweis steht nicht am Ende des Ergebnisses.")
+    sichtbar = sichtbarer_text(html)
+    if re.search(r"seelsorge|0800 111 0", sichtbar, re.I):
+        fehler.append("HINWEIS: Im Check steht wieder eine Seelsorge-Box (U1).")
+    hinweise.append("  r) Hinweis: %d Saetze, am Ende, ruhig, DEGAM-Alarmzeichen" % len(saetze))
+
+
+# ---------------------------------------------------------------- s) PEM
+PEM_SATZ = re.compile(r"leichte Anstrengung[^.]*tagelang[^.]*abkl(?:ä|ae)ren", re.I)
+
+
+def pruefe_pem(d):
+    tipp = d.get("bewegungTipp") or ""
+    if not tipp:
+        fehler.append("PEM: Die Bewegungs-Regel `bewegungRegelmaessig` fehlt.")
+    elif not PEM_SATZ.search(tipp):
+        fehler.append("PEM: Der Tipp der Bewegungs-Regel enthaelt den PEM-Satz nicht "
+                      "(„Haut dich schon leichte Anstrengung tagelang um, lass das erst "
+                      "abklären …“, U1).")
+    hinweise.append("  s) PEM: Satz steht in der Bewegungs-Regel")
+
+
 def main():
     for pfad in (REGELN_JS, CHECK_JS, HTML):
         if not os.path.exists(pfad):
@@ -887,8 +968,10 @@ def main():
         pruefe_ergebnis(d)
         pruefe_ausschluss(d)
         pruefe_video(d)
-        pruefe_warnzeichen(d)
         pruefe_profile(d)
+        pruefe_mailblock(d, html)
+        pruefe_ueberschrift(d, html)
+        pruefe_pem(d)
         texte = []
         for r in d["regeln"].values():
             texte.append(r["titel"])
@@ -911,6 +994,7 @@ def main():
     pruefe_kurve()
     pruefe_worte(d, html)
     pruefe_zweck(d, html)
+    pruefe_hinweis(html)
 
     print("Energie-Check — Pruefung")
     for z in hinweise:
@@ -922,7 +1006,8 @@ def main():
         print("\nROT: Der Energie-Check ist nicht abnahmefaehig.")
         return 1
     print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, Ausschluss, "
-          "Speicher, Versprechen, Mail, Kurve, Warnzeichen, Profile, Worte und Zweck stimmen.")
+          "Speicher, Versprechen, Mail, Kurve, Profile, Worte, Zweck, Mail-Block, "
+          "Ueberschrift, Hinweis und PEM stimmen.")
     return 0
 
 

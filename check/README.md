@@ -1,20 +1,20 @@
 # Energie-Check
 
-> **Stand 24.09.2026:** Umbau vom Schlaf-Check zum Energie-Check. **Acht Fragen, 15 Regeln**, Profil nach Lebensbereich (Schlaf / Trinken / Tag), Arzt-Kasten, Mail-Block „Deine Energiekurve – 7 Tage“ und die Eintragsseite `../kurve/`. Grundlage im Vault (`03 Projects/TikTok Automation/07 Produkt/`): „(C) Entscheidungen Energie-Check — Liam“, „(C) Abteilung Fach — Energie-Check, Fragen und Regeln“ (Abschnitt 4), „(C) Abteilung Produkt & Text — Energie-Check, 7 Tage, Tag-7-Angebot“ (alle Texte wörtlich). Live unter `https://mein-ruhepuls.de/check/`.
+> **Stand 24.09.2026:** Umbau vom Schlaf-Check zum Energie-Check. **Umbau am Abend (Entscheidungen, Nachtrag ~18:00, U1–U3): Werkzeug für Gesunde, kein Symptom-Check.** **Sieben Fragen, 13 Regeln**, Überschrift „Was kostet dich im Alltag Energie?“, Profil nach Lebensbereich (Schlaf / Trinken / Tag), fester Hinweis am Ende, Mail-Block „Deine Energiekurve – 7 Tage“ und die Eintragsseite `../kurve/`. Grundlage im Vault (`03 Projects/TikTok Automation/07 Produkt/`): „(C) Entscheidungen Energie-Check — Liam“, „(C) Abteilung Fach — Energie-Check, Fragen und Regeln“ (Abschnitt 4), „(C) Abteilung Produkt & Text — Energie-Check, 7 Tage, Tag-7-Angebot“ (alle Texte wörtlich). Live unter `https://mein-ruhepuls.de/check/`.
 
 ## Wie das Ergebnis zustande kommt
 
 Jede auffällige Antwort löst Regeln aus (`FRAGEN[].ausloeser`). Punkte = Grundschwere + Antwortwert; Gleichstand: erst `schwere`, dann Fragenreihenfolge. Dann `KONFLIKTE`, dann Trennung nach `gruppe`:
 
 - **`hebel`** — die Top 3 ausführlich, der Rest unter „Außerdem aufgefallen“. Paar-Regel: Steht `zuckerTief` in den Top 3, rückt `pauseMachen` direkt dahinter. Die Domäne mit der höchsten Punktsumme in den Top 3 gibt das Profil (Gleichstand: schlaf vor trinken vor tag).
-- **`arzt`** — ein Kasten. **Hartes Warnzeichen** (Entscheidung T1): Kasten ganz oben, **kein Mail-Block**. Weiches Warnzeichen oder `vierWochen`/`muedeTrotzSchlaf`: Kasten unten. `muedeTrotzSchlaf` blendet den Mail-Block ebenfalls aus.
+- **`arzt`** — nur noch `vierWochen` / `muedeTrotzSchlaf` (aus `seitWann`), Kasten unten. Keine Warnzeichen-Frage mehr, kein Kasten oben, keine Seelsorge-Box (U1).
+- **Mail-Block für alle** (U2): `reihenfolge(e)` in `regeln.js` gibt die Bausteine je Fall zurück, der Mail-Block steht in jedem Fall direkt unter dem Ergebnis. `check.js` zeigt genau diese Reihenfolge.
+- **Fester Hinweis** (`#festerHinweis`, U1): höchstens 2 Sätze, Alarmzeichen nur aus der DEGAM-Grundlage. **PEM** steht als Satz im Tipp von `bewegungRegelmaessig`, keine Sperre mehr.
 - **HALTEN** (`bewegungRegelmaessig`, `festeAufstehzeit`) nur, wenn Hebel **und** Arzt leer sind.
 
-Bedingungen je Auslöser: `nurWenn`, `undWenn`, `nichtWenn` (Werte), `nurAntwort`, **`nichtWennAntwort`** (Antwort-Index, Gegenstück zu `nurAntwort`; sperrt Bewegung bei der Anstrengungs-Antwort, PEM). Alle sitzen in `ausloeserGilt()`.
+Bedingungen je Auslöser: `nurWenn`, `undWenn`, `nichtWenn` (Werte), `nurAntwort` (Antwort-Index). Alle sitzen in `ausloeserGilt()`.
 
-**Hart/weich:** Jeder Punkt der Warnliste trägt `hart: true/false`, jede Antwort von Frage 8 auch. Die Seite weiß nicht, *welcher* Listenpunkt zutrifft — deshalb ist „Mindestens eins aus der Liste“ hart, solange ein harter Punkt in der Liste steht (im Zweifel hart). Einteilung mit Begründung: Produkt & Text, Abschnitt „Einteilung hart/weich“.
-
-Der Teilen-Text nennt nur den Profil-Titel, bei Arzt-Profilen gar keinen.
+Der Teilen-Text nennt nur den Profil-Titel und die Überschrift, beim Arzt-Profil keinen Titel.
 
 ## Die Regeln
 
@@ -49,4 +49,4 @@ Schreibt `videolinks.js` aus `~/tools/ruhepuls-pipeline/public/v<Zahl>/`. Nach j
 python3 scripts/pruefe-check.py
 ```
 
-Zweige a–n, Beschreibung im Kopf des Skripts. Neu am 24.09.: g) mit PEM-, HALTEN-, Paar-, Hart/weich- und Teilen-Prüfung im Durchlauf aller 81.920 Antwortmuster, h) Check vs. Kurve getrennt, k) Kurve, l) Warnzeichen hart/weich mit Probelauf „weich“, m) die Muster A–F aus Fach 4.7, n) Mail-Block ≤ 60 Wörter und verbotene Wirkwörter. Jede neue Prüfung wurde am 24.09. einmal absichtlich gebrochen (rot) und wieder geheilt (grün).
+Zweige a–s (l entfallen), Beschreibung im Kopf des Skripts. Umbau 24.09. abends: p) kein Pfad ohne Mail-Block (alle 20.480 Antwortmuster), q) keine Überschrift mit Symptom-Wort, r) fester Hinweis ≤ 2 Sätze am Ende, s) PEM-Satz in der Bewegungs-Regel, b) Fragenzahl im Text = echte Zahl. Jede davon einmal absichtlich gebrochen (rot) und geheilt (grün). Frühere Zweige: Neu am 24.09.: g) mit PEM-, HALTEN-, Paar-, Hart/weich- und Teilen-Prüfung im Durchlauf aller 81.920 Antwortmuster, h) Check vs. Kurve getrennt, k) Kurve, l) Warnzeichen hart/weich mit Probelauf „weich“, m) die Muster A–F aus Fach 4.7, n) Mail-Block ≤ 60 Wörter und verbotene Wirkwörter. Jede neue Prüfung wurde am 24.09. einmal absichtlich gebrochen (rot) und wieder geheilt (grün).
