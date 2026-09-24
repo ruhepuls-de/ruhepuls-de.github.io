@@ -384,7 +384,7 @@
        24.09. abends). Darunter der Mail-Block, danach die zwei Halte-Karten. */
     unauffaellig: {
       titel: "Bei dir klemmt wenig",
-      satz: "Bei deinen Antworten sticht keine Gewohnheit heraus. Welche kleinen Dinge bei dir einen Unterschied machen, siehst du am besten an deiner eigenen Kurve."
+      satz: "Bei deinen Antworten sticht keine Gewohnheit heraus. Ob kleine Dinge bei dir mit besseren Tagen zusammenfallen, kannst du an deiner eigenen Kurve beobachten."
     }
   };
 

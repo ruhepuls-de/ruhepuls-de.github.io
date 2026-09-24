@@ -61,8 +61,8 @@ q) UEBERSCHRIFT Keine Ueberschrift fragt nach dem Symptom (U3): <title>,
                „erschöpft“, „schlapp“ … Im Fliesstext ist das erlaubt.
 r) HINWEIS     Der feste Hinweis (#festerHinweis) steht am Ende des
                Ergebnisses, hat hoechstens 2 Saetze, sagt „ersetzt keinen
-               Arzt“ und nennt nur Alarmzeichen aus der DEGAM-Grundlage der
-               Fach-Datei. Keine Seelsorge-Box im Check (U1).
+               Arzt“ und nennt alle Alarmzeichen aus DEGAM_ALARM, darunter
+               „tagsüber ungewollt ein“ (U-R1). Keine Seelsorge-Box im Check (U1).
 s) PEM         Der Tipp der Bewegungs-Regel enthaelt den PEM-Satz (U1):
                „leichte Anstrengung … tagelang … abklären“.
 t) PRAXIS      Kein Ergebnis und kein Profil verweist in die Praxis, und
@@ -139,7 +139,8 @@ ZAHLWORT = {"fünf": 5, "sechs": 6, "sieben": 7, "acht": 8, "neun": 9, "zehn": 1
 SYMPTOM = re.compile(r"müde|muede|müdigkeit|muedigkeit|erschöpf|erschoepf|schlapp|"
                      r"kraftlos|antriebslos|ausgelaugt|energielos|schlaflos", re.I)
 # r) Alarmzeichen aus der DEGAM-Grundlage der Fach-Datei (2.1 und Abb. 2)
-DEGAM_ALARM = ["vier wochen", "fieber", "nachtschweiß", "gewichtsverlust", "atempausen"]
+DEGAM_ALARM = ["vier wochen", "tagsüber ungewollt ein", "fieber", "nachtschweiß",
+               "gewichtsverlust", "atempausen"]
 
 # Video-IDs mit .verworfen-Ordner daneben, bei denen von Hand geprueft ist,
 # dass die Regel zum GUELTIGEN Video passt. Mit Begruendung, sonst rot.
@@ -935,9 +936,10 @@ def pruefe_hinweis(html):
     klein = text.lower()
     if "ersetzt keinen arzt" not in klein:
         fehler.append("HINWEIS: Der feste Hinweis sagt nicht „ersetzt keinen Arzt“.")
-    if not any(w in klein for w in DEGAM_ALARM):
-        fehler.append("HINWEIS: Der feste Hinweis nennt keins der Alarmzeichen aus der "
-                      "DEGAM-Grundlage (%s)." % ", ".join(DEGAM_ALARM))
+    fehlend = [w for w in DEGAM_ALARM if w not in klein]
+    if fehlend:
+        fehler.append("HINWEIS: Dem festen Hinweis fehlen Alarmzeichen aus der "
+                      "DEGAM-Grundlage: %s (U-R1)." % ", ".join(fehlend))
     if "arztkasten" in roh or 'class="hinweis"' not in roh:
         fehler.append("HINWEIS: Der feste Hinweis ist kein ruhiger Satz mehr "
                       "(class=hinweis, kein Kasten).")
