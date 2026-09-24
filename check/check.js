@@ -70,12 +70,11 @@
     else { male(); window.scrollTo(0, 0); }
   }
 
-  /* Zeile mit den Video-Links — oder der Satz, dass keins da ist.
-     Im Arzt-Kasten unten nur, wenn es wirklich ein Video gibt. */
-  function videoZeile(regel, stillWennKeins) {
+  /* Zeile mit den Video-Links — oder der Satz, dass keins da ist. */
+  function videoZeile(regel) {
     var v = regel.video ? V.videos[regel.video] : null;
     if (!v || (!v.tiktok && !v.youtube)) {
-      return stillWennKeins ? null : el("p", "videos kein", "Video dazu folgt.");
+      return el("p", "videos kein", "Video dazu folgt.");
     }
     var p = el("p", "videos");
     p.appendChild(document.createTextNode("Video dazu: "));
@@ -94,7 +93,7 @@
   /* Eine Karte: Titel, „Du hast gesagt“, Tipp, Quelle, Genaue Stelle, Video.
      titel === null: ohne Ueberschrift (fuer „Außerdem“, dort steht der
      Titel im <summary>). */
-  function karte(t, titel, anker, arzt) {
+  function karte(t, titel, anker) {
     var r = t.regel;
     var d = el("div", "regel");
     if (anker) { d.id = anker; }
@@ -118,8 +117,7 @@
     det.appendChild(el("p", null, r.quelle));
     d.appendChild(det);
 
-    var v = videoZeile(r, arzt);
-    if (v) { d.appendChild(v); }
+    d.appendChild(videoZeile(r));
     return d;
   }
 
@@ -127,7 +125,7 @@
      welcher Reihenfolge stehen, sagt R.reihenfolge(e) — dort steht der
      Mail-Block in jedem Fall (U2). */
   var BAUSTEINE = ["profil", "hebelListe", "mailblock", "hebelKarten",
-                   "ausserdem", "arztUnten", "zumMailblock"];
+                   "ausserdem", "zumMailblock"];
 
   function zeigeErgebnis(e) {
     letztesErgebnis = e;
@@ -137,17 +135,12 @@
     $("ergebnisTitel").textContent = e.titel;
     $("ergebnisSatz").textContent = e.satz;
 
-    /* [H] Arzt-Karten (nur aus seitWann: vierWochen / muedeTrotzSchlaf) */
-    var arztZiel = $("arztUntenKarten");
-    leere(arztZiel);
-    e.arzt.forEach(function (t) { arztZiel.appendChild(karte(t, t.regel.titel, null, true)); });
-
     /* [C] Kurzliste + [F] Karten */
     var ol = $("hebelListeOl"), karten = $("hebelKartenListe");
     leere(ol); leere(karten);
     e.hebel.forEach(function (t, i) {
       var anker = "hebel-" + (i + 1);
-      karten.appendChild(karte(t, (i + 1) + ". " + t.regel.titel, anker, false));
+      karten.appendChild(karte(t, (i + 1) + ". " + t.regel.titel, anker));
       var li = el("li");
       var a = el("a", null, t.regel.titel);
       a.href = "#" + anker;
@@ -161,7 +154,7 @@
     e.ausserdem.forEach(function (t) {
       var det = el("details", "ausserdem-regel");
       det.appendChild(el("summary", null, t.regel.titel));
-      det.appendChild(karte(t, null, null, false));
+      det.appendChild(karte(t, null, null));
       aus.appendChild(det);
     });
 
@@ -169,9 +162,6 @@
     var folge = R.reihenfolge(e);
     BAUSTEINE.forEach(function (id) { zeig($(id), folge.indexOf(id) >= 0); });
     folge.forEach(function (id) { fluss.appendChild($(id)); });
-
-    /* [E] Hinweissatz: Hebel da UND Arzt-Kasten unten */
-    zeig($("hinweisUnten"), !e.halten && e.hebel.length > 0 && e.arzt.length > 0);
 
     $("balken").style.width = "100%";
     zeig($("fragen"), false); zeig($("ergebnis"), true);

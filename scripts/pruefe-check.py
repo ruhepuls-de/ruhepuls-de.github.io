@@ -16,13 +16,12 @@ e) VIDEO       Jede genannte Video-ID gibt es in der Pipeline und sie hat
                einen Link in check/videolinks.js.
 f) TON         Keine Zuschreibung im Seitentext ("du hast eine ...",
                "du leidest", "krankhaft", "Diagnose").
-g) AUSSCHLUSS  Alle Antwortkombinationen (4^6 * 5) laufen durch die echte
+g) AUSSCHLUSS  Alle Antwortkombinationen (4^5 * 5) laufen durch die echte
                Auswertung. Rot, wenn eine Regel ohne Ausloeser samt
                Voraussetzung erscheint, ein KONFLIKT-Paar zusammen steht,
-               HALTEN neben einer Arzt-Regel steht, mehr als drei Hebel oben
-               stehen, die Paar-Regel (zuckerTief -> pauseMachen) verletzt
-               ist, oder der Teilen-Text eine Arzt-Regel bzw. beim
-               Arzt-Profil den Profil-Titel verraet.
+               mehr als drei Hebel oben stehen, die Paar-Regel
+               (zuckerTief -> pauseMachen) verletzt ist, oder der Teilen-Text
+               einen Regel-Titel verraet.
 h) SPEICHER    Der Check speichert nichts; die Kurve schreibt UND liest
                (ruhepuls.kurve.v1); die Datenschutzerklaerung sagt fuer
                beide genau das (Abschnitt 4 / 4a).
@@ -37,8 +36,9 @@ k) KURVE       kurve/ macht keinen Netzaufruf, laedt kein fremdes Skript,
                den Speicher zu und traegt den Hinweis aus T2 (Safari/Chrome +
                Lesezeichen).
 l) (entfallen, Umbau 24.09.: Warnzeichen hart/weich gibt es nicht mehr)
-m) PROFILE     Die Muster aus Fach 4.7 (A–E, ohne Frage 8; F entfiel mit
-               ihr) ergeben genau das erwartete Ergebnis.
+m) PROFILE     Die Muster aus Fach 4.7 (A, B, D, E; ohne Frage 7 und 8 —
+               C und F entfielen mit ihnen) ergeben genau das erwartete
+               Ergebnis.
 n) WORTE       Mail-Block hoechstens 60 Woerter (Produkt & Text 1.4 [D]);
                keine verbotenen Wirkwoerter in Check, Regeln, Kurve und
                Danke-Seiten ("mehr Energie", "du wirst", "hilft gegen",
@@ -65,6 +65,16 @@ r) HINWEIS     Der feste Hinweis (#festerHinweis) steht am Ende des
                Fach-Datei. Keine Seelsorge-Box im Check (U1).
 s) PEM         Der Tipp der Bewegungs-Regel enthaelt den PEM-Satz (U1):
                „leichte Anstrengung … tagelang … abklären“.
+t) PRAXIS      Kein Ergebnis und kein Profil verweist in die Praxis, und
+               nirgends steht ein Bluttest oder eine Laborliste ausserhalb
+               des festen Hinweises (Regel 24.09. abends: Werkzeug fuer
+               Gesunde, kein Symptom-Check). Geprueft: Titel, Tipp, Quelle
+               jeder Regel; Profil-Titel und -Satz; Fragen und Antworten;
+               Teilen-Texte; sichtbarer Text von Check, Kurve und Startseite
+               ohne #festerHinweis. Keine Regel-Gruppe ausser „hebel“, kein
+               Arzt-Baustein in reihenfolge() oder index.html. Die Kurve
+               traegt woertlich denselben festen Hinweis wie der Check, ohne
+               Seelsorge-Nummer.
 
 Aufruf:  python3 scripts/pruefe-check.py
 """
@@ -133,11 +143,17 @@ DEGAM_ALARM = ["vier wochen", "fieber", "nachtschweiß", "gewichtsverlust", "ate
 
 # Video-IDs mit .verworfen-Ordner daneben, bei denen von Hand geprueft ist,
 # dass die Regel zum GUELTIGEN Video passt. Mit Begruendung, sonst rot.
-VERWORFEN_GEPRUEFT = {
-    "v82": "v82 = Vitaminmangel, schliesst mit den fuenf Werten aus DEGAM 5.3.1 — "
-           "passt zu muedeTrotzSchlaf/vierWochen. v82.verworfen = die "
-           "Schilddruesen-Fassung. Geprueft 24.09.2026 (Bau).",
-}
+# (v82 entfiel am 24.09. abends mit den Arzt-Regeln.)
+VERWORFEN_GEPRUEFT = {}
+
+# t) Verweis in die Praxis, Bluttest, Laborliste — nur im festen Hinweis erlaubt.
+# „Leitlinie der Hausärzte“ (Quellenangabe) ist kein Verweis und trifft nicht.
+PRAXIS = re.compile(
+    r"praxis|hausarzt(?!e)|\bzum arzt\b|zur ärztin|arzttermin|"
+    r"lass (?:das |es |dich )?(?:ärztlich )?(?:nachsehen|untersuchen|durchchecken)|"
+    r"bluttest|blutbild|blutwert|blutabnahme|blutzucker|schilddrüsenwert|"
+    r"entzündungswert|leberwert|ferritin|\btsh\b|labor(?:wert|liste|untersuchung|test)",
+    re.I)
 
 fehler = []
 hinweise = []
@@ -166,7 +182,6 @@ R.FRAGEN.forEach(function (f) {
 function idsVon(l) { return l.map(function (t) { return t.regelId; }); }
 function kurzErg(e) {
   return { profil: e.profil, hebel: idsVon(e.hebel), ausserdem: idsVon(e.ausserdem),
-           arzt: idsVon(e.arzt),
            mailblock: R.reihenfolge(e).indexOf("mailblock") >= 0,
            halten: e.halten };
 }
@@ -190,7 +205,7 @@ R.FRAGEN.forEach(function (f) {
 /* --- g) AUSSCHLUSS: jede Antwortkombination einmal durchspielen. */
 out.konflikte = R.KONFLIKTE || [];
 var PAAR = R.PAAR || ["zuckerTief", "pauseMachen"];
-var S = out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [], haltenArzt: [],
+var S = out.sweep = { zahl: 0, ohneAusloeser: [], konflikt: [],
                       zuViele: [], paar: [], ohneMail: [], teilen: [] };
 var folgen = {}, teiltexte = {};
 function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
@@ -220,11 +235,6 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
         merk(S.konflikt, { paar: paar, antworten: a, gezeigt: gezeigt });
       }
     });
-    /* HALTEN nie neben einer Arzt-Regel */
-    var arztDa = e.arzt.length > 0 ||
-      e.treffer.some(function (t) { return t.regel && t.regel.gruppe === "arzt"; });
-    var haltenDa = e.halten || e.treffer.some(function (t) { return t.halten; });
-    if (haltenDa && arztDa) { merk(S.haltenArzt, { antworten: a, gezeigt: gezeigt }); }
     if (e.hebel.length > 3) { merk(S.zuViele, { antworten: a, gezeigt: gezeigt }); }
     /* Paar-Regel */
     var alle = idsVon(e.hebel.concat(e.ausserdem));
@@ -241,14 +251,10 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
     /* Teilen-Text */
     var tt = R.teilText(e, "https://mein-ruhepuls.de/check/");
     teiltexte[e.profil] = tt;
-    var verrat = e.arzt.concat(e.treffer).filter(function (t) {
-      return t.regel && t.regel.gruppe === "arzt" && tt.indexOf(t.regel.titel) >= 0;
+    var verrat = Object.keys(R.REGELN).filter(function (id) {
+      return tt.indexOf(R.REGELN[id].titel) >= 0;
     });
-    Object.keys(R.REGELN).forEach(function (id) {
-      if (tt.indexOf(R.REGELN[id].titel) >= 0) { verrat.push({ regel: R.REGELN[id] }); }
-    });
-    if (verrat.length ||
-        (e.profil === "nurArzt" && tt.indexOf(e.titel) >= 0)) {
+    if (verrat.length) {
       merk(S.teilen, { antworten: a, text: tt });
     }
     var k = fs.length - 1;
@@ -260,17 +266,24 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
 out.folgen = Object.keys(folgen).map(function (k) { return folgen[k]; });
 out.teiltexte = teiltexte;
 out.profile = Object.keys(R.PROFILE).map(function (k) { return R.PROFILE[k].titel; });
+out.profilTexte = {};
+Object.keys(R.PROFILE).forEach(function (k) {
+  out.profilTexte[k] = R.PROFILE[k].titel + " ¶ " + R.PROFILE[k].satz;
+});
+out.teilOhne = R.teilText(null, "https://mein-ruhepuls.de/check/");
 out.bewegungTipp = R.REGELN.bewegungRegelmaessig ? R.REGELN.bewegungRegelmaessig.tipp : "";
 var leer = {};
 R.FRAGEN.forEach(function (f) { leer[f.id] = 0; });
 var e0 = R.werteAus(leer);
 out.leer = { unauffaellig: e0.unauffaellig, gezeigt: idsVon(e0.treffer) };
 
-/* --- m) PROFILE: Fach 4.7, Muster A–E (Index je Frage in Ablauf-Reihenfolge).
-   Frage 8 ist raus (U1); F war A plus Warnzeichen und ist damit gleich A. */
+/* --- m) PROFILE: Fach 4.7, Muster A, B, D, E (Index je Frage in
+   Ablauf-Reihenfolge). Frage 8 ist raus (U1), Frage 7 „Seit wann“ auch
+   (24.09. abends). C war „nur Dauer, sonst nichts“ = jetzt gleich E; F war
+   A plus Warnzeichen = gleich A. */
 var MUSTER = {
-  A: [1, 0, 2, 2, 2, 1, 2], B: [2, 3, 0, 0, 0, 0, 3], C: [0, 0, 0, 0, 0, 0, 3],
-  D: [0, 0, 0, 0, 3, 0, 3], E: [0, 0, 0, 0, 0, 0, 0]
+  A: [1, 0, 2, 2, 2, 1], B: [2, 3, 0, 0, 0, 0],
+  D: [0, 0, 0, 0, 3, 0], E: [0, 0, 0, 0, 0, 0]
 };
 out.muster = {};
 Object.keys(MUSTER).forEach(function (k) {
@@ -315,8 +328,10 @@ def pruefe_quelle(d):
         for feld in ("titel", "tipp", "kurz", "quelle", "link"):
             if not (r.get(feld) or "").strip():
                 fehler.append("QUELLE: Regel `%s` hat kein Feld `%s`." % (name, feld))
-        if r.get("gruppe") not in ("hebel", "arzt"):
-            fehler.append("QUELLE: Regel `%s` hat keine gruppe hebel/arzt." % name)
+        if r.get("gruppe") != "hebel":
+            fehler.append("QUELLE: Regel `%s` hat nicht die gruppe hebel (%r). Der Check "
+                          "triagiert nicht, eine Arzt-Gruppe gibt es nicht mehr."
+                          % (name, r.get("gruppe")))
         if r.get("gruppe") == "hebel" and r.get("domaene") not in ("schlaf", "trinken", "tag"):
             fehler.append("QUELLE: Hebel-Regel `%s` hat keine domaene schlaf/trinken/tag." % name)
         link = (r.get("link") or "").strip()
@@ -524,7 +539,6 @@ def pruefe_ausschluss(d):
             % (fall["paar"][0], fall["paar"][1], kurz(fall["antworten"], d))
         )
     melde = [
-        ("haltenArzt", "HALTEN steht neben einer Arzt-Regel"),
         ("zuViele", "mehr als drei Hebel oben"),
         ("paar", "zuckerTief steht in den Top 3, pauseMachen aber nicht direkt dahinter"),
     ]
@@ -533,8 +547,8 @@ def pruefe_ausschluss(d):
             fehler.append("AUSSCHLUSS: %s. Antworten: %s · Ergebnis: %s"
                           % (was, kurz(fall["antworten"], d), ", ".join(fall["gezeigt"])))
     for fall in sweep.get("teilen", []):
-        fehler.append("AUSSCHLUSS: Der Teilen-Text verraet eine Arzt-Regel oder den "
-                      "Arzt-Profil-Titel: „%s“ · Antworten: %s"
+        fehler.append("AUSSCHLUSS: Der Teilen-Text verraet einen Regel-Titel: „%s“ · "
+                      "Antworten: %s"
                       % (fall["text"], kurz(fall["antworten"], d)))
     bedingt = []
     for f in d["fragen"]:
@@ -545,7 +559,7 @@ def pruefe_ausschluss(d):
                                   a["nurWenn"]["ab"]))
     if not bedingt:
         fehler.append("AUSSCHLUSS: Keine einzige Regel hat eine Voraussetzung "
-                      "(`nurWenn`). Die KVT-I braucht eine.")
+                      "(`nurWenn`). Das Nickerchen braucht eine (nur bei Wachliegen).")
     hinweise.append("  g) Ausschluss: %d Antwortmuster durchgespielt, %d "
                     "Konfliktpaar(e), bedingt: %s"
                     % (sweep["zahl"], len(d.get("konflikte") or []),
@@ -744,17 +758,16 @@ def pruefe_kurve():
 MUSTER_ERWARTET = {
     # Fach 4.7 (von Hand durchgespielt), hier gegen die echte Auswertung.
     # Umbau 24.09. abends: Mail-Block ueberall (U2); D ohne PEM-Frage = Bewegung.
+    # Zweiter Schritt: keine Arzt-Regeln, kein kvti, keine Frage „Seit wann“.
     "A": {"profil": "schlaf", "hebel": ["schlafDauer", "bewegungRegelmaessig", "koffeinAbstand"],
-          "ausserdem": ["alkoholEnergie", "zuckerTief", "pauseMachen"], "arzt": ["vierWochen"],
+          "ausserdem": ["alkoholEnergie", "zuckerTief", "pauseMachen"],
           "mailblock": True, "halten": False},
-    "B": {"profil": "schlaf", "hebel": ["stehAuf", "kvti"], "ausserdem": [],
-          "arzt": ["vierWochen"], "mailblock": True, "halten": False},
-    "C": {"profil": "nurArzt", "hebel": [], "ausserdem": [], "arzt": ["muedeTrotzSchlaf"],
+    "B": {"profil": "schlaf", "hebel": ["stehAuf"], "ausserdem": [],
           "mailblock": True, "halten": False},
     "D": {"profil": "tag", "hebel": ["bewegungRegelmaessig"], "ausserdem": [],
-          "arzt": ["vierWochen"], "mailblock": True, "halten": False},
+          "mailblock": True, "halten": False},
     "E": {"profil": "unauffaellig", "hebel": ["bewegungRegelmaessig", "festeAufstehzeit"],
-          "ausserdem": [], "arzt": [], "mailblock": True, "halten": True},
+          "ausserdem": [], "mailblock": True, "halten": True},
 }
 
 
@@ -768,7 +781,7 @@ def pruefe_profile(d):
         abw = ["%s: soll %s, ist %s" % (f, soll[f], e.get(f)) for f in soll if e.get(f) != soll[f]]
         if abw:
             fehler.append("PROFILE: Muster %s (Fach 4.7) weicht ab — %s" % (k, "; ".join(abw)))
-    hinweise.append("  m) Profile: Muster A–E aus Fach 4.7 durchgespielt")
+    hinweise.append("  m) Profile: Muster A, B, D, E aus Fach 4.7 durchgespielt")
 
 
 # ------------------------------------------------------------- n) WORTE
@@ -953,6 +966,66 @@ def pruefe_pem(d):
     hinweise.append("  s) PEM: Satz steht in der Bewegungs-Regel")
 
 
+# ------------------------------------------------------------- t) PRAXIS
+def ohne_festen_hinweis(html):
+    roh = element_mit_id(html, "festerHinweis")
+    return html.replace(roh, " ") if roh else html
+
+
+def pruefe_praxis(d, html):
+    stellen = []
+    for name, r in sorted(d["regeln"].items()):
+        stellen.append(("Regel `%s`" % name,
+                        " ¶ ".join([r["titel"], r["tipp"], r["kurz"], r["quelle"]])))
+    for k, t in sorted((d.get("profilTexte") or {}).items()):
+        stellen.append(("Profil `%s`" % k, t))
+    for f in d["fragen"]:
+        teile = [f["text"], f.get("zusatz") or ""]
+        for o in f["optionen"]:
+            teile += [o["text"], o["bezug"]]
+        stellen.append(("Frage `%s`" % f["id"], " ¶ ".join(teile)))
+    for k, t in sorted((d.get("teiltexte") or {}).items()):
+        stellen.append(("Teilen-Text (%s)" % k, t))
+    if d.get("teilOhne"):
+        stellen.append(("Teilen-Text (ohne Ergebnis)", d["teilOhne"]))
+    stellen.append(("check/index.html", sichtbarer_text(ohne_festen_hinweis(html), True)))
+    kurve = lies(KURVE_HTML) if os.path.exists(KURVE_HTML) else ""
+    stellen.append(("kurve/index.html", sichtbarer_text(ohne_festen_hinweis(kurve), True)))
+    if os.path.exists(KURVE_JS):
+        stellen.append(("kurve/kurve.js",
+                        " ¶ ".join(re.findall(r'"([^"]{12,})"', ohne_kommentare(lies(KURVE_JS))))))
+    if os.path.exists(START_HTML):
+        stellen.append(("index.html (Startseite)", sichtbarer_text(lies(START_HTML), True)))
+    for wo, text in stellen:
+        text = " ".join(text.split())
+        m = PRAXIS.search(text)
+        if m:
+            fehler.append("PRAXIS: „%s“ in %s — der Check verweist nicht in die Praxis und "
+                          "nennt keinen Bluttest (nur der feste Hinweis darf das) — ...%s..."
+                          % (m.group(0), wo, text[max(0, m.start() - 60):m.end() + 60]))
+    # Kein Arzt-Baustein, weder in der Auswertung noch in der Seite
+    for folge in d.get("folgen") or []:
+        for b in folge:
+            if "arzt" in b.lower():
+                fehler.append("PRAXIS: reihenfolge() zeigt einen Arzt-Baustein `%s`." % b)
+    if re.search(r'id="arzt\w*"|class="[^"]*arztkasten', html):
+        fehler.append("PRAXIS: check/index.html hat wieder einen Arzt-Kasten.")
+    # Die Kurve traegt woertlich denselben festen Hinweis, ohne Seelsorge-Nummer
+    im_check = element_mit_id(html, "festerHinweis")
+    in_kurve = element_mit_id(kurve, "festerHinweis")
+    satz = lambda roh: " ".join(sichtbarer_text(roh).split()) if roh else None
+    if not in_kurve:
+        fehler.append('PRAXIS: kurve/index.html hat keinen festen Hinweis (id="festerHinweis").')
+    elif satz(in_kurve) != satz(im_check):
+        fehler.append("PRAXIS: Der feste Hinweis in der Kurve ist nicht woertlich derselbe wie "
+                      "im Check:\n      Check: %s\n      Kurve: %s"
+                      % (satz(im_check), satz(in_kurve)))
+    if re.search(r"seelsorge|0800 ?111", sichtbarer_text(kurve), re.I):
+        fehler.append("PRAXIS: In der Kurve steht wieder eine Seelsorge-Nummer.")
+    hinweise.append("  t) Praxis: %d Texte ohne Praxis-Verweis und Bluttest, Kurve traegt "
+                    "denselben festen Hinweis" % len(stellen))
+
+
 def main():
     for pfad in (REGELN_JS, CHECK_JS, HTML):
         if not os.path.exists(pfad):
@@ -972,6 +1045,7 @@ def main():
         pruefe_mailblock(d, html)
         pruefe_ueberschrift(d, html)
         pruefe_pem(d)
+        pruefe_praxis(d, html)
         texte = []
         for r in d["regeln"].values():
             texte.append(r["titel"])
@@ -1007,7 +1081,7 @@ def main():
         return 1
     print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, Ausschluss, "
           "Speicher, Versprechen, Mail, Kurve, Profile, Worte, Zweck, Mail-Block, "
-          "Ueberschrift, Hinweis und PEM stimmen.")
+          "Ueberschrift, Hinweis, PEM und Praxis stimmen.")
     return 0
 
 

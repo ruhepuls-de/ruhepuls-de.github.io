@@ -1,15 +1,16 @@
 <!doctype html><html lang="de" class="check"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Energie-Check: Was kostet dich im Alltag Energie? · Ruhepuls</title>
-<meta name="description" content="Sieben Fragen zu Schlaf, Koffein, Alkohol, Bewegung und deinem Nachmittag, unter zwei Minuten. Danach siehst du deine größten Hebel, zu jedem die Studie, verlinkt.">
+<meta name="description" content="Sechs Fragen zu Schlaf, Koffein, Alkohol, Bewegung und deinem Nachmittag, unter zwei Minuten. Danach siehst du deine größten Hebel, zu jedem die Studie, verlinkt.">
 <link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="check.css">
 <meta name="robots" content="index,follow"></head><body><main>
 <!-- Texte: „(C) Abteilung Produkt & Text — Energie-Check, 7 Tage, Tag-7-Angebot
      (24.09.2026)“, Abschnitt 1. Umbau 24.09. abends (Entscheidungen, Nachtrag
      ~18:00, U1–U3): Werkzeug fuer Gesunde, kein Symptom-Check. Keine
-     Warnzeichen-Frage, kein Arzt-Kasten oben, keine Seelsorge-Box, jeder
-     bekommt den Mail-Block. Die Reihenfolge der Bausteine: reihenfolge() in
-     regeln.js. -->
+     Warnzeichen-Frage, kein Arzt-Kasten, keine Seelsorge-Box, jeder
+     bekommt den Mail-Block. Kein Ergebnis verweist in die Praxis; das tut
+     nur der feste Hinweis am Ende (Zweig t). Die Reihenfolge der Bausteine:
+     reihenfolge() in regeln.js. -->
 
 <!-- Ueberschrift (U3). Muster aus der Markt-Datei, 3.1 (RISE, Priestley/
      ScoreApp, LebenslangGesund): Frage an den Leser, Ergebnis-Versprechen
@@ -27,7 +28,7 @@
 <!-- ===== 1. Start ===== -->
 <section id="start">
   <h1>Was kostet dich im Alltag Energie?</h1>
-  <p class="lead">Sieben Fragen zu Schlaf, Koffein, Alkohol, Bewegung und deinem Nachmittag, unter zwei Minuten. Danach siehst du deine größten Hebel, zu jedem die Studie zum Nachlesen.</p>
+  <p class="lead">Sechs Fragen zu Schlaf, Koffein, Alkohol, Bewegung und deinem Nachmittag, unter zwei Minuten. Danach siehst du deine größten Hebel, zu jedem die Studie zum Nachlesen.</p>
   <p class="small">Keine Anmeldung, keine Cookies, kein Tracking. Deine Antworten bleiben in deinem Browser.</p>
   <button class="btn" id="losgehts" type="button">Check starten</button>
 </section>
@@ -35,7 +36,7 @@
 <!-- ===== 2. Fragen ===== -->
 <section id="fragen" class="weg">
   <div class="fortschritt"><i id="balken"></i></div>
-  <p class="zaehler" id="zaehler">Frage 1 von 7</p>
+  <p class="zaehler" id="zaehler">Frage 1 von 6</p>
   <p class="frage" id="fragetext"></p>
   <p class="zusatz" id="fragezusatz"></p>
   <ul class="zusatzliste weg" id="fragezusatzListe"></ul>
@@ -96,7 +97,6 @@
   <!-- [E] + [F] Hebel-Karten -->
   <div class="weg" id="hebelKarten">
     <h2>So sieht es im Einzelnen aus</h2>
-    <p class="hinweissatz weg" id="hinweisUnten">Ganz unten steht ein Punkt, den du nicht überspringen solltest.</p>
     <div id="hebelKartenListe"></div>
   </div>
 
@@ -105,12 +105,6 @@
     <h2>Außerdem aufgefallen</h2>
     <p class="small">Diese Punkte haben weniger Gewicht. Tipp auf einen Titel, dann klappt er auf.</p>
     <div id="ausserdemListe"></div>
-  </div>
-
-  <!-- [H] Arzt-Kasten unten: nur muedeTrotzSchlaf / vierWochen (aus seitWann) -->
-  <div class="arztkasten weg" id="arztUnten">
-    <h2>Für die Hausarztpraxis</h2>
-    <div id="arztUntenKarten"></div>
   </div>
 
   <!-- [I] zurueck zum Mail-Block -->

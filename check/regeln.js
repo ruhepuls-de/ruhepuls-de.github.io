@@ -8,7 +8,13 @@
    Entscheidungen: „(C) Entscheidungen Energie-Check — Liam (24.09.2026)“,
    F1–F6 und der Umbau U1–U3 (Nachtrag ~18:00): Der Check ist ein Werkzeug
    fuer Gesunde, kein Symptom-Check. Keine Warnzeichen-Frage, keine
-   Triage, jeder bekommt den Mail-Block. Sieben Fragen.
+   Triage, jeder bekommt den Mail-Block. Sechs Fragen.
+   Zweiter Schritt (Regel, 24.09. abends): Kein Ergebnis und kein Profil
+   verweist in die Praxis. Raus sind die Arzt-Regeln zur Dauer der
+   Muedigkeit (muedeTrotzSchlaf, vierWochen), das Profil „Das gehört in die
+   Hausarztpraxis“, der Bluttest-Kasten, die KVT-I-Karte (verwies in die
+   Praxis, hing an der Dauer) und damit die Frage „Seit wann …“. Der
+   Hinweis auf die Praxis steht nur noch im festen Hinweis am Ende.
 
    REGEL (geprueft von scripts/pruefe-check.py):
    - Jede Regel hat titel, tipp, kurz, quelle (mit Jahr), link, gruppe.
@@ -20,6 +26,8 @@
    - Zwei Regeln aus KONFLIKTE stehen nie im selben Ergebnis.
    - Jede Reihenfolge (reihenfolge()) enthaelt den Mail-Block (U2).
    - Die Bewegungs-Regel traegt den PEM-Satz (U1).
+   - Kein Ergebnis, kein Profil verweist in die Praxis; kein Bluttest,
+     keine Laborliste (Zweig t).
    - Der Tipp darf nicht mehr sagen als die Quelle.
 */
 (function (global) {
@@ -29,12 +37,10 @@
     "Spiegelhalder, Riemann u. a. (2025): S3-Leitlinie „Insomnie bei " +
     "Erwachsenen“";
   var INSOMNIE_LINK = "https://register.awmf.org/de/leitlinien/detail/063-003";
-  var DEGAM_LINK = "https://register.awmf.org/de/leitlinien/detail/053-002";
 
   /* ---------------------------------------------------------- Die Regeln
-     gruppe "hebel": etwas, das man selbst aendern kann (Karten).
-     gruppe "arzt":  der Satz, wann die Praxis der naechste Schritt ist
-                     (Kasten unten). Nur aus `seitWann`, nie aus Symptomen. */
+     gruppe "hebel": etwas, das man selbst aendern kann (Karten). Eine
+     andere Gruppe gibt es nicht mehr: Der Check triagiert nicht. */
   var REGELN = {
 
     /* ---------- Hebel, Domaene schlaf ---------- */
@@ -78,24 +84,6 @@
         "Abschnitt KVT-I",
       link: INSOMNIE_LINK,
       video: "v15"
-    },
-
-    kvti: {
-      gruppe: "hebel", domaene: "schlaf",
-      // Titel und Tipp: Abteilung Recht 24.09.2026, G4, woertlich.
-      titel: "Seit Monaten wach im Bett? Frag nach einer Therapie ohne Tablette",
-      tipp:
-        "Liegst du seit Monaten mehrmals pro Woche lange wach, sprich es in " +
-        "der Hausarztpraxis an. Ob dahinter eine Schlafstörung steckt, klärt " +
-        "die Praxis, nicht dieser Check. Für diesen Fall nennt die deutsche " +
-        "Schlaf-Leitlinie als erste Behandlung eine Verhaltenstherapie, keine " +
-        "Tablette. Es gibt sie auch als App auf Rezept. Frag in der Praxis danach.",
-      kurz: "S3-Leitlinie Insomnie, 2025",
-      quelle:
-        INSOMNIE + ", AWMF 063-003, Empfehlung T1 und Abschnitt KVT-I " +
-        "(digitale Gesundheitsanwendungen)",
-      link: INSOMNIE_LINK,
-      video: null
     },
 
     nickerchenBeiSchlafproblem: {
@@ -260,57 +248,15 @@
         "well-being and performance. PLOS ONE 17(8), e0272460",
       link: "https://doi.org/10.1371/journal.pone.0272460",
       video: "v72"
-    },
-
-    /* ---------- Arzt ---------- */
-
-    /* nur, wenn KEIN Hebel gefunden wurde */
-    muedeTrotzSchlaf: {
-      gruppe: "arzt",
-      titel: "Kein Hebel gefunden, aber seit Wochen müde? Lass nachsehen",
-      tipp:
-        "An deinen Antworten klemmt nichts, was du selbst ändern kannst, und " +
-        "trotzdem bist du seit über vier Wochen oft müde. Für diesen Fall " +
-        "sieht die Leitlinie der Hausärzte ein Gespräch, eine Untersuchung " +
-        "und einen Bluttest mit fünf Werten vor: Blutzucker, großes " +
-        "Blutbild, Entzündungswert, Leberwert und Schilddrüsenwert. Für " +
-        "„Stärkungsmittel“ ist keine Wirkung belegt.",
-      kurz: "DEGAM-Leitlinie Müdigkeit, 2022",
-      quelle:
-        "DEGAM S3-Leitlinie „Müdigkeit“ (2022), AWMF 053-002, Empfehlung " +
-        "5.3.1 und Abbildung 2 · DEGAM-Patienteninformation „Müdigkeit“ " +
-        "(2022)",
-      link: DEGAM_LINK,
-      video: "v82"
-    },
-
-    /* Hebel da UND seit ueber vier Wochen muede (F2) */
-    vierWochen: {
-      gruppe: "arzt",
-      titel: "Fang mit den Hebeln an. Ändert sich nichts, geh zur Praxis",
-      tipp:
-        "Die Punkte oben sind mögliche Ursachen, die du selbst ändern " +
-        "kannst. Bleibt die Müdigkeit trotzdem, sieht die Leitlinie der " +
-        "Hausärzte ab vier Wochen ohne erkennbare Ursache einen Bluttest mit " +
-        "fünf Werten vor. Das ist dann der nächste Schritt.",
-      kurz: "DEGAM-Leitlinie Müdigkeit, 2022",
-      quelle:
-        "DEGAM S3-Leitlinie „Müdigkeit“ (2022), AWMF 053-002, Empfehlung " +
-        "5.3.1 und Abbildung 2",
-      link: DEGAM_LINK,
-      video: "v82"
     }
   };
 
   /* ------------------------------------------------- Bedingungen (Fach 4.3) */
   var WACH = { eineVon: ["wachliegen"], ab: 2 };
-  var HEBEL_FRAGEN = {
-    eineVon: ["schlafdauer", "wachliegen", "koffein", "alkohol", "bewegung", "tief"],
-    ab: 2
-  };
 
   /* --------------------------------------------------------- Die Fragen
-     Sieben Fragen (F1, Umbau U1: die Warnzeichen-Frage ist raus).
+     Sechs Fragen (F1, Umbau U1: die Warnzeichen-Frage ist raus; die Frage
+     nach der Dauer ist raus, weil sie nur noch in die Praxis verwies).
      Reihenfolge = Ablauf. `wert` 0–3. */
   var FRAGEN = [
     {
@@ -339,8 +285,7 @@
         { text: "Fast jede Nacht", wert: 3, bezug: "Du liegst fast jede Nacht über eine halbe Stunde wach" }
       ],
       ausloeser: [
-        { ab: 2, regel: "stehAuf", schwere: 9 },
-        { ab: 2, regel: "kvti", schwere: 8, nurWenn: { eineVon: ["seitWann"], ab: 3 } }
+        { ab: 2, regel: "stehAuf", schwere: 9 }
       ]
     },
     {
@@ -405,32 +350,16 @@
         { ab: 0, regel: "nickerchenBeiSchlafproblem", schwere: 5,
           nurAntwort: { frage: "tief", index: [4] }, nurWenn: WACH }
       ]
-    },
-    {
-      id: "seitWann",
-      text: "Seit wann bist du so oft müde?",
-      zusatz: "",
-      optionen: [
-        { text: "Ich bin nicht oft müde", wert: 0, bezug: "Du bist nicht oft müde" },
-        { text: "Seit weniger als vier Wochen", wert: 1, bezug: "Du bist seit weniger als vier Wochen oft müde" },
-        { text: "Seit ein bis drei Monaten", wert: 2, bezug: "Du bist seit ein bis drei Monaten oft müde" },
-        { text: "Seit mehr als drei Monaten", wert: 3, bezug: "Du bist seit mehr als drei Monaten oft müde" }
-      ],
-      ausloeser: [
-        { ab: 2, regel: "muedeTrotzSchlaf", schwere: 8, nichtWenn: HEBEL_FRAGEN },
-        { ab: 2, regel: "vierWochen", schwere: 1, nurWenn: HEBEL_FRAGEN }
-      ]
     }
   ];
 
-  /* Nur wenn Hebel UND Arzt leer sind (Fach 4.4 Nr. 7). */
+  /* Nur wenn kein Hebel greift (Fach 4.4 Nr. 7). */
   var HALTEN = ["bewegungRegelmaessig", "festeAufstehzeit"];
 
   /* Regelpaare, die nicht nebeneinander stehen duerfen. Es bleibt die
      Regel mit den mehr Punkten. */
   var KONFLIKTE = [
-    ["schlafDauer", "stehAuf"],            // mehr Bettzeit vs. Stimuluskontrolle (Netz zu nichtWenn)
-    ["muedeTrotzSchlaf", "vierWochen"]     // schliessen sich per Bedingung aus; Netz
+    ["schlafDauer", "stehAuf"]             // mehr Bettzeit vs. Stimuluskontrolle (Netz zu nichtWenn)
   ];
 
   /* Paar-Regel (Fach 4.4 Nr. 3): zuckerTief hat keine Handlung aus der
@@ -451,17 +380,11 @@
       titel: "Dein größter Hebel ist dein Tag",
       satz: "Die meisten deiner Antworten betreffen Bewegung und das Nachmittagstief. Die Effekte in den Studien dazu sind klein bis mittel."
     },
-    nurArzt: {
-      titel: "Das gehört in die Hausarztpraxis",
-      satz: "An deinen Alltagsantworten klemmt wenig. Einen Punkt solltest du aber ärztlich ansprechen. Er steht direkt hier drunter."
-    },
+    /* Kein Hebel: neutral, ohne Arzt, ohne Wirkversprechen (Regel,
+       24.09. abends). Darunter der Mail-Block, danach die zwei Halte-Karten. */
     unauffaellig: {
       titel: "Bei dir klemmt wenig",
-      satz: "Dann geht es ums Halten, nicht ums Reparieren. Dazu zwei Punkte aus der Forschung."
-    },
-    kurzMuede: {
-      titel: "An deinen Gewohnheiten klemmt wenig",
-      satz: "Du bist erst seit Kurzem oft müde. Bleibt das länger als vier Wochen und findest du keine Ursache, ist die Hausarztpraxis der nächste Schritt."
+      satz: "Bei deinen Antworten sticht keine Gewohnheit heraus. Welche kleinen Dinge bei dir einen Unterschied machen, siehst du am besten an deiner eigenen Kurve."
     }
   };
 
@@ -510,7 +433,7 @@
   /* ------------------------------------------------------ Die Auswertung
      Rueckgabe (Produkt & Text 5.2):
      { profil, titel, satz, hebel: [Top 3],
-       ausserdem: [..], arzt: [..], halten: bool, treffer: [alle],
+       ausserdem: [..], halten: bool, treffer: [alle],
        unauffaellig: bool } */
   function werteAus(antworten) {
     var treffer = [];
@@ -559,8 +482,7 @@
       treffer.splice(Math.max(a, b), 1);
     });
 
-    var hebel = treffer.filter(function (t) { return t.regel.gruppe === "hebel"; });
-    var arzt = treffer.filter(function (t) { return t.regel.gruppe === "arzt"; });
+    var hebel = treffer;
 
     /* Paar-Regel: steht zuckerTief in den Top 3, rueckt pauseMachen
        direkt dahinter. */
@@ -580,12 +502,10 @@
       top.forEach(function (t) { summe[t.regel.domaene] += t.punkte; });
       profil = DOMAENEN[0];
       DOMAENEN.forEach(function (d) { if (summe[d] > summe[profil]) { profil = d; } });
-    } else if (arzt.length) {
-      profil = "nurArzt";
     } else {
       halten = true;
       top = HALTEN.map(halteEintrag);
-      profil = antworten.seitWann === 1 ? "kurzMuede" : "unauffaellig";
+      profil = "unauffaellig";
     }
 
     return {
@@ -594,10 +514,9 @@
       satz: PROFILE[profil].satz,
       hebel: top,
       ausserdem: ausserdem,
-      arzt: arzt,
       halten: halten,
       unauffaellig: halten,
-      treffer: top.concat(ausserdem, arzt)
+      treffer: top.concat(ausserdem)
     };
   }
 
@@ -607,26 +526,23 @@
      dieser Reihenfolge; pruefe-check.py (Zweig p) spielt jede
      Antwortkombination durch. */
   function reihenfolge(e) {
-    if (e.halten) { return ["profil", "hebelKarten", "mailblock"]; }
-    if (!e.hebel.length) { return ["profil", "arztUnten", "mailblock"]; }
+    if (e.halten) { return ["profil", "mailblock", "hebelKarten"]; }
     var folge = ["profil", "hebelListe", "mailblock", "hebelKarten"];
     if (e.ausserdem.length) { folge.push("ausserdem"); }
-    if (e.arzt.length) { folge.push("arztUnten"); }
     folge.push("zumMailblock");
     return folge;
   }
 
   /* Teilen-Text (Produkt & Text 1.4 [J], Ueberschrift U3): nur der
-     Profil-Titel, nie eine Regel. Beim Arzt-Profil ein neutraler Satz
-     ohne Titel. */
+     Profil-Titel, nie eine Regel. Ohne Ergebnis ein neutraler Satz. */
   var FRAGE_OBEN = "Was kostet dich im Alltag Energie?";
   function teilText(e, url) {
-    if (!e || e.profil === "nurArzt") {
+    if (!e) {
       return "Ich habe den Energie-Check von Ruhepuls gemacht: " + FRAGE_OBEN +
-        " Sieben Fragen, unter zwei Minuten: " + url;
+        " Sechs Fragen, unter zwei Minuten: " + url;
     }
     return "Mein Energie-Profil bei Ruhepuls: " + e.titel + ". " + FRAGE_OBEN +
-      " Sieben Fragen, unter zwei Minuten: " + url;
+      " Sechs Fragen, unter zwei Minuten: " + url;
   }
 
   var API = {
