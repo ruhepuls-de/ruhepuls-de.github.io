@@ -4,7 +4,8 @@
 <link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="kurve.css">
 </head><body><main>
 <!-- Texte: „(C) Abteilung Produkt & Text — Energie-Check, 7 Tage, Tag-7-Angebot
-     (24.09.2026)“, Abschnitt 2, woertlich. Alles laeuft im Browser: kein
+     (24.09.2026)“, Abschnitt 2; Klartext-Fassung 24.09. spaet (Leser-Test,
+     Liam: „ueberhaupt keinen Plan, worum es geht“). Alles laeuft im Browser: kein
      Netzaufruf, kein Formular an MailerLite, kein fremdes Skript. Gespeichert
      wird nur unter dem Schluessel ruhepuls.kurve.v1 (localStorage). Geprueft
      von scripts/pruefe-check.py, Zweig k. -->
@@ -14,38 +15,38 @@
 
 <!-- Hinweis aus Entscheidung T2 (Liam, 24.09.2026). Produkt & Text liefert
      dafuer keinen Wortlaut; der Satz ist aus T2 abgeleitet — Liam pruefen. -->
-<p class="t2" id="lesezeichen">Öffne diese Seite in Safari oder Chrome und setz ein Lesezeichen.</p>
+<p class="t2" id="lesezeichen">Öffne diese Seite immer auf demselben Handy und im selben Browser, zum Beispiel Safari oder Chrome. Am einfachsten über den Link in den Mails oder über ein Lesezeichen.</p>
 
 <div class="weg" id="ersterBesuch">
-  <p class="lead">Einmal am Tag, eine Minute: Wie viel Energie hattest du heute, und was davon hast du gemacht? Nach sieben Tagen siehst du deine Kurve und einen ersten Vergleich.</p>
-  <p><b>Öffne diese Seite immer auf demselben Weg</b>, am besten über den Link in den Mails. Deine Einträge bleiben in diesem Browser auf diesem Gerät. Öffnest du die Seite woanders, zum Beispiel in einem anderen Browser, fängt die Kurve dort leer an.</p>
+  <p class="lead">Hier trägst du sieben Abende lang ein, wie viel Energie du am Tag hattest, von 1 bis 10. Dazu setzt du Häkchen bei dem, was an dem Tag zutraf. Das dauert eine Minute.</p>
+  <p>Aus deinen Werten entsteht Tag für Tag eine Linie, deine Energiekurve. Ab dem fünften Eintrag siehst du außerdem für jedes Häkchen, das du an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast, ob deine Tage damit anders waren als die ohne.</p>
 </div>
 
 <p class="fehler weg" id="speicherFehler" role="alert">Dein Browser lässt hier gerade kein Speichern zu, zum Beispiel in einem privaten Fenster. Öffne die Seite in einem normalen Fenster, sonst ist dein Eintrag morgen weg.</p>
 
-<p class="small" id="datenschutzSatz">Deine Einträge bleiben in diesem Browser auf diesem Gerät. Sie gehen an niemanden, auch nicht an mich. Löschst du die Website-Daten deines Browsers, sind sie weg. <a href="../datenschutz.html">Datenschutz</a></p>
+<p class="small" id="datenschutzSatz">Deine Einträge werden nur in diesem Browser auf diesem Gerät gespeichert. Sie gehen an niemanden, auch nicht an Ruhepuls. Öffnest du die Seite in einem anderen Browser, ist sie dort leer. Löschst du in deinem Browser die Website-Daten, sind die Einträge weg. <a href="../datenschutz.html">Datenschutz</a></p>
 
 <p class="meldung weg" id="gespeichert" aria-live="polite">Gespeichert. Bis morgen Abend.</p>
-<p class="meldung weg" id="schonEingetragen">Für heute hast du schon eingetragen. <button class="btn sekundaer klein" id="aendern" type="button">Ändern</button></p>
-<p class="meldung weg" id="voll"><b>Deine 7 Tage sind voll.</b> Die Kurve bleibt hier gespeichert, bis du sie löschst.</p>
+<p class="meldung weg" id="schonEingetragen">Für heute hast du schon etwas eingetragen. <button class="btn sekundaer klein" id="aendern" type="button">Ändern</button></p>
+<p class="meldung weg" id="voll"><b>Deine 7 Tage sind voll.</b> Weitere Einträge gehen nicht. Deine Werte bleiben hier gespeichert, bis du sie löschst.</p>
 
 <form class="eintrag weg" id="eintrag" novalidate>
-  <h2 id="frageEnergie">Wie viel Energie hattest du heute, im Ganzen?</h2>
+  <h2 id="frageEnergie">Wie viel Energie hattest du heute insgesamt?</h2>
   <div class="skala" id="skala" role="radiogroup" aria-labelledby="frageEnergie"></div>
   <p class="skala-legende"><span>1 = ganz leer</span><span>10 = richtig wach und frisch</span></p>
 
-  <p class="frage-haken"><b>Was davon trifft zu?</b> Hak an, was stimmt. Der Rest bleibt leer.</p>
+  <p class="frage-haken"><b>Was traf zu?</b> Hak alles an, was stimmt. Den Rest lässt du leer. Die ersten drei fragen nach gestern Abend und der Nacht, weil es um die Nacht vor diesem Tag geht.</p>
   <fieldset>
-    <legend id="gruppeGestern">Letzte Nacht und gestern Abend</legend>
+    <legend id="gruppeGestern">Gestern Abend und letzte Nacht</legend>
     <label><input type="checkbox" name="hebel" value="schlaf7"> Mindestens 7 Stunden geschlafen</label>
     <label><input type="checkbox" name="hebel" value="keinAlkohol"> Gestern Abend keinen Alkohol getrunken</label>
     <label><input type="checkbox" name="hebel" value="koffeinMittag"> Gestern nach dem Mittagessen kein Koffein mehr</label>
   </fieldset>
   <fieldset>
     <legend id="gruppeHeute">Heute</legend>
-    <label><input type="checkbox" name="hebel" value="bewegt"> Mindestens eine halbe Stunde bewegt, so dass ich etwas schneller geatmet habe</label>
-    <label><input type="checkbox" name="hebel" value="pause"> Im Nachmittagstief eine kurze Pause gemacht, höchstens zehn Minuten</label>
-    <label><input type="checkbox" name="hebel" value="keinSuesses"> Im Nachmittagstief nichts Süßes und keinen Energydrink</label>
+    <label><input type="checkbox" name="hebel" value="bewegt"> Mindestens eine halbe Stunde so bewegt, dass du etwas schneller geatmet hast</label>
+    <label><input type="checkbox" name="hebel" value="pause"> Am Nachmittag eine kurze Pause gemacht, höchstens zehn Minuten</label>
+    <label><input type="checkbox" name="hebel" value="keinSuesses"> Am Nachmittag nichts Süßes und keinen Energydrink</label>
   </fieldset>
 
   <p class="fehler weg" id="fehltZahl" role="alert">Tipp zuerst eine Zahl von 1 bis 10 an.</p>
@@ -54,9 +55,9 @@
 </form>
 
 <section class="weg" id="kurveBox">
-  <h2>Deine Kurve</h2>
+  <h2>Deine Werte, Tag für Tag</h2>
   <div class="diagramm" id="diagramm" aria-hidden="true"></div>
-  <p class="small">Eine Kurve aus wenigen Tagen schwankt stark. Das ist normal.</p>
+  <p class="small">In den ersten Tagen springt die Linie oft stark auf und ab. Das ist normal.</p>
   <table class="sr-only" id="kurveTabelle">
     <thead><tr><th>Tag</th><th>Datum</th><th>Zahl</th><th>Häkchen</th></tr></thead>
     <tbody></tbody>
@@ -64,12 +65,12 @@
 </section>
 
 <section class="weg" id="vergleich">
-  <p class="small weg" id="vergleichBald">Der Vergleich erscheint ab dem fünften Eintrag.</p>
+  <p class="small weg" id="vergleichBald">Ab dem fünften Eintrag siehst du hier für jedes Häkchen, das du an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast, ob deine Tage damit anders waren als die ohne.</p>
   <div class="weg" id="vergleichBox">
-    <h2>Mit gegen ohne: Was fiel bei dir zusammen?</h2>
-    <p>Für jeden Punkt steht hier, wie hoch deine Zahl im Schnitt war: an den Tagen mit und an den Tagen ohne.</p>
+    <h2>Tage mit Häkchen gegen Tage ohne</h2>
+    <p>Für jedes Häkchen steht hier, wie hoch deine Zahl im Schnitt war: an den Tagen, an denen du es gesetzt hast, und an den Tagen ohne. Einen Vergleich für ein Häkchen gibt es, sobald du es an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast.</p>
     <ul class="vergleich-liste" id="vergleichListe"></ul>
-    <p class="so-liest"><b>So liest du das:</b> Das ist ein Zusammenhang, kein Befund. Sieben Tage sind kurz, und an jedem Tag spielt vieles mit, das hier nicht steht: Stress, Wetter, ein Infekt. Es kann auch umgekehrt sein: An guten Tagen bewegt man sich vielleicht eher. Sicherer wird so ein Vergleich erst mit mehr Tagen und wenn man einen Punkt bewusst abwechselnd macht und weglässt. So arbeiten auch Selbstversuche in der Forschung.</p>
+    <p class="so-liest"><b>So liest du das:</b> Die Zahlen zeigen nur, was an deinen Tagen gleichzeitig vorkam. Sie beweisen nicht, dass das eine das andere bewirkt hat. Sieben Tage sind kurz, und an jedem Tag spielt vieles mit, das hier nicht steht: Stress, Wetter, ein Infekt. Es kann auch umgekehrt sein: An guten Tagen bewegt man sich vielleicht eher. Sicherer wird so ein Vergleich erst mit mehr Tagen und wenn man eine Sache bewusst abwechselnd macht und weglässt. So gehen auch Forscher vor, wenn sie etwas an einem einzelnen Menschen testen.</p>
   </div>
 </section>
 
@@ -87,7 +88,7 @@
   </div>
 </div>
 
-<footer><a href="../index.html">Start</a><a href="../check/">Energie-Check</a><a href="../impressum.html">Impressum</a><a href="../datenschutz.html">Datenschutz</a></footer>
+<footer><a href="../index.html">Startseite</a><a href="../check/">Energie-Check</a><a href="../impressum.html">Impressum</a><a href="../datenschutz.html">Datenschutz</a></footer>
 </main>
 <script src="kurve.js"></script>
 </body></html>

@@ -1057,7 +1057,7 @@ def main():
             texte += [p.get("text", "") for p in f.get("zusatzListe") or [] if isinstance(p, dict)]
             for o in f["optionen"]:
                 texte.append(o["text"])
-                texte.append("Du hast gesagt: " + o["bezug"] + ".")
+                texte.append("Du hast gesagt, " + o["bezug"][:1].lower() + o["bezug"][1:] + ".")
         pruefe_ton(" ".join(texte), "check/regeln.js")
 
     pruefe_reihenfolge(html)

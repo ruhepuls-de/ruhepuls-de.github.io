@@ -24,8 +24,8 @@
     ["keinAlkohol", "Kein Alkohol am Vorabend"],
     ["koffeinMittag", "Kein Koffein nach dem Mittag"],
     ["bewegt", "Eine halbe Stunde Bewegung"],
-    ["pause", "Pause im Tief"],
-    ["keinSuesses", "Nichts Süßes im Tief"]
+    ["pause", "Pause am Nachmittag"],
+    ["keinSuesses", "Nichts Süßes am Nachmittag"]
   ];
   var WOCHENTAG = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 
@@ -125,11 +125,11 @@
   function setzeModus(m) {
     modus = m;
     $("frageEnergie").textContent = m === "gestern"
-      ? "Wie viel Energie hattest du gestern, im Ganzen?"
-      : "Wie viel Energie hattest du heute, im Ganzen?";
+      ? "Wie viel Energie hattest du gestern insgesamt?"
+      : "Wie viel Energie hattest du heute insgesamt?";
     $("gruppeGestern").textContent = m === "gestern"
-      ? "Vorletzte Nacht und vorgestern Abend"
-      : "Letzte Nacht und gestern Abend";
+      ? "Vorgestern Abend und vorletzte Nacht"
+      : "Gestern Abend und letzte Nacht";
     $("gruppeHeute").textContent = m === "gestern" ? "Gestern" : "Heute";
     fuelle(daten.eintraege[m === "gestern" ? gestern() : heute()] || null);
   }
@@ -297,14 +297,14 @@
       li.appendChild(b);
       var text;
       if (!z.vergleich) {
-        text = " Noch kein Vergleich. Dafür braucht es mindestens 2 Tage mit und 2 Tage ohne.";
+        text = " Noch kein Vergleich. Dafür brauchst du mindestens 2 Tage mit und mindestens 2 Tage ohne dieses Häkchen.";
       } else {
-        text = " mit " + zahl(z.a) + " (an " + z.n1 + " Tagen), ohne " + zahl(z.b) +
-          " (an " + z.n2 + " Tagen). ";
+        text = " an " + z.n1 + " Tagen mit Häkchen im Schnitt " + zahl(z.a) +
+          ", an " + z.n2 + " Tagen ohne im Schnitt " + zahl(z.b) + ". ";
         if (Math.abs(z.d) >= SCHWELLE) {
-          text += "An den Tagen mit lag deine Zahl " + (z.d > 0 ? "höher." : "niedriger.");
+          text += "An den Tagen mit Häkchen lag deine Zahl " + (z.d > 0 ? "höher." : "niedriger.");
         } else {
-          text += "Kaum ein Unterschied.";
+          text += "Der Unterschied ist kleiner als 1 Punkt, also kaum ein Unterschied.";
         }
       }
       li.appendChild(document.createTextNode(text));

@@ -100,8 +100,8 @@
     if (titel !== null) { d.appendChild(el("h3", null, titel)); }
 
     d.appendChild(el("p", "bezug", t.halten
-      ? "Das läuft bei dir schon. Hier geht es ums Halten."
-      : "Du hast gesagt: " + t.bezug + "."));
+      ? "Bei deinen Antworten fiel hier nichts auf. Das ist eine Gewohnheit, die du beibehalten oder dir angewöhnen kannst."
+      : "Du hast gesagt, " + t.bezug.charAt(0).toLowerCase() + t.bezug.slice(1) + "."));
 
     d.appendChild(el("p", "tipp", r.tipp));
 
@@ -113,7 +113,7 @@
     d.appendChild(q);
 
     var det = el("details", "stelle");
-    det.appendChild(el("summary", null, "Genaue Stelle"));
+    det.appendChild(el("summary", null, "Genaue Quelle"));
     det.appendChild(el("p", null, r.quelle));
     d.appendChild(det);
 

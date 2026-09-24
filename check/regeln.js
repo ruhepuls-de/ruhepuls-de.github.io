@@ -49,12 +49,13 @@
       gruppe: "hebel", domaene: "schlaf",
       titel: "Gib dir regelmäßig sieben Stunden Schlaf",
       tipp:
-        "Die beiden großen Fachgesellschaften für Schlafmedizin in den USA " +
+        "Die beiden großen Fachverbände für Schlafmedizin in den USA " +
         "empfehlen Erwachsenen, regelmäßig sieben Stunden oder mehr zu " +
-        "schlafen. Weniger bringen sie unter anderem mit schlechterer " +
-        "Leistung und mehr Fehlern in Verbindung. In einem Laborversuch mit " +
-        "48 Erwachsenen sank die Leistung nach zwei Wochen mit sechs Stunden " +
-        "im Bett deutlich. Die Teilnehmer selbst merkten davon wenig.",
+        "schlafen. Weniger als sieben Stunden bringen sie unter anderem mit" +
+        " schlechterer Leistung und mehr Fehlern in Verbindung. In einem " +
+        "Laborversuch mit 48 Erwachsenen schlief eine Gruppe zwei Wochen " +
+        "lang höchstens sechs Stunden pro Nacht. Ihre Leistung sank " +
+        "deutlich. Sie selbst merkten davon wenig.",
       kurz: "Watson u. a., Sleep 2015",
       quelle:
         "Watson u. a. (2015): Recommended Amount of Sleep for a Healthy " +
@@ -70,12 +71,13 @@
       gruppe: "hebel", domaene: "schlaf",
       titel: "Steh auf, wenn du nach einer Viertelstunde noch wach bist",
       tipp:
-        "Die Leitlinie sagt es so: Bist du nach 15 Minuten noch wach, abends " +
-        "oder nachts, steh auf und mach etwas Angenehmes. Geh erst zurück " +
-        "ins Bett, wenn du schläfrig bist. Wiederhol das, so oft es nötig " +
-        "ist. Am Anfang kann dich das müder machen. Fährst du Auto oder " +
-        "arbeitest an Maschinen, sprich vorher ärztlich darüber. Die " +
-        "Leitlinie warnt davor.",
+        "Die deutsche Schlaf-Leitlinie rät: Bist du abends oder nachts nach" +
+        " 15 Minuten noch wach, steh auf und mach etwas, das dir angenehm " +
+        "ist. Geh erst wieder ins Bett, wenn du schläfrig bist. Wiederhol " +
+        "das, so oft es nötig ist. Am Anfang kann dich das tagsüber müder " +
+        "machen, davor warnt die Leitlinie. Fährst du Auto oder arbeitest " +
+        "du an Maschinen, sprich deshalb vorher mit einer Ärztin oder einem" +
+        " Arzt darüber.",
       kurz: "S3-Leitlinie Insomnie, 2025",
       quelle:
         INSOMNIE + ", Update 2025, AWMF 063-003, Deutsche Gesellschaft für " +
@@ -90,10 +92,10 @@
       gruppe: "hebel", domaene: "schlaf",
       titel: "Wenn du nachts wach liegst: tagsüber besser nicht hinlegen",
       tipp:
-        "In Studien machte ein Nickerchen gesunde Erwachsene wacher. Wer " +
-        "aber nachts oft wach liegt, bekommt von der deutschen " +
-        "Schlaf-Leitlinie einen anderen Rat: „Legen Sie sich tagsüber nicht " +
-        "hin.“",
+        "In Studien waren gesunde Erwachsene nach einem kurzen " +
+        "Mittagsschlaf wacher. Wer aber nachts oft wach liegt, bekommt von " +
+        "der deutschen Schlaf-Leitlinie einen anderen Rat: „Legen Sie sich " +
+        "tagsüber nicht hin.“",
       kurz: "S3-Leitlinie Insomnie, 2025",
       quelle:
         INSOMNIE + ", AWMF 063-003, Tabelle 8 · Mesas u. a. (2023): British " +
@@ -108,12 +110,13 @@
       gruppe: "hebel", domaene: "schlaf",
       titel: "Steh jeden Morgen zur gleichen Zeit auf",
       tipp:
-        "Die Leitlinie gibt Menschen mit Schlafproblemen diesen Satz mit: " +
-        "„Stehen Sie jeden Morgen zur gleichen Uhrzeit auf.“ Am Wochenende " +
-        "auch. In einer Auswertung von über 60.000 Menschen in Großbritannien " +
-        "hing ein regelmäßiger Schlafrhythmus stärker mit einem längeren " +
-        "Leben zusammen als die Schlafdauer. Das ist ein Zusammenhang, kein " +
-        "Beweis.",
+        "Die deutsche Schlaf-Leitlinie rät Menschen mit Schlafproblemen: " +
+        "„Stehen Sie jeden Morgen zur gleichen Uhrzeit auf.“ Auch am " +
+        "Wochenende. In einer Untersuchung mit Daten von über 60.000 " +
+        "Menschen in Großbritannien hing ein regelmäßiger Schlafrhythmus " +
+        "stärker mit einem längeren Leben zusammen als die Schlafdauer. Das" +
+        " zeigt nur, dass beides zusammen auftrat. Dass der feste Rhythmus " +
+        "das längere Leben bewirkt, ist damit nicht bewiesen.",
       kurz: "S3-Leitlinie Insomnie, 2025",
       quelle:
         INSOMNIE + ", AWMF 063-003, Tabelle 8, Punkt 5 · Windred u. a. " +
@@ -127,15 +130,16 @@
 
     koffeinAbstand: {
       gruppe: "hebel", domaene: "trinken",
-      titel: "Die letzte Tasse liegt weiter zurück, als du denkst",
+      titel: "Trink die letzte Tasse früher, als du denkst",
       tipp:
-        "Koffein gegen die Müdigkeit kann die nächste Nacht stören. Eine " +
-        "Auswertung von 24 Studien rechnet vor: Eine Tasse Kaffee mit 107 " +
-        "Milligramm Koffein sollte mindestens 8,8 Stunden vor dem " +
-        "Zubettgehen getrunken sein, damit sie die Schlafdauer nicht mehr " +
-        "verkürzt. Die deutsche Schlaf-Leitlinie sagt es einfacher: nach dem " +
-        "Mittagessen nichts Koffeinhaltiges mehr, auch keinen schwarzen Tee " +
-        "und keine Cola.",
+        "Koffein am Nachmittag kann den Schlaf in der Nacht danach stören. " +
+        "Eine Auswertung von 24 Studien hat ausgerechnet, wie viel Abstand " +
+        "nötig ist: Eine Tasse Kaffee mit 107 Milligramm Koffein solltest " +
+        "du mindestens 8,8 Stunden vor dem Schlafengehen trinken, also " +
+        "knapp neun Stunden vorher. Sonst kann sie die Schlafdauer " +
+        "verkürzen. Die deutsche Schlaf-Leitlinie sagt es einfacher: nach " +
+        "dem Mittagessen nichts mehr mit Koffein, auch keinen schwarzen Tee" +
+        " und keine Cola.",
       kurz: "Gardiner u. a., Sleep Medicine Reviews 2023",
       quelle:
         "Gardiner u. a. (2023): The effect of caffeine on subsequent sleep. " +
@@ -147,15 +151,17 @@
 
     mehrKaffee: {
       gruppe: "hebel", domaene: "trinken",
-      titel: "Noch eine Tasse hebt vor allem den Entzug auf", // Recht 24.09., G5
+      titel: "Noch eine Tasse hebt vor allem den Koffein-Entzug auf", // Recht 24.09., G5
       tipp:
-        "In einem Doppelblindversuch mit 369 Erwachsenen kamen " +
-        "Gewohnheitstrinker mit Koffein nur auf die Wachheit, die " +
-        "Nicht-Trinker ohne Koffein ohnehin hatten. Die Tasse hob vor allem " +
-        "den Entzug seit der letzten auf. Die Autoren schließen, dass " +
+        "In einem Versuch mit 369 Erwachsenen wussten weder die Teilnehmer " +
+        "noch die Versuchsleiter, wer echtes Koffein bekam. Alle hatten die" +
+        " Nacht davor kein Koffein. Das Ergebnis: Wer regelmäßig Koffein " +
+        "trinkt, war mit Koffein nicht wacher als jemand, der wenig oder " +
+        "kein Koffein trinkt und auch keins bekam. Ohne Koffein waren die " +
+        "regelmäßigen Trinker etwas müder, und die Tasse hob vor allem " +
+        "diesen Entzug auf. Die Forscher schließen daraus, dass " +
         "regelmäßiges Koffein die geistige Wachheit nicht steigert. " +
-        "Schneller reagieren ließ es alle. (Doppelblind heißt: Weder die " +
-        "Teilnehmer noch die Versuchsleiter wussten, wer Koffein bekam.)",
+        "Schneller reagiert haben mit Koffein aber alle.",
       kurz: "Rogers u. a., Psychopharmacology 2013",
       quelle:
         "Rogers, Heatherley, Mullings & Smith (2013): Faster but not " +
@@ -169,13 +175,13 @@
       gruppe: "hebel", domaene: "trinken",
       titel: "Das Glas am Abend kann Erholung kosten", // Recht 24.09., G6
       tipp:
-        "Die Leitlinie der Hausärzte zur Müdigkeit schreibt: Alkohol am " +
-        "Abend kann dazu führen, dass der Schlaf weniger erholsam wird. Eine " +
-        "Auswertung von 27 Schlaflabor-Studien zeigt, was sich messen lässt: " +
-        "Schon bei der kleinsten untersuchten Menge gab es weniger " +
-        "REM-Schlaf, also weniger von der Schlafphase mit schnellen " +
-        "Augenbewegungen. Mit jeder größeren Menge wurde es mehr. Schneller " +
-        "eingeschlafen wurde erst bei viel Alkohol.",
+        "Die Leitlinie der Hausärzte zur Müdigkeit sagt: Alkohol am Abend " +
+        "kann dazu führen, dass der Schlaf weniger erholsam wird. Eine " +
+        "Auswertung von 27 Studien im Schlaflabor hat gemessen: Schon bei " +
+        "der kleinsten untersuchten Menge Alkohol gab es weniger REM-" +
+        "Schlaf. Das ist die Schlafphase, in der sich die Augen schnell " +
+        "bewegen. Je mehr Alkohol, desto weniger REM-Schlaf. Schneller " +
+        "eingeschlafen sind die Teilnehmer erst nach viel Alkohol.",
       kurz: "DEGAM-Leitlinie Müdigkeit 2022 · Gardiner u. a. 2025",
       quelle:
         "Baum, Lindner, Maisel (2022): DEGAM-Patienteninformation " +
@@ -194,16 +200,17 @@
        (DEGAM 6.5 C). Geprueft in pruefe-check.py, Zweig s. */
     bewegungRegelmaessig: {
       gruppe: "hebel", domaene: "tag",
-      titel: "Regelmäßig bewegen: mittel, nicht hart",
+      titel: "Beweg dich regelmäßig: mittel, nicht hart",
       tipp:
-        "In einer Auswertung von 81 Studien mit 7.050 Menschen fühlten sich " +
-        "die Teilnehmer nach einem Bewegungsprogramm mittlerer Stärke " +
+        "In einer Auswertung von 81 Studien mit 7.050 Menschen fühlten sich" +
+        " die Teilnehmer nach einem Bewegungsprogramm mittlerer Stärke " +
         "weniger müde und energiegeladener als die Vergleichsgruppen. Wer " +
-        "trainierte und wer nicht, entschied dabei der Zufall. Die Effekte " +
-        "sind klein bis mittel. Die Leitlinie der Hausärzte nennt Bewegung " +
-        "bei Müdigkeit mit einem Zusatz: beobachten, wie du darauf " +
-        "reagierst, und anpassen. Haut dich schon leichte Anstrengung " +
-        "tagelang um, lass das erst abklären, bevor du mehr machst.",
+        "trainierte und wer nicht, wurde ausgelost. Die Unterschiede waren " +
+        "klein bis mittel. Auch die Leitlinie der Hausärzte zur Müdigkeit " +
+        "nennt Bewegung, mit einem Zusatz: Achte darauf, wie dein Körper " +
+        "reagiert, und pass die Menge an. Haut dich schon leichte " +
+        "Anstrengung tagelang um, lass das erst ärztlich abklären, bevor du" +
+        " mehr machst.",
       kurz: "Wender u. a., Frontiers in Psychology 2022",
       quelle:
         "Wender, Manninen & O'Connor (2022): The Effect of Chronic Exercise " +
@@ -219,11 +226,11 @@
       gruppe: "hebel", domaene: "tag",
       titel: "Süßes macht dich im Tief nicht wacher",
       tipp:
-        "Eine Auswertung von 31 Studien mit 1.259 Erwachsenen fand: Nach " +
-        "Zucker waren die Teilnehmer in der ersten Stunde müder und weniger " +
-        "wach als nach einem Placebo, also einem Scheinmittel ohne Zucker. " +
-        "Eine bessere Stimmung fand sich zu keinem Zeitpunkt. Getestet " +
-        "wurden vor allem junge Erwachsene, meist nüchtern.",
+        "Eine Auswertung von 31 Studien mit 1.259 Erwachsenen fand: In der " +
+        "ersten Stunde nach Zucker waren die Teilnehmer müder und weniger " +
+        "wach als nach einem Placebo, also einem Ersatz ohne Zucker. " +
+        "Bessere Laune hatten sie zu keinem Zeitpunkt. Getestet wurden vor " +
+        "allem junge Erwachsene, meist mit leerem Magen.",
       kurz: "Mantantzis u. a., Neuroscience & Biobehavioral Reviews 2019",
       quelle:
         "Mantantzis, Schlaghecken, Sünram-Lea & Maylor (2019): Sugar rush " +
@@ -237,10 +244,11 @@
       gruppe: "hebel", domaene: "tag",
       titel: "Mach im Tief fünf bis zehn Minuten Pause",
       tipp:
-        "Eine Auswertung von 22 Studien mit 2.335 Menschen fand: Kurze " +
-        "Pausen von höchstens zehn Minuten machten wacher und weniger " +
-        "erschöpft. Die Effekte sind klein. Die Arbeitsleistung insgesamt " +
-        "stieg dadurch nicht messbar. Sie sank aber auch nicht.",
+        "Eine Auswertung von 22 Studien mit 2.335 Menschen fand: Nach " +
+        "kurzen Pausen von höchstens zehn Minuten waren die Leute wacher " +
+        "und weniger erschöpft. Die Unterschiede waren klein. Mehr " +
+        "geschafft haben sie durch die Pausen insgesamt nicht, aber auch " +
+        "nicht weniger.",
       kurz: "Albulescu u. a., PLOS ONE 2022",
       quelle:
         "Albulescu u. a. (2022): „Give me a break!“ A systematic review and " +
@@ -290,7 +298,7 @@
     },
     {
       id: "koffein",
-      text: "Wie viele Stunden vor dem Schlafengehen trinkst du dein letztes Koffein?",
+      text: "Wie viele Stunden vor dem Schlafengehen trinkst du zum letzten Mal etwas mit Koffein?",
       zusatz: "Kaffee, Cola, Energydrink, schwarzer oder grüner Tee. An einem normalen Tag.",
       optionen: [
         { text: "Ich trinke kein Koffein", wert: 0, bezug: "Du trinkst kein Koffein" },
@@ -369,22 +377,22 @@
   /* Profil-Texte (Produkt & Text 1.4 [B]) */
   var PROFILE = {
     schlaf: {
-      titel: "Dein größter Hebel ist der Schlaf",
-      satz: "Die meisten deiner Antworten zeigen auf die Nacht. Die Leitlinie der Hausärzte sagt: Gewohnheitsmäßig zu wenig Schlaf führt zu Müdigkeit am Tag."
+      titel: "Bei dir geht es vor allem um den Schlaf",
+      satz: "Die meisten deiner Antworten betreffen die Nacht. Die Leitlinie der Hausärzte zur Müdigkeit sagt: Wer gewohnheitsmäßig zu wenig schläft, wird tagsüber müde."
     },
     trinken: {
-      titel: "Dein größter Hebel ist, was du trinkst",
-      satz: "Die meisten deiner Antworten betreffen Koffein und Alkohol. Beide verändern den Schlaf, der danach kommt. Das zeigen zwei Auswertungen mit zusammen 51 Studien."
+      titel: "Bei dir geht es vor allem um das, was du trinkst",
+      satz: "Die meisten deiner Antworten betreffen Koffein und Alkohol. Beides verändert den Schlaf in der Nacht danach. Das zeigen zwei Auswertungen von zusammen 51 Studien."
     },
     tag: {
-      titel: "Dein größter Hebel ist dein Tag",
-      satz: "Die meisten deiner Antworten betreffen Bewegung und das Nachmittagstief. Die Effekte in den Studien dazu sind klein bis mittel."
+      titel: "Bei dir geht es vor allem um Bewegung und den Nachmittag",
+      satz: "Die meisten deiner Antworten betreffen Bewegung und das Tief am Nachmittag. Die Unterschiede, die Studien dazu gemessen haben, sind klein bis mittel."
     },
     /* Kein Hebel: neutral, ohne Arzt, ohne Wirkversprechen (Regel,
        24.09. abends). Darunter der Mail-Block, danach die zwei Halte-Karten. */
     unauffaellig: {
       titel: "Bei dir klemmt wenig",
-      satz: "Bei deinen Antworten sticht keine Gewohnheit heraus. Ob kleine Dinge bei dir mit besseren Tagen zusammenfallen, kannst du an deiner eigenen Kurve beobachten."
+      satz: "Bei deinen Antworten sticht keine Gewohnheit heraus. Ob deine Tage mit bestimmten Gewohnheiten besser laufen als die ohne, kannst du in sieben Tagen selbst beobachten. Wie, steht direkt darunter."
     }
   };
 
@@ -541,7 +549,7 @@
       return "Ich habe den Energie-Check von Ruhepuls gemacht: " + FRAGE_OBEN +
         " Sechs Fragen, unter zwei Minuten: " + url;
     }
-    return "Mein Energie-Profil bei Ruhepuls: " + e.titel + ". " + FRAGE_OBEN +
+    return "Mein Ergebnis beim Energie-Check von Ruhepuls: „" + e.titel + ".“ " + FRAGE_OBEN +
       " Sechs Fragen, unter zwei Minuten: " + url;
   }
 
