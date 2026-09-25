@@ -43,8 +43,6 @@ window.RUHEPULS_VIDEOS = {
       "youtube": null
     },
     "v15": {
-      "bild": "../videos/v15.jpg",
-      "datei": "../videos/v15.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de",
       "titel": "",
       "youtube": null

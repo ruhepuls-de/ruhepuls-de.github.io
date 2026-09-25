@@ -85,7 +85,7 @@
         "Stimuluskontrolle“, Punkte 3 und 4, und der Hinweis zur Vorsicht im " +
         "Abschnitt KVT-I",
       link: INSOMNIE_LINK,
-      video: "v15"
+      video: null   /* 25.09.: v15 ist noch im Eulen-Stil (Liam: „verwirrend“) */
     },
 
     nickerchenBeiSchlafproblem: {

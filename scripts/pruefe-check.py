@@ -91,6 +91,7 @@ REGELN_JS = os.path.join(CHECK, "regeln.js")
 CHECK_JS = os.path.join(CHECK, "check.js")
 MAIL_JS = os.path.join(CHECK, "mail.js")
 VIDEOLINKS_JS = os.path.join(CHECK, "videolinks.js")
+STIL_AB = int(os.environ.get("STIL_AB", "20"))
 HTML = os.path.join(CHECK, "index.html")
 DATENSCHUTZ = os.path.join(HIER, "datenschutz.html")
 KURVE_HTML = os.path.join(HIER, "kurve", "index.html")
@@ -457,6 +458,11 @@ def pruefe_video(d):
         if not re.match(r"^v\d+$", vid):
             fehler.append("VIDEO: `%s` ist keine gueltige Video-ID (erwartet v<Zahl])." % vid)
             continue
+        # 25.09.2026 (Liam): „die Videos mit der Eule … verwirrend. Einfach alle Videos,
+        # die nicht in dem Stil sind, den wir jetzt haben“ → erst ab der Strichfigur (V20).
+        if int(vid[1:]) < STIL_AB:
+            fehler.append("VIDEO: `%s` ist aus der Zeit vor der Strichfigur (vor v%d, Eulen-/Standbild-Stil). "
+                          "Lieber „Video dazu folgt.“ — Regel auf `video: null` (Liam 25.09.)." % (vid, STIL_AB))
         ordner = os.path.join(PIPELINE, vid)
         if not os.path.isdir(ordner):
             fehler.append("VIDEO: Eine Regel nennt `%s` — den Ordner gibt es in der "
