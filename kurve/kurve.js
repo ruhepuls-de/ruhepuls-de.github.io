@@ -18,15 +18,23 @@
   var MIND_TAGE = 2;           // je Hebel >= 2 Tage mit und >= 2 ohne
   var SCHWELLE = 1.0;          // gesetzt, nicht belegt (2.3)
 
-  /* Kurznamen fuer die Auswertung (2.3), Reihenfolge = Formular */
+  /* Kurznamen fuer die Auswertung (2.3), Reihenfolge = Formular.
+     25.09.2026 (Liam): Alle Haekchen fragen nach HEUTE — „gestern Abend“ hat
+     im Leser-Test verwirrt. Koffein und Alkohol wirken aber auf die Nacht
+     danach; diese beiden (VERSETZT) vergleicht die Auswertung deshalb mit der
+     Zahl vom Folgetag. ALT: die Schluessel bis 25.09. fragten nach dem
+     Vorabend, stehen also schon am richtigen Tag. */
   var HEBEL = [
-    ["schlaf7", "7 Stunden Schlaf"],
-    ["keinAlkohol", "Kein Alkohol am Vorabend"],
-    ["koffeinMittag", "Kein Koffein nach dem Mittag"],
-    ["bewegt", "Eine halbe Stunde Bewegung"],
-    ["pause", "Pause am Nachmittag"],
-    ["keinSuesses", "Nichts Süßes am Nachmittag"]
+    /* Namen woertlich wie im Formular (Leser-Test 25.09.: abweichende Kurznamen verwirrten) */
+    ["schlaf7", "Letzte Nacht mindestens 7 Stunden geschlafen"],
+    ["koffeinHeute", "Nach dem Mittagessen kein Koffein mehr"],
+    ["alkoholHeute", "Keinen Alkohol getrunken, auch später am Abend nicht"],
+    ["bewegt", "Mindestens eine halbe Stunde so bewegt, dass du etwas schneller geatmet hast"],
+    ["pause", "Am Nachmittag eine kurze Pause gemacht, höchstens zehn Minuten"],
+    ["keinSuesses", "Am Nachmittag nichts Süßes und keinen Energydrink"]
   ];
+  var VERSETZT = { koffeinHeute: "koffeinMittag", alkoholHeute: "keinAlkohol" };
+  var ALT_NAME = { koffeinMittag: "Nach dem Mittagessen kein Koffein mehr", keinAlkohol: "Keinen Alkohol getrunken" };
   var WOCHENTAG = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 
   var $ = function (id) { return document.getElementById(id); };
@@ -127,9 +135,10 @@
     $("frageEnergie").textContent = m === "gestern"
       ? "Wie viel Energie hattest du gestern insgesamt?"
       : "Wie viel Energie hattest du heute insgesamt?";
-    $("gruppeGestern").textContent = m === "gestern"
-      ? "Vorgestern Abend und vorletzte Nacht"
-      : "Gestern Abend und letzte Nacht";
+    $("frageHaken").firstChild.textContent = m === "gestern" ? "Was traf gestern zu?" : "Was traf heute zu?";
+    $("labelSchlaf").textContent = m === "gestern"
+      ? "In der Nacht von vorgestern auf gestern mindestens 7 Stunden geschlafen"
+      : "Letzte Nacht mindestens 7 Stunden geschlafen";
     $("gruppeHeute").textContent = m === "gestern" ? "Gestern" : "Heute";
     fuelle(daten.eintraege[m === "gestern" ? gestern() : heute()] || null);
   }
@@ -145,7 +154,9 @@
     for (var i = 0; i < h.length; i++) { if (h[i].checked) { gewaehlteHaken.push(h[i].value); } }
     daten.eintraege[tag] = { energie: gewaehlt, hebel: gewaehlteHaken };
     var ok = schreibe();
+    var warGestern = modus === "gestern";
     modus = "heute";
+    if (ok && warGestern && !daten.eintraege[heute()] && daten7().length < HOECHSTENS) { male("gesternGespeichert"); return; }
     male(ok ? "gespeichert" : null);
   }
 
@@ -158,25 +169,28 @@
     /* Fortschrittszeile */
     var zeile = $("fortschritt");
     leere(zeile);
-    var gefuellt = n >= HOECHSTENS ? HOECHSTENS : n + 1;
-    zeile.appendChild(document.createTextNode(n >= HOECHSTENS ? "7 von 7 Tagen  " : "Tag " + gefuellt + " von 7  "));
+    /* Leser-Test 25.09. Runde 2: „Tag 3“ neben Mail „vierter Tag“ wirkte wie verzaehlt — die Zeile zaehlt Eintraege. */
+    zeile.appendChild(document.createTextNode(Math.min(n, HOECHSTENS) + " von 7 Tagen eingetragen  "));
     var punkte = document.createElement("span");
     punkte.className = "punkte";
     var p = [];
-    for (var i = 0; i < HOECHSTENS; i++) { p.push(i < gefuellt ? "●" : "○"); }
+    for (var i = 0; i < HOECHSTENS; i++) { p.push(i < Math.min(n, HOECHSTENS) ? "●" : "○"); }
     punkte.textContent = p.join(" ");
     zeile.appendChild(punkte);
 
     zeig($("ersterBesuch"), n === 0);
     zeig($("speicherFehler"), !speicherGeht);
-    zeig($("gespeichert"), meldung === "gespeichert");
+    zeig($("gespeichert"), meldung === "gespeichert" && n < HOECHSTENS);
+    zeig($("gespeichertLetzter"), meldung === "gespeichert" && n >= HOECHSTENS);
+    zeig($("gesternGespeichert"), meldung === "gesternGespeichert");
     zeig($("voll"), n >= HOECHSTENS);
 
-    var zeigeFormular = !meldung && (modus === "gestern" || !hatHeute) && (n < HOECHSTENS || modus === "aendern");
+    var zeigeFormular = (!meldung || meldung === "gesternGespeichert") && (modus === "gestern" || !hatHeute) && (n < HOECHSTENS || modus === "aendern");
     if (modus === "aendern") { zeigeFormular = true; }
     zeig($("schonEingetragen"), !meldung && hatHeute && !zeigeFormular);
     zeig($("eintrag"), zeigeFormular);
-    zeig($("gesternZeile"), zeigeFormular && modus !== "aendern" && n < HOECHSTENS);
+    /* Leser-Test 25.09.: auch NACH dem heutigen Eintrag nachholbar (Mail 4 verspricht das). */
+    zeig($("gesternZeile"), modus === "heute" && meldung !== "gesternGespeichert" && n < HOECHSTENS && !daten.eintraege[gestern()] && n > 0 && (zeigeFormular || hatHeute));
     if (zeigeFormular) { setzeModus(modus === "aendern" ? "heute" : modus); }
     zeig($("fehltZahl"), false);
 
@@ -231,7 +245,9 @@
       var zeile = document.createElement("tr");
       var zellen = ["Tag " + (i + 1), tagSchild(d), e ? String(e.energie) : "kein Eintrag",
         e ? HEBEL.filter(function (h) { return e.hebel.indexOf(h[0]) >= 0; })
-                 .map(function (h) { return h[1]; }).join(", ") : ""];
+                 .map(function (h) { return h[1]; })
+                 .concat(e.hebel.filter(function (k) { return ALT_NAME[k]; })
+                 .map(function (k) { return ALT_NAME[k] + " (Vorabend)"; })).join(", ") : ""];
       zellen.forEach(function (z) {
         var td = document.createElement("td");
         td.textContent = z;
@@ -273,16 +289,27 @@
 
     var zeilen = HEBEL.map(function (h, ordnung) {
       var mit = [], ohne = [];
+      var alt = VERSETZT[h[0]];
       tage.forEach(function (t) {
         var e = daten.eintraege[t];
-        (e.hebel.indexOf(h[0]) >= 0 ? mit : ohne).push(e.energie);
+        var gesetzt;
+        if (!alt) {
+          gesetzt = e.hebel.indexOf(h[0]) >= 0;
+        } else if (e.hebel.indexOf(alt) >= 0) {
+          gesetzt = true;                       /* alter Eintrag: fragte schon nach dem Vorabend */
+        } else {
+          var vortag = daten.eintraege[datumText(plusTage(ausText(t), -1))];
+          if (!vortag) { return; }              /* ohne Vortag kein Vergleich fuer diesen Tag */
+          gesetzt = vortag.hebel.indexOf(h[0]) >= 0;
+        }
+        (gesetzt ? mit : ohne).push(e.energie);
       });
       var schnitt = function (a) { return a.reduce(function (s, v) { return s + v; }, 0) / a.length; };
       if (mit.length < MIND_TAGE || ohne.length < MIND_TAGE) {
-        return { name: h[1], ordnung: ordnung, vergleich: false };
+        return { name: h[1], ordnung: ordnung, vergleich: false, versetzt: !!alt };
       }
       var a = schnitt(mit), b = schnitt(ohne);
-      return { name: h[1], ordnung: ordnung, vergleich: true, a: a, b: b,
+      return { name: h[1], ordnung: ordnung, vergleich: true, versetzt: !!alt, a: a, b: b,
                n1: mit.length, n2: ohne.length, d: Math.round((a - b) * 1000) / 1000 };
     });
     zeilen.sort(function (p, q) {
@@ -297,12 +324,19 @@
       li.appendChild(b);
       var text;
       if (!z.vergleich) {
-        text = " Noch kein Vergleich. Dafür brauchst du mindestens 2 Tage mit und mindestens 2 Tage ohne dieses Häkchen.";
+        text = z.versetzt
+          ? " Noch kein Vergleich. Dafür brauchst du 2 Tage mit und 2 Tage ohne dieses Häkchen, jeweils mit einem Eintrag am Tag danach."
+          : " Noch kein Vergleich. Dafür brauchst du mindestens 2 Tage mit und mindestens 2 Tage ohne dieses Häkchen.";
       } else {
-        text = " an " + z.n1 + " Tagen mit Häkchen im Schnitt " + zahl(z.a) +
-          ", an " + z.n2 + " Tagen ohne im Schnitt " + zahl(z.b) + ". ";
+        text = z.versetzt
+          ? " An den " + z.n1 + " Tagen nach einem Tag mit Häkchen im Schnitt " + zahl(z.a) +
+            ", an den " + z.n2 + " Tagen nach einem Tag ohne im Schnitt " + zahl(z.b) + ". "
+          : " an " + z.n1 + " Tagen mit Häkchen im Schnitt " + zahl(z.a) +
+            ", an " + z.n2 + " Tagen ohne im Schnitt " + zahl(z.b) + ". ";
         if (Math.abs(z.d) >= SCHWELLE) {
-          text += "An den Tagen mit Häkchen lag deine Zahl " + (z.d > 0 ? "höher." : "niedriger.");
+          text += z.versetzt
+            ? "Nach Tagen mit Häkchen war deine Zahl am nächsten Tag " + (z.d > 0 ? "höher" : "niedriger") + " als nach Tagen ohne."
+            : "An den Tagen mit Häkchen lag deine Zahl " + (z.d > 0 ? "höher." : "niedriger.");
         } else {
           text += "Der Unterschied ist kleiner als 1 Punkt, also kaum ein Unterschied.";
         }

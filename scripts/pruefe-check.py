@@ -843,6 +843,14 @@ def text_quellen(d, html):
     return quellen
 
 
+# 25.09.2026 — Liam zur Skala „1 = ganz leer“: *„das sagt niemand so im Deutschen …
+# sehr müde eher, oder sehr erschöpft.“* Uebersetzte Wendungen, die kein Muttersprachler
+# sagt. Die Liste ersetzt nicht Liams Lesung — sie haelt nur fest, was er schon gefunden hat.
+UNDEUTSCH = ["ganz leer", "sehr leer", "völlig leer"]
+MAILS_MD = os.path.expanduser("~/Desktop/Liam KI Gehirn/03 Projects/TikTok Automation/07 Produkt/"
+                              "(C) MailerLite — die 7 Mails, Klartext (24.09.2026).md")
+
+
 def pruefe_worte(d, html):
     n = mailblock_woerter(html)
     if n is None:
@@ -850,6 +858,17 @@ def pruefe_worte(d, html):
     elif n > MAILBLOCK_MAX:
         fehler.append("WORTE: Der Mail-Block hat %d Woerter, erlaubt sind %d." % (n, MAILBLOCK_MAX))
     quellen = text_quellen(d, html)
+    if os.path.exists(MAILS_MD):
+        quellen_deutsch = quellen + [("Mails (Klartext)", "\n".join(re.findall(r"```\n(.*?)```", lies(MAILS_MD), flags=re.S)))]
+    else:
+        quellen_deutsch = quellen
+    for wo, text in quellen_deutsch:
+        klein = re.sub(r"\s+", " ", text.lower())
+        for wendung in UNDEUTSCH:
+            i = klein.find(wendung)
+            if i >= 0:
+                fehler.append('WORTE: Keine deutsche Wendung "%s" in %s (Liam 25.09.: „sehr müde“, „sehr erschöpft“) — ...%s...'
+                              % (wendung, wo, klein[max(0, i - 40):i + 40]))
     for wo, text in quellen:
         klein = re.sub(r"\s+", " ", text.lower())
         for erlaubt in ERLAUBTE_STELLEN:

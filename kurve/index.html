@@ -11,14 +11,14 @@
      von scripts/pruefe-check.py, Zweig k. -->
 
 <h1>Deine Energiekurve</h1>
-<p class="fortschritt-zeile" id="fortschritt">Tag 1 von 7 <span class="punkte">● ○ ○ ○ ○ ○ ○</span></p>
+<p class="fortschritt-zeile" id="fortschritt">0 von 7 Tagen eingetragen <span class="punkte">○ ○ ○ ○ ○ ○ ○</span></p>
 
 <!-- Hinweis aus Entscheidung T2 (Liam, 24.09.2026). Produkt & Text liefert
      dafuer keinen Wortlaut; der Satz ist aus T2 abgeleitet — Liam pruefen. -->
 <p class="t2" id="lesezeichen">Öffne diese Seite immer auf demselben Handy und im selben Browser, zum Beispiel Safari oder Chrome. Am einfachsten über den Link in den Mails oder über ein Lesezeichen.</p>
 
 <div class="weg" id="ersterBesuch">
-  <p class="lead">Hier trägst du sieben Abende lang ein, wie viel Energie du am Tag hattest, von 1 bis 10. Dazu setzt du Häkchen bei dem, was an dem Tag zutraf. Das dauert eine Minute.</p>
+  <p class="lead">Hier trägst du sieben Abende lang ein, wie viel Energie du am Tag hattest, von 1 bis 10. Dazu setzt du Häkchen bei dem, was an dem Tag zutraf. Das dauert eine Minute. Trag erst am Abend ein, wenn dein Tag vorbei ist.</p>
   <p>Aus deinen Werten entsteht Tag für Tag eine Linie, deine Energiekurve. Ab dem fünften Eintrag siehst du außerdem für jedes Häkchen, das du an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast, ob deine Tage damit anders waren als die ohne.</p>
 </div>
 
@@ -27,23 +27,22 @@
 <p class="small" id="datenschutzSatz">Deine Einträge werden nur in diesem Browser auf diesem Gerät gespeichert. Sie gehen an niemanden, auch nicht an Ruhepuls. Öffnest du die Seite in einem anderen Browser, ist sie dort leer. Löschst du in deinem Browser die Website-Daten, sind die Einträge weg. <a href="../datenschutz.html">Datenschutz</a></p>
 
 <p class="meldung weg" id="gespeichert" aria-live="polite">Gespeichert. Bis morgen Abend.</p>
+<p class="meldung weg" id="gespeichertLetzter" aria-live="polite">Gespeichert. Das war dein letzter Tag. Unten siehst du deine Werte.</p>
+<p class="meldung weg" id="gesternGespeichert" aria-live="polite">Gestern ist gespeichert. Trag jetzt noch heute ein.</p>
 <p class="meldung weg" id="schonEingetragen">Für heute hast du schon etwas eingetragen. <button class="btn sekundaer klein" id="aendern" type="button">Ändern</button></p>
 <p class="meldung weg" id="voll"><b>Deine 7 Tage sind voll.</b> Weitere Einträge gehen nicht. Deine Werte bleiben hier gespeichert, bis du sie löschst.</p>
 
 <form class="eintrag weg" id="eintrag" novalidate>
   <h2 id="frageEnergie">Wie viel Energie hattest du heute insgesamt?</h2>
   <div class="skala" id="skala" role="radiogroup" aria-labelledby="frageEnergie"></div>
-  <p class="skala-legende"><span>1 = ganz leer</span><span>10 = richtig wach und frisch</span></p>
+  <p class="skala-legende"><span>1 = sehr erschöpft</span><span>10 = richtig wach und frisch</span></p>
 
-  <p class="frage-haken"><b>Was traf zu?</b> Hak alles an, was stimmt. Den Rest lässt du leer. Die ersten drei fragen nach gestern Abend und der Nacht, weil es um die Nacht vor diesem Tag geht.</p>
-  <fieldset>
-    <legend id="gruppeGestern">Gestern Abend und letzte Nacht</legend>
-    <label><input type="checkbox" name="hebel" value="schlaf7"> Mindestens 7 Stunden geschlafen</label>
-    <label><input type="checkbox" name="hebel" value="keinAlkohol"> Gestern Abend keinen Alkohol getrunken</label>
-    <label><input type="checkbox" name="hebel" value="koffeinMittag"> Gestern nach dem Mittagessen kein Koffein mehr</label>
-  </fieldset>
+  <p class="frage-haken" id="frageHaken"><b>Was traf heute zu?</b> Hak alles an, was stimmt. Den Rest lässt du leer.</p>
   <fieldset>
     <legend id="gruppeHeute">Heute</legend>
+    <label><input type="checkbox" name="hebel" value="schlaf7"> <span id="labelSchlaf">Letzte Nacht mindestens 7 Stunden geschlafen</span></label>
+    <label><input type="checkbox" name="hebel" value="koffeinHeute"> Nach dem Mittagessen kein Koffein mehr</label>
+    <label><input type="checkbox" name="hebel" value="alkoholHeute"> Keinen Alkohol getrunken, auch später am Abend nicht</label>
     <label><input type="checkbox" name="hebel" value="bewegt"> Mindestens eine halbe Stunde so bewegt, dass du etwas schneller geatmet hast</label>
     <label><input type="checkbox" name="hebel" value="pause"> Am Nachmittag eine kurze Pause gemacht, höchstens zehn Minuten</label>
     <label><input type="checkbox" name="hebel" value="keinSuesses"> Am Nachmittag nichts Süßes und keinen Energydrink</label>
@@ -51,8 +50,8 @@
 
   <p class="fehler weg" id="fehltZahl" role="alert">Tipp zuerst eine Zahl von 1 bis 10 an.</p>
   <button class="btn" id="speichern" type="submit">Speichern</button>
-  <p class="small" id="gesternZeile">Gestern vergessen? <button class="link" id="fuerGestern" type="button">Für gestern eintragen</button></p>
 </form>
+<p class="small weg" id="gesternZeile">Gestern vergessen? <button class="link" id="fuerGestern" type="button">Für gestern eintragen</button></p>
 
 <section class="weg" id="kurveBox">
   <h2>Deine Werte, Tag für Tag</h2>
@@ -69,6 +68,7 @@
   <div class="weg" id="vergleichBox">
     <h2>Tage mit Häkchen gegen Tage ohne</h2>
     <p>Für jedes Häkchen steht hier, wie hoch deine Zahl im Schnitt war: an den Tagen, an denen du es gesetzt hast, und an den Tagen ohne. Einen Vergleich für ein Häkchen gibt es, sobald du es an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast.</p>
+    <p>Koffein am Nachmittag und Alkohol am Abend können vor allem die Nacht danach stören, spürbar also erst am nächsten Tag. Bei diesen beiden Häkchen schaut die Seite deshalb auf deine Energie am Tag danach. Der letzte Tag zählt dort nicht mit, weil es keinen Tag danach gibt.</p>
     <ul class="vergleich-liste" id="vergleichListe"></ul>
     <p class="so-liest"><b>So liest du das:</b> Die Zahlen zeigen nur, was an deinen Tagen gleichzeitig vorkam. Sie beweisen nicht, dass das eine das andere bewirkt hat. Sieben Tage sind kurz, und an jedem Tag spielt vieles mit, das hier nicht steht: Stress, Wetter, ein Infekt. Es kann auch umgekehrt sein: An guten Tagen bewegt man sich vielleicht eher. Sicherer wird so ein Vergleich erst mit mehr Tagen und wenn man eine Sache bewusst abwechselnd macht und weglässt. So gehen auch Forscher vor, wenn sie etwas an einem einzelnen Menschen testen.</p>
   </div>
