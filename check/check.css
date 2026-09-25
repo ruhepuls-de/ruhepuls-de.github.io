@@ -30,6 +30,8 @@
 .regel .studie a:hover{color:var(--gold)}
 .regel .videos{font-size:.9rem;margin:0 0 .6em;color:var(--muted)}
 .regel .videos a{white-space:nowrap}
+.regel .videos-titel{margin:0 0 .4em}
+.regel .video-eigen{display:block;width:100%;max-width:300px;aspect-ratio:9/16;border-radius:10px;background:#000}
 .regel .videos.kein{font-style:italic}
 .mailblock{background:var(--card);border:1px dashed var(--gold);border-radius:12px;padding:20px;margin:28px 0}
 .mailblock h2{margin-top:0}

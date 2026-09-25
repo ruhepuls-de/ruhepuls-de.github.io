@@ -436,6 +436,11 @@ def pruefe_reihenfolge(html):
 
 # -------------------------------------------------------------- e) VIDEO
 def pruefe_video(d):
+    # Kein Link nach aussen in der Video-Zeile (Liam 25.09.).
+    cj = ohne_kommentare(lies(os.path.join(CHECK, "check.js")))
+    if re.search(r"v\.(tiktok|youtube)", cj):
+        fehler.append("VIDEO: check.js verlinkt Videos nach aussen (v.tiktok/v.youtube) — "
+                      "am Handy oeffnet das die App, der Besucher ist weg vom Check (Liam 25.09.).")
     if not os.path.exists(VIDEOLINKS_JS):
         fehler.append("VIDEO: check/videolinks.js fehlt — "
                       "`python3 scripts/baue-videolinks.py` laufen lassen.")
@@ -463,6 +468,12 @@ def pruefe_video(d):
         if vid not in links:
             fehler.append("VIDEO: `%s` hat in check/videolinks.js keinen Link. Ist es "
                           "hochgeladen? Sonst in der Regel `video: null` setzen." % vid)
+        # 25.09.2026 (Liam): TikTok-Link am Handy = App geht auf, Besucher weg vom Check.
+        # Jedes Video muss als eigene Datei auf der Seite liegen.
+        elif not links[vid].get("datei") or not os.path.exists(os.path.join(HIER, "videos", vid + ".mp4")):
+            fehler.append("VIDEO: `%s` liegt nicht als eigene Datei in videos/ — ein Link nach "
+                          "aussen schickt den Besucher in die TikTok-App (Liam 25.09.). "
+                          "Datei anlegen (720p, faststart) und baue-videolinks.py laufen lassen." % vid)
     ohne = sorted(n for n in d["regeln"] if not d["regeln"][n]["video"])
     hinweise.append("  e) Video: %d Regeln mit Video (%s), %d ohne — das ist erlaubt"
                     % (len(ids), ", ".join(ids), len(ohne)))

@@ -97,7 +97,13 @@ def sammle():
             "youtube": youtube_link(yt, jetzt),
             "titel": feld(yt, "titel").replace(" #Shorts", ""),
         }
-        if eintrag["tiktok"] or eintrag["youtube"]:
+        # 25.09.2026 (Liam): Ein TikTok-Link im mobilen Browser schickt in die App,
+        # der Besucher ist weg vom Check. Deshalb liegt das Video selbst auf der
+        # Seite (videos/<id>.mp4 + .jpg) — kein fremder Dienst, kein Verlassen.
+        if os.path.exists(os.path.join(HIER, "videos", name + ".mp4")):
+            eintrag["datei"] = "../videos/%s.mp4" % name
+            eintrag["bild"] = "../videos/%s.jpg" % name
+        if eintrag["tiktok"] or eintrag["youtube"] or eintrag.get("datei"):
             videos[name] = eintrag
     return videos
 

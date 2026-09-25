@@ -70,24 +70,26 @@
     else { male(); window.scrollTo(0, 0); }
   }
 
-  /* Zeile mit den Video-Links — oder der Satz, dass keins da ist. */
+  /* Das Video direkt auf der Seite — oder der Satz, dass keins da ist.
+     25.09.2026 (Liam): Ein Link zu TikTok oeffnet am Handy die App, und der
+     Besucher ist weg vom Check. Deshalb kein Link nach aussen, nur die eigene
+     Datei aus videos/ (liegt auf demselben Server wie die Seite). */
   function videoZeile(regel) {
     var v = regel.video ? V.videos[regel.video] : null;
-    if (!v || (!v.tiktok && !v.youtube)) {
+    if (!v || !v.datei) {
       return el("p", "videos kein", "Video dazu folgt.");
     }
-    var p = el("p", "videos");
-    p.appendChild(document.createTextNode("Video dazu: "));
-    var links = [];
-    if (v.tiktok) { links.push(["auf TikTok", v.tiktok]); }
-    if (v.youtube) { links.push(["auf YouTube", v.youtube]); }
-    links.forEach(function (l, i) {
-      if (i) { p.appendChild(document.createTextNode(" · ")); }
-      var a = el("a", null, l[0] + " →");
-      a.href = l[1]; a.target = "_blank"; a.rel = "noopener";
-      p.appendChild(a);
-    });
-    return p;
+    var box = el("div", "videos");
+    box.appendChild(el("p", "videos-titel", "Video dazu:"));
+    var film = document.createElement("video");
+    film.src = v.datei;
+    if (v.bild) { film.poster = v.bild; }
+    film.controls = true;
+    film.preload = "none";
+    film.setAttribute("playsinline", "");
+    film.className = "video-eigen";
+    box.appendChild(film);
+    return box;
   }
 
   /* Eine Karte: Titel, „Du hast gesagt“, Tipp, Quelle, Genaue Stelle, Video.

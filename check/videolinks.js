@@ -1,6 +1,6 @@
 /* ERZEUGT von scripts/baue-videolinks.py — nicht von Hand aendern.
    Quelle: ~/tools/ruhepuls-pipeline/public/<id>/TIKTOK.md und YOUTUBE.md
-   Stand: 2026-09-24  ·  79 Videos mit Link
+   Stand: 2026-09-25  ·  82 Videos mit Link
    Neu bauen nach jedem Upload:  python3 scripts/baue-videolinks.py */
 window.RUHEPULS_VIDEOS = {
   "kanal": {
@@ -43,6 +43,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": null
     },
     "v15": {
+      "bild": "../videos/v15.jpg",
+      "datei": "../videos/v15.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de",
       "titel": "",
       "youtube": null
@@ -233,6 +235,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": "https://youtu.be/x3h6sNm0gcs"
     },
     "v53": {
+      "bild": "../videos/v53.jpg",
+      "datei": "../videos/v53.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7683970994578443542",
       "titel": "Jeder braucht acht Stunden Schlaf",
       "youtube": "https://youtu.be/fDINnMDoOWw"
@@ -298,6 +302,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": "https://youtu.be/fMgOAAgl5_I"
     },
     "v66": {
+      "bild": "../videos/v66.jpg",
+      "datei": "../videos/v66.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7685431768907926817",
       "titel": "Eine Tasse Kaffee am Nachmittag stört deinen Schlaf nicht",
       "youtube": "https://youtu.be/Do1KHHDkk3M"
@@ -308,6 +314,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": "https://youtu.be/O8KE6143w_U"
     },
     "v68": {
+      "bild": "../videos/v68.jpg",
+      "datei": "../videos/v68.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7685853282337656086",
       "titel": "Zucker macht wach, wenn du müde bist",
       "youtube": "https://youtu.be/IbSIOXdG0mQ"
@@ -318,6 +326,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": "https://youtu.be/Ef268VLYhlY"
     },
     "v70": {
+      "bild": "../videos/v70.jpg",
+      "datei": "../videos/v70.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7686117750619524374",
       "titel": "Wenn Kaffee nicht mehr wach macht, brauchst du einfach mehr",
       "youtube": "https://youtu.be/YAaa777hWWw"
@@ -328,6 +338,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": "https://youtu.be/4Vp8mbxqD7U"
     },
     "v72": {
+      "bild": "../videos/v72.jpg",
+      "datei": "../videos/v72.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7686219389632384278",
       "titel": "Wer am Nachmittag müde wird, sollte durchziehen",
       "youtube": "https://youtu.be/oUcCEQs8WVQ"
@@ -348,6 +360,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": "https://youtu.be/y7l23pBH8pE"
     },
     "v76": {
+      "bild": "../videos/v76.jpg",
+      "datei": "../videos/v76.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7686846459622313238",
       "titel": "",
       "youtube": null
@@ -358,6 +372,8 @@ window.RUHEPULS_VIDEOS = {
       "youtube": null
     },
     "v78": {
+      "bild": "../videos/v78.jpg",
+      "datei": "../videos/v78.mp4",
       "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7687298203514932502",
       "titel": "Keine Energie am Nachmittag heißt: sitzen bleiben und ausruhen",
       "youtube": "https://youtu.be/fGAo9AGdqL8"
@@ -368,36 +384,51 @@ window.RUHEPULS_VIDEOS = {
       "youtube": null
     },
     "v80": {
-      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7688092308750798113",
       "titel": "",
       "youtube": null
     },
     "v81": {
-      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7688335577900403990",
       "titel": "Frühstück ist die wichtigste Mahlzeit des Tages",
       "youtube": "https://youtu.be/198SnvN64M8"
     },
     "v82": {
-      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7688423179383082272",
       "titel": "Wer ständig müde ist, hat einen Vitaminmangel",
       "youtube": "https://youtu.be/2KwPqC9vsn4"
     },
     "v83": {
-      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7688734462737222934",
       "titel": "Jeden Tag Eier essen treibt dein Cholesterin hoch",
       "youtube": "https://youtu.be/gA7p6II9r9w"
     },
     "v84": {
-      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7688764926726343958",
       "titel": "Ab dreißig wird dein Stoffwechsel langsamer",
       "youtube": "https://youtu.be/GvYrR7qxUNo"
     },
     "v85": {
-      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7688833575684148502",
       "titel": "",
       "youtube": null
     },
     "v86": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de/video/7689060503489875222",
+      "titel": "",
+      "youtube": null
+    },
+    "v87": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "Mit Apfelessig brauchst du keine Diät",
+      "youtube": "https://youtu.be/WgXTY6-inT4"
+    },
+    "v88": {
+      "tiktok": "https://www.tiktok.com/@ruhepuls.de",
+      "titel": "Sekundenschlaf beim Autofahren kommt ohne Vorwarnung",
+      "youtube": "https://youtu.be/ZonNSlsCH_c"
+    },
+    "v89": {
       "tiktok": "https://www.tiktok.com/@ruhepuls.de",
       "titel": "",
       "youtube": null
