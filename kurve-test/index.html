@@ -47,7 +47,9 @@
 
 <div class="weg" id="ersterBesuch">
   <p class="lead">Hier trägst du sieben Abende lang ein, wie viel Energie du am Tag hattest, von 1 bis 10. Dazu setzt du Häkchen bei dem, was an dem Tag zutraf. Das dauert eine Minute.</p>
-  <p>Ändern musst du dafür nichts. Leb deine Woche wie immer, und probier die Tipps aus, wenn du magst. Ab dem fünften Eintrag siehst du hier deine Woche bisher.</p>
+  <p>Ändern musst du dafür nichts. Leb deine Woche wie immer, und probier die Vorschläge aus, wenn du magst. Ab dem fünften Eintrag siehst du hier deine Woche bisher.</p>
+  <!-- Recht 28.09., O9: Zweckbestimmung (MDCG 2019-11, Schritt 5). -->
+  <p>Die Kurve ist ein Tagebuch für deinen Alltag. Sie ist nicht dafür gedacht, Krankheiten zu erkennen oder zu behandeln.</p>
 </div>
 
 <!-- Hinweis aus Entscheidung T2 (Liam, 24.09.2026), 28.09.: nur beim ersten Besuch. -->
@@ -147,7 +149,8 @@
 
 <section class="eigene" id="deineEintraege">
   <h2>Deine Einträge</h2>
-  <p class="small" id="datenschutzSatz">Deine Einträge werden nur auf diesem Gerät gespeichert, in diesem Browser. Sie gehen an niemanden, auch nicht an Ruhepuls. In einem anderen Browser ist die Seite leer. Safari löscht die Einträge, wenn du die Seite länger als eine Woche nicht öffnest. <a href="../datenschutz.html">Datenschutz</a></p>
+  <!-- Recht 28.09., O6: nicht mehr „gehen an niemanden“ (In-App-Umgebung, Mitnehmen-Link). -->
+  <p class="small" id="datenschutzSatz">Deine Einträge werden nur auf diesem Gerät gespeichert, in diesem Browser. Die Seite schickt sie nirgendwohin, auch nicht an Ruhepuls. In einem anderen Browser ist die Seite leer. Safari löscht die Einträge, wenn du die Seite etwa eine Woche lang nicht öffnest. <a href="../datenschutz.html">Datenschutz</a></p>
   <!-- 28.09.: Einträge mitnehmen — die Daten stehen im Link hinter „#“, dieser
        Teil geht an keinen Server. Geprüft: Zweig w. -->
   <div id="mitnehmen">
@@ -157,7 +160,9 @@
       <input class="link-feld" id="mitnehmenLink" type="text" readonly>
       <button class="btn" id="kopieren" type="button">Link kopieren</button>
       <p class="meldung weg" id="kopiert" aria-live="polite">Kopiert. Füg den Link in Safari oder Chrome in die Adresszeile ein.</p>
-      <p class="small">Öffnest du den Link in einem anderen Browser, fragt die Seite, ob sie deine Einträge übernehmen soll. Die Einträge stehen im Link selbst, hinter dem Zeichen #. Dieser Teil geht an keinen Server, auch nicht an Ruhepuls. Wer den Link hat, sieht deine Einträge. Schick ihn deshalb nur an dich selbst.</p>
+      <!-- Recht 28.09., O7: auch „an dich selbst schicken“ läuft über einen Server;
+           der Link steht im Browserverlauf. -->
+      <p class="small">Öffnest du den Link in einem anderen Browser, fragt die Seite, ob sie deine Einträge übernehmen soll. Die Einträge stehen im Link selbst, hinter dem Zeichen #. Beim Öffnen des Links wird dieser Teil nicht an den Server geschickt, auch nicht an Ruhepuls. Wo du den Link speicherst oder hinschickst, liegen aber auch deine Einträge. Wer den Link hat, sieht sie. Der Link kann außerdem im Verlauf deines Browsers stehen.</p>
     </div>
   </div>
   <p class="weg" id="einstellungenZeile"><button class="link" id="einstellungen" type="button">Einstellungen ändern</button></p>

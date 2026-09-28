@@ -22,7 +22,7 @@
 (function () {
   "use strict";
 
-  var SCHLUESSEL = "ruhepuls.kurve.test"; // Testseite: eigener Speicher, mischt sich nicht mit /kurve/
+  var SCHLUESSEL = "ruhepuls.kurve.test"; // Testseite: eigener Speicher
   var HOECHSTENS = 7;          // nach sieben Eintraegen keine weiteren
   var WOCHE_AB = 5;            // „Deine Woche bisher“ ab dem 5. Eintrag
   var TAGESWECHSEL = 4;        // 28.09.: neuer Tag erst um 4:00 — ein Eintrag um 1 Uhr zaehlt fuer den Vortag
@@ -173,7 +173,7 @@
     }
     w.grenze = grenze;
     w.schwankungErklaerung = sd === 0 ? "" : "So weit lag deine Zahl an einem typischen Tag über oder unter deinem Schnitt. " +
-      "Ein Auf und Ab in dieser Größe gehört zu einer ganz normalen Woche.";
+      "Kleinere Unterschiede als dieser sagen deshalb wenig."; /* Recht 28.09., O5: keine Bewertung „alles normal“ */
 
     /* Bester und schwaechster Tag, mit Datum und Haekchen */
     if (hoch === tief) {
@@ -227,7 +227,9 @@
         s.push(d > grenze
           ? "Das ist mehr als deine normale Schwankung, aber eine Woche ist kurz, und vieles verändert sich gleichzeitig."
           : "Das liegt innerhalb deiner normalen Schwankung.");
-        s.push("Ob es wirklich daran liegt, zeigt erst ein längerer Versuch mit einer Sache.");
+        /* Recht 28.09., O4: „zeigt erst“ klang, als zeige der längere Versuch es sicher. */
+        s.push("Ob es wirklich daran liegt, kann eine Woche nicht zeigen.");
+        s.push("Dafür braucht es einen längeren Versuch mit einer Sache.");
       }
       w.tipp = s;
     }
@@ -511,8 +513,12 @@
     $("mitnehmenLink").value = link;
     zeig($("mitnehmenBox"), true);
     zeig($("kopiert"), false);
-    /* Auch in die Adresszeile: „Im Browser öffnen“ einer App nimmt die Eintraege dann mit. */
-    try { window.history.replaceState(null, "", link); } catch (e) { /* egal */ }
+    /* Nur im Browser einer App auch in die Adresszeile: „Im Browser öffnen“ nimmt die
+       Eintraege dann mit. Sonst nicht — die Adresszeile landet im Browserverlauf und mit
+       Chrome-/iCloud-Sync beim Anbieter (Recht 28.09., O7). */
+    if (istInApp(navigator.userAgent)) {
+      try { window.history.replaceState(null, "", link); } catch (e) { /* egal */ }
+    }
     $("mitnehmenLink").focus();
     $("mitnehmenLink").select();
   }
