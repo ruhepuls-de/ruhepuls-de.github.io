@@ -187,7 +187,10 @@
       var status = $("teilenStatus");
       var text = R.teilText(letztesErgebnis, ort());
       if (navigator.share) {
-        navigator.share({ title: "Energie-Check von Ruhepuls", text: text, url: ort() })
+        /* 28.09. (Liam: "teilt man einfach nur den link"): ohne url-Feld, sonst
+           nehmen viele Apps (iOS, Instagram, Kopieren) NUR die url und
+           verwerfen den Ergebnis-Text. Der Link steht schon im Text. */
+        navigator.share({ title: "Energie-Check von Ruhepuls", text: text })
           .catch(function () {});
         return;
       }

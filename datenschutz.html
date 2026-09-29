@@ -79,21 +79,60 @@ nichts im Browserspeicher, keine Sitzungsdaten. Wenn du die Seite neu
 lädst, fängt er von vorne an. Der Check fragt nach Alltagsgewohnheiten
 wie Schlaf, Koffein, Alkohol und Bewegung, nicht nach Krankheiten.
 Er ist eine Einordnung zu Informationszwecken, stellt keine
-Diagnose und ersetzt keine ärztliche Beratung.</p>
+Diagnose und ersetzt keine ärztliche Beratung. Tippst du auf „Ergebnis
+teilen“, gibt dein Gerät den Text an die App, die du auswählst. Ruhepuls
+erfährt davon nichts.</p>
+<!-- Abschnitt 4a: Abteilung Recht 28.09.2026 (Umbau 7 Tage), Abschnitt 2a, R3.
+     Angepasst: Adresszeile nur im Browser einer App (O7, Technik in kurve.js).
+     Der Satz „Die Links in meinen Mails … sind für alle gleich und verraten der
+     Seite nicht, wer du bist“ ist bewusst NICHT drin, bis O10 geprueft ist
+     (Testmail: haengt MailerLite ml_subscriber/UTM an den Link?). -->
 <h2>4a. Die Energiekurve</h2>
 <p>Auf der Seite „Deine Energiekurve“ (mein-ruhepuls.de/kurve/) kannst du
-einmal am Tag eine Zahl und einige Häkchen eintragen. Diese Einträge
-speichert die Seite im Speicher deines Browsers auf deinem Gerät
-(localStorage), damit du sie am nächsten Tag wiederfindest und daraus
-deine Kurve entsteht. Sie werden nicht an mich, an MailerLite oder an
-Dritte übertragen. Ich kann sie nicht sehen.</p>
-<p>Rechtsgrundlage für das Speichern auf deinem Gerät ist § 25 Abs. 2 Nr. 2
-TDDDG: Das Speichern ist unbedingt erforderlich, damit die Seite die
-Funktion bereitstellen kann, die du ausdrücklich nutzt.</p>
-<p>Die Einträge bleiben gespeichert, bis du sie löschst: mit dem Knopf
-„Alle Einträge löschen“ auf der Seite oder indem du die Website-Daten für
-mein-ruhepuls.de in deinem Browser löschst. Die Links in meinen Mails sind
-für alle gleich und verraten der Seite nicht, wer du bist.</p>
+einmal am Tag eine Zahl von 1 bis 10 und einige Häkchen zu
+Alltagsgewohnheiten eintragen, zum Beispiel Schlaf, Koffein, Alkohol und
+Bewegung. Beim ersten Besuch beantwortest du außerdem zwei Fragen: welche
+Gewohnheiten in deinem Alltag vorkommen (Koffein, Alkohol, Süßes am
+Nachmittag) und was deiner Vermutung nach den größten Unterschied macht
+(„deine Vermutung“). Ein Eintrag bis 4 Uhr nachts zählt für den Vortag.</p>
+<p>Wo die Daten liegen
+Einträge und Einstellungen speichert die Seite nur im Speicher deines
+Browsers auf deinem Gerät (localStorage). Das ist nötig, damit du sie am
+nächsten Tag wiederfindest und daraus deine Übersicht entsteht. Die Seite
+überträgt sie nicht an mich, nicht an MailerLite und nicht an Dritte. Ich
+kann sie nicht sehen. Auch die Auswertung („Deine Woche bisher“) rechnet
+nur dein Browser.</p>
+<p>Rechtsgrundlage
+Rechtsgrundlage für das Speichern und Auslesen auf deinem Gerät ist § 25
+Abs. 2 Nr. 2 TDDDG: Es ist unbedingt erforderlich, damit die Seite die
+Funktion bereitstellen kann, die du ausdrücklich nutzt. Um dich zu warnen,
+wenn du die Seite im Browser einer App oder am Computer öffnest, wo deine
+Einträge leicht getrennt werden, liest die Seite die Browserkennung und die
+Angabe, ob dein Gerät einen Touchscreen hat. Beides wird weder gespeichert
+noch übertragen.</p>
+<p>Wie lange sie bleiben
+Die Einträge bleiben, bis du sie löschst: mit dem Knopf „Alle Einträge
+löschen“ oder indem du die Website-Daten für mein-ruhepuls.de in deinem
+Browser löschst. Manche Browser löschen sie auch selbst. Safari auf dem
+iPhone entfernt sie, wenn du die Seite etwa eine Woche lang nicht öffnest.
+In einem privaten Fenster werden sie beim Schließen gelöscht.</p>
+<p>Einträge mitnehmen
+Tippst du auf „Einträge mitnehmen“, erzeugt die Seite einen Link, in dem
+deine Einträge und Einstellungen stehen, hinter dem Zeichen #. Diesen Teil
+einer Adresse schickt der Browser beim Öffnen nicht an den Server, also
+auch nicht an mich. Bist du im Browser einer App, schreibt die Seite den
+Link zusätzlich in die Adresszeile, damit „Im Browser öffnen“ die Einträge
+mitnimmt; dann steht er im Verlauf dieses Browsers. Ebenso steht er im
+Verlauf jedes Browsers, in dem du ihn öffnest. Wo du den Link speicherst
+oder hinschickst (Notizen, Mail, Messenger), liegen auch deine Einträge,
+beim jeweiligen Anbieter. Wer den Link hat, kann sie lesen. Öffnest du den
+Link in einem anderen Browser, fragt die Seite, ob sie die Einträge
+übernehmen soll. Erst wenn du zustimmst, werden sie dort gespeichert.</p>
+<p>Tagesvideo
+Die Videos liegen auf demselben Server wie die Seite (Abschnitt 3). Beim
+Abruf fallen dort die üblichen Server-Protokolle an.</p>
+<p>Die Energiekurve ist ein Tagebuch für deinen Alltag. Sie ist nicht dafür
+gedacht, Krankheiten zu erkennen oder zu behandeln.</p>
 <h2>5. Newsletter-Versand über MailerLite</h2>
 <p>Für den Versand der E-Mails nutze ich den Dienst MailerLite
 (MailerLite Limited, Ground Floor, 71 Lower Baggot Street, Dublin 2,
@@ -103,8 +142,10 @@ dieser Seite einträgst, verarbeitet MailerLite deine E-Mail-Adresse und
 die technischen Anmeldedaten (Zeitpunkt, IP-Adresse) für mich. MailerLite
 ist als Auftragsverarbeiter für mich tätig; es besteht ein Vertrag nach
 Art. 28 DSGVO.</p>
-<!-- Abschnitt 5 „Wo die Daten liegen“, „Zweck“ und „Klick-Messung“:
-     Recht 24.09.2026, Textvorschlag (a), woertlich (R1, G13). -->
+<!-- Abschnitt 5 „Wo die Daten liegen“: Recht 24.09.2026, Textvorschlag (a),
+     woertlich (R1, G13). „Zweck“ und „Klick-Messung“: Recht 28.09.2026
+     (Umbau 7 Tage), Abschnitt 2b, R2/R4, angepasst an die eigene Mail am
+     Tag nach der siebten („Tag 8“) statt des 30-Tage-Absatzes in Mail 7. -->
 <p>Wo die Daten liegen
 MailerLite speichert die Daten nach eigener Angabe in Rechenzentren von
 Google in der Europäischen Union. Soweit MailerLite oder seine
@@ -116,13 +157,16 @@ zu bestätigen. Erst nach dieser Bestätigung wird die Adresse in den
 Verteiler aufgenommen.</p>
 <p>Zweck
 Die Adresse wird verwendet, um dir die Mail-Strecke „Deine Energiekurve –
-7 Tage“ zu schicken: sieben E-Mails, eine am Tag, jede mit einem Punkt aus
-dem Energie-Check und einem Link zu deiner Energiekurve. Die sieben Mails
-sind für alle Empfänger gleich. Danach schreibe ich dir höchstens einmal
-pro Woche über neue Inhalte und eigene Angebote von Ruhepuls. Deine
-Antworten aus dem Energie-Check und deine Einträge in der Energiekurve
-werden nicht übertragen. Sie bleiben in deinem Browser (Abschnitte 4 und
-4a). Ich kenne sie nicht und kann sie dir deshalb auch nicht zuschicken.</p>
+7 Tage“ zu schicken: sieben E-Mails, eine am Tag, jede mit einem kurzen
+Video, einem Vorschlag für den nächsten Tag und einem Link zu deiner
+Energiekurve. Die sieben Mails sind für alle Empfänger gleich. Danach
+schreibe ich dir höchstens einmal pro Woche über neue Inhalte und eigene
+Angebote von Ruhepuls. Die erste dieser Mails kommt drei Tage nach der
+siebten: Darin stelle ich dir vor, was Ruhepuls als Nächstes plant, und
+frage, ob du dazu Bescheid bekommen möchtest. Deine Antworten aus dem
+Energie-Check und deine Einträge in der Energiekurve werden nicht
+übertragen. Sie bleiben in deinem Browser (Abschnitte 4 und 4a). Ich kenne
+sie nicht und kann sie dir deshalb auch nicht zuschicken.</p>
 <p>Rechtsgrundlage
 Art. 6 Abs. 1 lit. a DSGVO (Einwilligung), für den Einsatz des
 Dienstleisters zusätzlich Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
@@ -140,11 +184,19 @@ Abmeldung aufbewahrt (Art. 6 Abs. 1 lit. f DSGVO).</p>
 Ob du eine E-Mail öffnest, wird nicht erfasst. Die Öffnungsmessung (ein
 unsichtbares Zählbild) ist abgeschaltet. Erfasst wird, ob du einen Link
 in einer E-Mail anklickst, und welchen. So sehe ich, ob die Mails genutzt
-werden, und in der letzten Mail, welche der beiden Antworten auf meine
-Frage gewählt wurde. Aus den Klicks bilde ich keine Gruppen und keine
-Profile und verknüpfe sie nicht mit anderen Daten. Die Klick-Messung ist
-Teil deiner Einwilligung beim Eintragen und endet mit der Abmeldung.
-Näheres in der Datenschutzerklärung von MailerLite:
+werden. In der Mail drei Tage nach der siebten kannst du mit einem Klick
+sagen, ob du über die geplanten „30 Tage“ Bescheid bekommen möchtest („Ja“,
+„Erst den Preis wissen“ oder einer von vier Gründen für „Nein“). Diese eine
+Antwort merke ich mir in MailerLite als Gruppe („30 Tage – Bescheid“,
+„30 Tage – Preis“, „30 Tage – Nein“ oder „30 Tage – nicht durchgehalten“):
+Wer „Ja“ oder „Erst den Preis wissen“ geklickt hat, bekommt eine Mail, wenn
+die 30 Tage starten. Wer „Nein“ geklickt hat, bekommt zu den 30 Tagen keine
+eigene Mail. Darüber hinaus
+bilde ich aus Klicks keine Gruppen und keine Profile und verknüpfe sie
+nicht mit anderen Daten. Die Klick-Messung ist Teil deiner Einwilligung
+beim Eintragen, die Antwort in dieser Mail gibst du mit dem Klick selbst
+(Art. 6 Abs. 1 lit. a DSGVO). Beides endet mit der Abmeldung. Näheres in
+der Datenschutzerklärung von MailerLite:
 https://www.mailerlite.com/legal/privacy-policy</p>
 <!-- Abschnitt 5a: Recht 24.09.2026, G14, woertlich. Offen bleibt
      Anwaltsfrage g (privates Gmail-Konto geschaeftlich). -->
@@ -175,8 +227,8 @@ Gumroad: https://gumroad.com/privacy</p>
 hast (Abschnitt 4 und 6), verwende ich die von Gumroad übermittelte Adresse
 dafür. Ohne diese Zustimmung erhältst du keine weiteren E-Mails.</p>
 -->
-<h2>6. Profile auf TikTok, YouTube und Instagram</h2>
-<p>Ruhepuls betreibt Profile auf TikTok (TikTok Technology Limited, Dublin, Irland), YouTube (Google Ireland Limited, Dublin, Irland) und Instagram (Meta Platforms Ireland Limited, Dublin, Irland). Beim Besuch dieser Profile verarbeitet die jeweilige Plattform deine Daten nach ihren eigenen Regeln; ich erhalte von den Plattformen nur zusammengefasste Statistiken ohne Personenbezug (Aufrufe, Altersgruppen, Herkunftsländer). Für diese Statistiken bin ich mit der Plattform gemeinsam verantwortlich (Art. 26 DSGVO). Auskunfts- und Löschrechte machst du am wirksamsten direkt bei der Plattform geltend; du kannst dich auch an mich wenden. Datenschutzhinweise der Plattformen: tiktok.com/legal/privacy-policy, policies.google.com/privacy, privacycenter.instagram.com.</p>
+<h2>6. Profile auf TikTok, YouTube, Instagram und Facebook</h2>
+<p>Ruhepuls betreibt Profile auf TikTok (TikTok Technology Limited, Dublin, Irland), YouTube (Google Ireland Limited, Dublin, Irland), Instagram und Facebook (beide Meta Platforms Ireland Limited, Dublin, Irland). Beim Besuch dieser Profile verarbeitet die jeweilige Plattform deine Daten nach ihren eigenen Regeln; ich erhalte von den Plattformen nur zusammengefasste Statistiken ohne Personenbezug (Aufrufe, Altersgruppen, Herkunftsländer). Für diese Statistiken bin ich mit der Plattform gemeinsam verantwortlich (Art. 26 DSGVO). Auskunfts- und Löschrechte machst du am wirksamsten direkt bei der Plattform geltend; du kannst dich auch an mich wenden. Datenschutzhinweise der Plattformen: tiktok.com/legal/privacy-policy, policies.google.com/privacy, privacycenter.instagram.com, facebook.com/privacy/policy.</p>
 <h2>7. Deine Rechte</h2>
 <p>Du hast jederzeit das Recht auf
 - Auskunft über die zu deiner Person gespeicherten Daten (Art. 15 DSGVO),
@@ -195,6 +247,6 @@ Informationsfreiheit, Ludwig-Erhard-Str. 22, 20459 Hamburg.</p>
 <h2>9. Keine automatisierte Entscheidungsfindung</h2>
 <p>Es findet keine automatisierte Entscheidungsfindung einschließlich
 Profiling nach Art. 22 DSGVO statt.</p>
-<p>Stand: 24. September 2026</p>
+<p>Stand: 29. September 2026</p>
 <footer><a href="index.html">Start</a><a href="impressum.html">Impressum</a></footer>
 </main></body></html>

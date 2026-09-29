@@ -151,7 +151,7 @@
 
     mehrKaffee: {
       gruppe: "hebel", domaene: "trinken",
-      titel: "Noch eine Tasse hebt vor allem den Koffein-Entzug auf", // Recht 24.09., G5
+      titel: "Nach einer Nacht ohne Koffein hob die Tasse vor allem den Entzug auf", // Recht 24.09., G5; Fach 28.09. (Abnahme): Versuch prüfte den Entzug
       tipp:
         "In einem Versuch mit 369 Erwachsenen wussten weder die Teilnehmer " +
         "noch die Versuchsleiter, wer echtes Koffein bekam. Alle hatten die" +

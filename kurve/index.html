@@ -1,53 +1,155 @@
-<!doctype html><html lang="de" class="kurve"><head><meta charset="utf-8">
+<!doctype html><html lang="de" class="kurve"><head><meta name="robots" content="noindex"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Deine Energiekurve – 7 Tage · Ruhepuls</title>
 <link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="kurve.css">
 </head><body><main>
 <!-- Texte: „(C) Abteilung Produkt & Text — Energie-Check, 7 Tage, Tag-7-Angebot
      (24.09.2026)“, Abschnitt 2; Klartext-Fassung 24.09. spaet (Leser-Test,
-     Liam: „ueberhaupt keinen Plan, worum es geht“). Alles laeuft im Browser: kein
+     Liam: „ueberhaupt keinen Plan, worum es geht“). Umbau 28.09.2026 nach
+     „(C) Umbau 7 Tage — Bauauftrag“: Einrichtung, Ergebnis ohne Sieger,
+     Einträge mitnehmen, Tageswechsel 4:00. GRUNDSATZ: Die 7 Tage beweisen
+     nichts, sie zeigen dir deine Woche. Alles laeuft im Browser: kein
      Netzaufruf, kein Formular an MailerLite, kein fremdes Skript. Gespeichert
      wird nur unter dem Schluessel ruhepuls.kurve.v1 (localStorage). Geprueft
-     von scripts/pruefe-check.py, Zweig k. -->
+     von scripts/pruefe-check.py, Zweige k, u, v, w. -->
 
 <h1>Deine Energiekurve</h1>
 <p class="fortschritt-zeile" id="fortschritt">0 von 7 Tagen eingetragen <span class="punkte">○ ○ ○ ○ ○ ○ ○</span></p>
 
-<!-- Hinweis aus Entscheidung T2 (Liam, 24.09.2026). Produkt & Text liefert
-     dafuer keinen Wortlaut; der Satz ist aus T2 abgeleitet — Liam pruefen. -->
-<p class="t2" id="lesezeichen">Öffne diese Seite immer auf demselben Handy und im selben Browser, zum Beispiel Safari oder Chrome. Am einfachsten über den Link in den Mails oder über ein Lesezeichen.</p>
-
-<div class="weg" id="ersterBesuch">
-  <p class="lead">Hier trägst du sieben Abende lang ein, wie viel Energie du am Tag hattest, von 1 bis 10. Dazu setzt du Häkchen bei dem, was an dem Tag zutraf. Das dauert eine Minute. Trag erst am Abend ein, wenn dein Tag vorbei ist.</p>
-  <p>Aus deinen Werten entsteht Tag für Tag eine Linie, deine Energiekurve. Ab dem fünften Eintrag siehst du außerdem für jedes Häkchen, das du an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast, ob deine Tage damit anders waren als die ohne.</p>
+<!-- 28.09.: In-App-Browser (TikTok, Instagram, Facebook, Google-App) haben einen
+     eigenen Speicher. Prüfung Personas P8: Wer wechselt, sieht „0 von 7“. -->
+<div class="warnkasten weg" id="inApp" role="note">
+  <!-- Fassung 3 (Liam 28.09., 22:15): Einträge bleiben, wo sie gemacht werden. Kein Rat
+       mehr zu Safari/Chrome/Lesezeichen — genau der Wechsel trennte die Einträge
+       (Durchlauf-Test, Befund 1, 4/4). -->
+  <p><b>Du bist gerade im Browser einer App,</b> zum Beispiel deiner Mail-App, TikTok oder Instagram. Deine Einträge bleiben dann in dieser App.</p>
+  <p>Öffne die Seite deshalb jeden Abend auf demselben Weg: über den Knopf in der Mail, auf demselben Handy oder Tablet.</p>
+  <p><button class="btn sekundaer klein ohne-rand" id="inAppMitnehmen" type="button">Einträge von hier mitnehmen</button></p>
 </div>
 
+<div class="meldung weg" id="uebernehmen" aria-live="polite">
+  <p><b>Einträge übernehmen?</b></p>
+  <p id="uebernehmenText"></p>
+  <button class="btn" id="uebernehmenJa" type="button">Ja, übernehmen</button>
+  <button class="btn sekundaer" id="uebernehmenNein" type="button">Nein</button>
+</div>
+<p class="fehler weg" id="linkKaputt" role="alert">Der Link ist unvollständig. Kopier ihn noch einmal ganz, bis zum Ende.</p>
+<p class="meldung weg" id="uebernommen" aria-live="polite">Übernommen. Deine Einträge sind jetzt auf diesem Gerät.</p>
+<p class="meldung weg" id="leerHinweis">Du hast schon etwas eingetragen und siehst hier nichts? Dann warst du in einer anderen App, einem anderen Browser oder am Computer. Öffne dort die Seite und tipp auf „Einträge mitnehmen“.</p>
+
+<!-- Fassung 3: Am PC nicht eintragen (Klaus, Durchlauf-Test: Tag 1 am Büro-PC „gefangen“). -->
+<p class="warnkasten weg" id="amPC" role="note"><b>Du bist gerade am Computer.</b> Trag hier bitte nicht ein: Deine Einträge blieben auf diesem Computer und fehlen dir am Handy. Öffne die Seite am Abend über den Knopf in der Mail, auf deinem Handy oder Tablet.</p>
+
+<!-- 25.09.2026 (Liam): Tagesvideo über dem Eintrag — die Mail führt mit ?tag=N hierher.
+     Eigene Datei aus ../videos/, kein fremder Dienst. Quadratisch, damit das Feld
+     darunter am Handy sichtbar bleibt (Recherche Onboarding 25.09.). 28.09.: kein
+     autoplay, Start per Tipp; fehlt die Datei, bleibt der Block still weg. -->
+<section class="tagesvideo weg" id="tagesvideo">
+  <p class="tagesvideo-titel" id="tagesvideoTitel">Tag 1 von 7</p>
+  <video id="tagesvideoFilm" controls playsinline preload="metadata"></video>
+  <img class="weg" id="tagesvideoProbe" alt="">
+  <p class="small">Darunter trägst du ein.</p>
+</section>
+
+<!-- Fassung 3 (Liam 28.09.): Arzt- und Sicherheitssätze nicht im Fließtext von Mail
+     und Video, sondern als klar gekennzeichneter Ausnahme-Kasten. Erscheint zum
+     Tagesvideo 3 bzw. 5, auch wenn die Videodatei fehlt (Recht O8: das Video läuft
+     auf der Seite auch ohne die Mail). Wortlaut = Mail 3 / Mail 5, Fassung 3. -->
+<aside class="ausnahme weg" id="ausnahme3" role="note">
+  <p class="ausnahme-titel">Ausnahme: nur für dich, wenn du an mehreren Nächten pro Woche lange wach liegst</p>
+  <p>Liegst du an mehreren Nächten pro Woche lange wach, beim Einschlafen oder mitten in der Nacht? Dann lass die Rechnung weg, die dir das Video zeigt, denn mehr Zeit im Bett ist dann nicht der richtige Rat. Die deutsche Leitlinie zu Schlafproblemen rät etwas anderes: Bist du nach einer Viertelstunde noch wach, steh auf und mach etwas, das dir angenehm ist. Geh erst wieder ins Bett, wenn du schläfrig bist. Am Anfang kann dich das tagsüber müder machen, davor warnt die Leitlinie. Probierst du das aus und fährst Auto oder arbeitest an Maschinen, sprich vorher mit einer Ärztin oder einem Arzt darüber.</p>
+</aside>
+<aside class="ausnahme weg" id="ausnahme5" role="note">
+  <p class="ausnahme-titel">Ausnahme: nur für dich, wenn dich schon leichte Anstrengung tagelang erschöpft</p>
+  <p>Bist du schon nach leichter Anstrengung tagelang erschöpft, lass das erst ärztlich abklären, bevor du mehr machst, und lass diesen Vorschlag bis dahin weg. Für alle anderen gilt, was auch die Leitlinie der Hausärzte zur Müdigkeit sagt: Achte darauf, wie dein Körper reagiert, und pass die Menge an.</p>
+</aside>
+
+<div class="weg" id="ersterBesuch">
+  <p class="lead">Hier trägst du sieben Abende lang ein, wie viel Energie du am Tag hattest, von 1 bis 10. Dazu setzt du Häkchen bei dem, was du an dem Tag gemacht hast. Das dauert eine Minute.</p>
+  <p>Ändern musst du dafür nichts. Leb deine Woche wie immer, und probier die Vorschläge aus, wenn du magst. Ab dem fünften Eintrag siehst du hier deine Woche bisher.</p>
+  <!-- Fassung 3 (Liam 28.09.): Die Woche zählt sieben Einträge, keine Kalendertage. -->
+  <p>Verpasst du einen Abend, trägst du einfach einen Tag länger ein. Deine Woche ist fertig, sobald sieben Einträge da sind.</p>
+  <!-- Recht 28.09., O9: Zweckbestimmung (MDCG 2019-11, Schritt 5). -->
+  <p>Die Kurve ist ein Tagebuch für deinen Alltag. Sie ist nicht dafür gedacht, Krankheiten zu erkennen oder zu behandeln.</p>
+</div>
+
+<!-- Hinweis aus Entscheidung T2 (Liam, 24.09.2026), 28.09.: nur beim ersten Besuch.
+     Fassung 3: kein Safari/Chrome/Lesezeichen mehr, nur noch der Weg über die Mail. -->
+<p class="t2 weg" id="lesezeichen">Öffne die Seite jeden Abend über den Knopf in der Mail, immer auf demselben Handy oder Tablet. Deine Einträge bleiben dort, wo du sie machst. Am Computer trägst du deshalb besser nicht ein.</p>
+
+<!-- 28.09.: Einrichtung vor dem ersten Eintrag, ein Bildschirm. Was nicht
+     vorkommt, fragt die Seite nicht ab — kein leeres Häkchen zählt als
+     „getrunken“. Geprüft: pruefe-check.py, Zweig u. -->
+<form class="eintrag weg" id="einrichtung" novalidate>
+  <h2>Kurz einrichten</h2>
+  <fieldset>
+    <legend>Was kommt in deinem Alltag vor?</legend>
+    <label class="schalter-zeile" for="schalter-koffein"><span>Koffein <span class="small">(Kaffee, schwarzer oder grüner Tee, Cola, Energydrinks)</span></span>
+      <span class="schalter-feld"><span class="schalter-stand" id="stand-koffein" aria-hidden="true">Ja</span><input type="checkbox" role="switch" id="schalter-koffein" checked></span></label>
+    <label class="schalter-zeile" for="schalter-alkohol"><span>Alkohol</span>
+      <span class="schalter-feld"><span class="schalter-stand" id="stand-alkohol" aria-hidden="true">Ja</span><input type="checkbox" role="switch" id="schalter-alkohol" checked></span></label>
+    <label class="schalter-zeile" for="schalter-suesses"><span>Süßes am Nachmittag <span class="small">(auch süße Getränke wie Limo oder Energydrinks)</span></span>
+      <span class="schalter-feld"><span class="schalter-stand" id="stand-suesses" aria-hidden="true">Ja</span><input type="checkbox" role="switch" id="schalter-suesses" checked></span></label>
+    <p class="small">Was nicht vorkommt, fragt die Seite nicht ab.</p>
+  </fieldset>
+  <fieldset>
+    <legend id="tippFrage">Was glaubst du: Was macht für deine Energie den größten Unterschied?</legend>
+    <label><input type="radio" name="tipp" value="schlaf7"> Schlaf</label>
+    <label><input type="radio" name="tipp" value="koffeinSpaet"> Koffein am Nachmittag</label>
+    <label><input type="radio" name="tipp" value="alkoholGetrunken"> Alkohol</label>
+    <label><input type="radio" name="tipp" value="bewegt"> Bewegung</label>
+    <label><input type="radio" name="tipp" value="pause"> Pause am Nachmittag</label>
+    <label><input type="radio" name="tipp" value="suessesNachmittag"> Süßes am Nachmittag</label>
+    <label><input type="radio" name="tipp" value="weissNicht"> Weiß ich nicht</label>
+    <p class="small">Am siebten Tag siehst du deine Zahl an Tagen mit und ohne deine Vermutung.</p>
+  </fieldset>
+  <p class="fehler weg" id="tippFehlt" role="alert" tabindex="-1">Wähl bei deiner Vermutung eine Antwort. „Weiß ich nicht“ geht auch.</p>
+  <button class="btn" id="einrichtungSpeichern" type="submit">Einrichtung speichern</button>
+  <button class="btn sekundaer weg" id="einrichtungAbbrechen" type="button">Abbrechen</button>
+</form>
+
 <p class="fehler weg" id="speicherFehler" role="alert">Dein Browser lässt hier gerade kein Speichern zu, zum Beispiel in einem privaten Fenster. Öffne die Seite in einem normalen Fenster, sonst ist dein Eintrag morgen weg.</p>
+<!-- N2 (Zweitabnahme 29.09., Technik SOLLTE): zwei Tabs. Jeder Mail-Knopf oeffnet einen neuen Tab; ein alter Tab
+     ueberschreibt einen neueren Stand nicht mehr, sondern laedt ihn und zeigt diesen Hinweis. Wortlaut wie app.warn.andererTab. -->
+<p class="meldung weg" id="andererTab" role="status">In einem anderen Tab hat sich inzwischen etwas geändert. Hier steht jetzt der neuere Stand. Prüf kurz, ob dein letzter Eintrag angekommen ist, und trag ihn sonst noch einmal ein.</p>
 
-<p class="small" id="datenschutzSatz">Deine Einträge werden nur in diesem Browser auf diesem Gerät gespeichert. Sie gehen an niemanden, auch nicht an Ruhepuls. Öffnest du die Seite in einem anderen Browser, ist sie dort leer. Löschst du in deinem Browser die Website-Daten, sind die Einträge weg. <a href="../datenschutz.html">Datenschutz</a></p>
-
+<!-- Fassung 3: nicht mehr „Jetzt kommt dein erster Eintrag“ — das verleitete mittags zum Eintragen (Befund 6, 3/4). -->
+<p class="meldung weg" id="eingerichtet" aria-live="polite">Eingerichtet. Deinen ersten Tag trägst du heute Abend ein, wenn er vorbei ist. Öffne die Seite dann wieder über den Knopf in der Mail.</p>
+<p class="meldung weg" id="einstellungGespeichert" aria-live="polite">Deine Einstellungen sind gespeichert.</p>
 <p class="meldung weg" id="gespeichert" aria-live="polite">Gespeichert. Bis morgen Abend.</p>
-<p class="meldung weg" id="gespeichertLetzter" aria-live="polite">Gespeichert. Das war dein letzter Tag. Unten siehst du deine Werte.</p>
+<p class="meldung weg" id="gespeichertLetzter" aria-live="polite">Gespeichert. Das war dein letzter Tag. Unten siehst du deine Woche.</p>
 <p class="meldung weg" id="gesternGespeichert" aria-live="polite">Gestern ist gespeichert. Trag jetzt noch heute ein.</p>
 <p class="meldung weg" id="schonEingetragen">Für heute hast du schon etwas eingetragen. <button class="btn sekundaer klein" id="aendern" type="button">Ändern</button></p>
-<p class="meldung weg" id="voll"><b>Deine 7 Tage sind voll.</b> Weitere Einträge gehen nicht. Deine Werte bleiben hier gespeichert, bis du sie löschst.</p>
+<p class="meldung weg" id="voll"><b>Deine sieben Einträge sind da.</b> Weitere Einträge gehen nicht. Deine Werte sind nur auf diesem Gerät gespeichert. Safari löscht sie, wenn du die Seite länger als eine Woche nicht öffnest.</p>
 
 <form class="eintrag weg" id="eintrag" novalidate>
   <h2 id="frageEnergie">Wie viel Energie hattest du heute insgesamt?</h2>
+  <p class="small" id="abendsHinweis">Trag erst am Abend ein, wenn dein Tag vorbei ist. Bis 4 Uhr nachts zählt ein Eintrag noch für den Tag davor.</p>
   <div class="skala" id="skala" role="radiogroup" aria-labelledby="frageEnergie"></div>
   <p class="skala-legende"><span>1 = sehr erschöpft</span><span>10 = richtig wach und frisch</span></p>
+  <!-- Fassung 3: „insgesamt“ = Tagesschnitt (Befund 10, 3/4). -->
+  <p class="small">Gemeint ist dein Tag im Schnitt, nicht nur der Tiefpunkt und nicht nur, wie du dich gerade fühlst.</p>
 
-  <p class="frage-haken" id="frageHaken"><b>Was traf heute zu?</b> Hak alles an, was stimmt. Den Rest lässt du leer.</p>
+  <p class="frage-haken" id="frageHaken"><b>Was hast du heute gemacht?</b> Hak alles an, was stimmt. Was nicht passiert ist, lässt du leer.</p>
   <fieldset>
     <legend id="gruppeHeute">Heute</legend>
-    <label><input type="checkbox" name="hebel" value="schlaf7"> <span id="labelSchlaf">Letzte Nacht mindestens 7 Stunden geschlafen</span></label>
-    <label><input type="checkbox" name="hebel" value="koffeinHeute"> Nach dem Mittagessen kein Koffein mehr</label>
-    <label><input type="checkbox" name="hebel" value="alkoholHeute"> Keinen Alkohol getrunken, auch später am Abend nicht</label>
-    <label><input type="checkbox" name="hebel" value="bewegt"> Mindestens eine halbe Stunde so bewegt, dass du etwas schneller geatmet hast</label>
-    <label><input type="checkbox" name="hebel" value="pause"> Am Nachmittag eine kurze Pause gemacht, höchstens zehn Minuten</label>
-    <label><input type="checkbox" name="hebel" value="keinSuesses"> Am Nachmittag nichts Süßes und keinen Energydrink</label>
+    <!-- Fassung 3 (Liam 28.09.): Die Häkchen fragen, was man getan hat, nicht was man
+         gelassen hat (Befund 7: „nichts Süßes“ wurde angehakt, wenn es Süßes gab).
+         Leer heißt „nicht passiert“. Energydrink steht beim Koffein, damit er nicht am
+         Schalter „Süßes“ verloren geht (Befund Jonas). -->
+    <label><input type="checkbox" name="hebel" value="schlaf7"> <span><span id="labelSchlaf">Letzte Nacht mindestens 7 Stunden geschlafen</span>
+      <span class="hilfe">Gezählt wird Schlaf, nicht die Zeit im Bett. Ein Mittagsschlaf zählt nicht dazu. Nach einem Nachtdienst zählt dein Schlaf am Tag.</span></span></label>
+    <label><input type="checkbox" name="hebel" value="koffeinSpaet"> <span>Nach dem Mittagessen noch Koffein getrunken
+      <span class="hilfe">Kaffee, schwarzer oder grüner Tee, Cola oder Energydrink.</span></span></label>
+    <label><input type="checkbox" name="hebel" value="alkoholGetrunken"> <span>Alkohol getrunken
+      <span class="hilfe">Auch ein Glas, auch spät am Abend.</span></span></label>
+    <label><input type="checkbox" name="hebel" value="bewegt"> <span>Mindestens eine halbe Stunde so bewegt, dass du etwas schneller geatmet hast
+      <span class="hilfe">Zügig gehen, Rad fahren, Sport, Gartenarbeit: Alles zählt, auch auf dem Weg zur Arbeit oder bei der Arbeit. Kürzere Stücke darfst du zusammenzählen.</span></span></label>
+    <label><input type="checkbox" name="hebel" value="pause"> <span>Am Nachmittag mindestens 5 Minuten unterbrochen, was du gerade tust (Arbeit, Lernen, Haushalt)
+      <span class="hilfe">Nur eine Pause am Nachmittag zählt, die Mittagspause nicht.</span></span></label>
+    <label><input type="checkbox" name="hebel" value="suessesNachmittag"> <span>Am Nachmittag etwas Süßes gegessen oder getrunken
+      <span class="hilfe">Auch Limo, Cola oder Energydrink mit Zucker.</span></span></label>
   </fieldset>
-
   <p class="fehler weg" id="fehltZahl" role="alert">Tipp zuerst eine Zahl von 1 bis 10 an.</p>
   <button class="btn" id="speichern" type="submit">Speichern</button>
 </form>
@@ -56,22 +158,51 @@
 <section class="weg" id="kurveBox">
   <h2>Deine Werte, Tag für Tag</h2>
   <div class="diagramm" id="diagramm" aria-hidden="true"></div>
-  <p class="small">In den ersten Tagen springt die Linie oft stark auf und ab. Das ist normal.</p>
+  <p class="small">Einzelne Tage können stark voneinander abweichen.</p>
   <table class="sr-only" id="kurveTabelle">
-    <thead><tr><th>Tag</th><th>Datum</th><th>Zahl</th><th>Häkchen</th></tr></thead>
+    <thead><tr><th>Datum</th><th>Zahl</th><th>Häkchen</th></tr></thead>
     <tbody></tbody>
   </table>
 </section>
 
-<section class="weg" id="vergleich">
-  <p class="small weg" id="vergleichBald">Ab dem fünften Eintrag siehst du hier für jedes Häkchen, das du an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast, ob deine Tage damit anders waren als die ohne.</p>
-  <div class="weg" id="vergleichBox">
-    <h2>Tage mit Häkchen gegen Tage ohne</h2>
-    <p>Für jedes Häkchen steht hier, wie hoch deine Zahl im Schnitt war: an den Tagen, an denen du es gesetzt hast, und an den Tagen ohne. Einen Vergleich für ein Häkchen gibt es, sobald du es an mindestens 2 Tagen gesetzt und an mindestens 2 Tagen nicht gesetzt hast.</p>
-    <p>Koffein am Nachmittag und Alkohol am Abend können vor allem die Nacht danach stören, spürbar also erst am nächsten Tag. Bei diesen beiden Häkchen schaut die Seite deshalb auf deine Energie am Tag danach. Der letzte Tag zählt dort nicht mit, weil es keinen Tag danach gibt.</p>
-    <ul class="vergleich-liste" id="vergleichListe"></ul>
-    <p class="so-liest"><b>So liest du das:</b> Die Zahlen zeigen nur, was an deinen Tagen gleichzeitig vorkam. Sie beweisen nicht, dass das eine das andere bewirkt hat. Sieben Tage sind kurz, und an jedem Tag spielt vieles mit, das hier nicht steht: Stress, Wetter, ein Infekt. Es kann auch umgekehrt sein: An guten Tagen bewegt man sich vielleicht eher. Sicherer wird so ein Vergleich erst mit mehr Tagen und wenn man eine Sache bewusst abwechselnd macht und weglässt. So gehen auch Forscher vor, wenn sie etwas an einem einzelnen Menschen testen.</p>
+<!-- 28.09.: „Dein Ergebnis“ ohne Sieger (Prüfung 7 Tage: 82–85 % Zufallstreffer).
+     Nur Tatsachen, die immer stimmen, dazu die eigene Vermutung von Tag 1 mit
+     ehrlicher Grenze. Gefüllt von kurve.js (auswerten). Geprüft: Zweig v. -->
+<section class="weg" id="woche">
+  <p class="small weg" id="wocheBald">Ab dem fünften Eintrag siehst du hier deine Woche bisher: deinen Schnitt, deinen besten und deinen schwächsten Tag und wie oft du welches Häkchen gesetzt hast.</p>
+  <div class="ergebnis-karte weg" id="wocheKarte" aria-live="polite">
+    <h2 id="wocheTitel">Deine Woche bisher</h2>
+    <p class="ergebnis-satz" id="wocheSchnitt"></p>
+    <p class="ergebnis-satz" id="wocheSchwankung"></p>
+    <p class="small" id="wocheErklaerung"></p>
+    <div class="tag-block" id="wocheBester"></div>
+    <div class="tag-block" id="wocheSchwaechster"></div>
+    <h3>So oft angehakt</h3>
+    <ul class="geschafft-liste" id="wocheGeschafft"></ul>
+    <div class="tipp-block weg" id="tippBlock"></div>
+    <p class="ergebnis-vorsicht" id="wocheGrenze"></p>
   </div>
+</section>
+
+<section class="eigene" id="deineEintraege">
+  <h2>Deine Einträge</h2>
+  <!-- Recht 28.09., O6: nicht mehr „gehen an niemanden“ (In-App-Umgebung, Mitnehmen-Link). -->
+  <p class="small" id="datenschutzSatz">Deine Einträge werden nur auf diesem Gerät gespeichert, in diesem Browser. Die Seite schickt sie nirgendwohin, auch nicht an Ruhepuls. In einem anderen Browser ist die Seite leer. Safari löscht die Einträge, wenn du die Seite etwa eine Woche lang nicht öffnest. <a href="../datenschutz.html">Datenschutz</a></p>
+  <!-- 28.09.: Einträge mitnehmen — die Daten stehen im Link hinter „#“, dieser
+       Teil geht an keinen Server. Geprüft: Zweig w. -->
+  <div id="mitnehmen">
+    <button class="btn sekundaer weg" id="mitnehmenKnopf" type="button">Einträge mitnehmen</button>
+    <div class="weg" id="mitnehmenBox">
+      <label for="mitnehmenLink">Dein Link mit allen Einträgen</label>
+      <input class="link-feld" id="mitnehmenLink" type="text" readonly>
+      <button class="btn" id="kopieren" type="button">Link kopieren</button>
+      <p class="meldung weg" id="kopiert" aria-live="polite">Kopiert. Füg den Link dort in die Adresszeile ein, wo du weiter eintragen willst.</p>
+      <!-- Recht 28.09., O7: auch „an dich selbst schicken“ läuft über einen Server;
+           der Link steht im Browserverlauf. -->
+      <p class="small">Öffnest du den Link in einem anderen Browser, fragt die Seite, ob sie deine Einträge übernehmen soll. Die Einträge stehen im Link selbst, hinter dem Zeichen #. Beim Öffnen des Links wird dieser Teil nicht an den Server geschickt, auch nicht an Ruhepuls. Wo du den Link speicherst oder hinschickst, liegen aber auch deine Einträge. Wer den Link hat, sieht sie. Der Link kann außerdem im Verlauf deines Browsers stehen.</p>
+    </div>
+  </div>
+  <p class="weg" id="einstellungenZeile"><button class="link" id="einstellungen" type="button">Einstellungen ändern</button></p>
 </section>
 
 <!-- Fester Hinweis, woertlich derselbe wie im Check (#festerHinweis). Keine

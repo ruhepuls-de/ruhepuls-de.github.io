@@ -33,10 +33,50 @@ button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
 .kurve-svg .linie{stroke:#e0b45a;stroke-width:3}
 .kurve-svg .punkt{fill:#e0b45a}
 .kurve-svg .wert{fill:#f2f4f8;font-size:13px;font-weight:700}
-.vergleich-liste{padding-left:20px}
-.vergleich-liste li{margin:8px 0}
-.so-liest{font-size:.92rem;color:var(--muted);border-left:2px solid var(--gold);padding-left:12px}
+.ergebnis-karte{background:var(--card);border:1px solid #2a3b57;border-left:4px solid var(--gold);border-radius:12px;padding:16px 18px;margin:18px 0}
+.ergebnis-karte h2{margin:0 0 .5em}
+.ergebnis-satz{font-size:1.1rem;line-height:1.5;color:var(--fg);margin:0}
+.ergebnis-vorsicht{font-size:.85rem;color:var(--muted);margin:.9em 0 0}
+.ergebnis-karte h3,.tipp-block h3{font-size:1rem;color:#fff;margin:1.2em 0 .4em}
+.ergebnis-satz + .ergebnis-satz{margin-top:.5em}
+.tag-block{margin:14px 0 0}
+.tag-block p{margin:.2em 0}
+.tag-kopf{font-weight:700}
+.geschafft-liste{padding-left:20px;margin:.3em 0}
+.geschafft-liste li{margin:6px 0;line-height:1.4}
+.tipp-block{border-top:1px solid #2a3b57;margin-top:16px;padding-top:4px}
+/* 28.09.: Einrichtung — drei Schalter, Standard Ja */
+.schalter-zeile{justify-content:space-between;align-items:center}
+.schalter-feld{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.schalter-stand{font-size:.9rem;color:var(--muted);min-width:2.4em;text-align:right}
+fieldset input[role=switch]{appearance:none;-webkit-appearance:none;width:48px;height:28px;flex:0 0 48px;margin:0;border-radius:14px;background:#3a5075;position:relative;cursor:pointer;transition:background .15s}
+fieldset input[role=switch]::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#e6eaf1;transition:left .15s}
+fieldset input[role=switch]:checked{background:var(--gold)}
+fieldset input[role=switch]:checked::after{left:23px}
+fieldset input[role=switch]:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#einrichtung .btn{margin:12px 10px 0 0}
+/* 28.09.: In-App-Browser, Einträge mitnehmen */
+.warnkasten{background:#3a2a10;border:2px solid var(--gold);border-radius:12px;padding:12px 16px;margin:0 0 18px}
+.warnkasten p{margin:.4em 0}
+.btn.ohne-rand{margin:4px 0 0}
+.eigene{margin-top:28px}
+.eigene .btn{margin:10px 10px 0 0}
+.link-feld{display:block;width:100%;font:inherit;font-size:.85rem;padding:10px;border-radius:8px;border:1px solid #3a5075;background:#1c2d47;color:#e6eaf1;margin:6px 0 0}
+#mitnehmenBox label{display:block;margin-top:14px;font-weight:700}
+#uebernehmen .btn{margin:10px 10px 0 0}
 .hinweis{font-size:.9rem;color:var(--muted);border-top:1px solid #2a3b57;padding-top:16px;margin-top:28px}
 .loeschen{margin:18px 0}
 .loeschen .btn{margin:10px 10px 0 0}
 @media (max-width:420px){main{padding:28px 16px 48px}.skala{grid-template-columns:repeat(5,1fr)}.fortschritt-zeile{white-space:normal}}
+
+.tagesvideo{margin:0 0 18px}
+.tagesvideo-titel{font-weight:700;margin:0 0 8px}
+.tagesvideo video{display:block;width:100%;max-width:420px;aspect-ratio:1/1;border-radius:12px;background:#000}
+/* Fassung 3 (28.09.): Erklärzeile unter einem Häkchen, grauer Ausnahme-Kasten */
+fieldset label .hilfe{display:block;font-size:.8rem;color:var(--muted);margin-top:2px}
+.ausnahme{background:#2b3038;border:1px solid #4a5160;border-radius:12px;padding:12px 16px;margin:0 0 18px;font-size:.92rem;color:#d5dae3}
+.ausnahme p{margin:.4em 0}
+.ausnahme-titel{font-weight:700;color:#fff}
+/* Abnahme 28.09. (Technik): Tippziele mindestens 44 px (Tipp-Antworten, „Einstellungen ändern“, „Alle Einträge löschen“, „Für gestern eintragen“) */
+fieldset label{min-height:44px}
+button.link{min-height:44px;padding:0 4px}

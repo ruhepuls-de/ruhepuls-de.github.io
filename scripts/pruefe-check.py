@@ -34,7 +34,44 @@ j) MAIL        Der einzige Netzaufruf steht in check/mail.js, geht nur an
 k) KURVE       kurve/ macht keinen Netzaufruf, laedt kein fremdes Skript,
                hat kein Formular nach draussen, greift nur in try/catch auf
                den Speicher zu und traegt den Hinweis aus T2 (Safari/Chrome +
-               Lesezeichen).
+               Lesezeichen). Das Tagesvideo startet nie von selbst (kein
+               autoplay, playsinline).
+               (Umbau 7 Tage, 28.09.2026 — die Zweige u, v, w rechnen die
+               echte Auswertung mit scripts/teste-kurve.js in node durch.)
+u) EINRICHTUNG Vor dem ersten Eintrag: drei Schalter (Koffein, Alkohol,
+               Suesses, Standard Ja) und die Tipp-Frage mit allen sechs
+               Hebeln plus „Weiß ich nicht“; „Einstellungen ändern“ steht da.
+               Abgeschaltete Hebel tauchen in keinem Satz auf (Nichttrinker,
+               Nicht-Kaffeetrinker, alte Eintraege, 3000 Zufallswochen), und
+               der Speicher merkt sich je Eintrag, was gezeigt wurde.
+v) OHNE SIEGER „Deine Woche bisher“ ab 5, „Dein Ergebnis“ ab 7 Eintraegen:
+               Schnitt, Spannweite, normale Schwankung, bester und
+               schwaechster Tag, „So oft geschafft“, Tipp von Tag 1 mit den
+               Saetzen aus dem Bauauftrag; bei „Weiß ich nicht“ kein Tipp-
+               Block. Kein Ranking, kein Wirkverb, keine Aufforderung zum
+               Vergleichen („2 Tage mit und 2 ohne“), kein „bleiben
+               gespeichert, bis du sie löschst“; Safari-Satz steht.
+w) MITNEHMEN   Der Link traegt die Daten hinter „#“ (nie im Query-String),
+               hin und zurueck gleich, kaputte Links ergeben nichts; die
+               Seite fragt „Einträge übernehmen?“. In-App-Browser (Instagram,
+               FBAN/FBAV, TikTok/musical_ly/Bytedance, GSA) erkannt, Safari
+               und Chrome nicht. Tageswechsel um 4:00 (1 Uhr = Vortag).
+x) DANKE      (Recht 28.09.2026, R2/R5) Die vier Danke-Seiten nach der Frage
+               zu den 30 Tagen (bescheid, nein-woche, nein-themen, nein-zeit)
+               gibt es, je mit noindex, ohne Skript und Formular, mit Fuss
+               Startseite · Impressum · Datenschutz. „Ja“ sagt „keine
+               Bestellung und kostet nichts“, jedes „Nein“ sagt „Zu den 30
+               Tagen bekommst du keine eigene Mail“. In der Mail-Datei
+               (Fassung 2) hat jeder /danke/-Link eine Seite, und Mail 7
+               enthaelt weder die Frage noch einen 30-Tage-Absatz (R1: die
+               Einwilligung deckt Angebote erst „danach“, also Mail 8).
+y) DATENSCHUTZ (Recht 28.09.2026, R3/R4) Abschnitt 4a beschreibt die neue
+               Kurve: Einrichtung/Tipp, 4 Uhr, Safari nach etwa einer Woche,
+               Einträge mitnehmen mit #, Browserverlauf, Browserkennung,
+               Zweckbestimmung; nicht mehr „bleiben gespeichert, bis du sie
+               löschst“ ohne Einschraenkung. Abschnitt 5 nennt Video und
+               Vorschlag, die Mail am Tag nach der siebten und beide Gruppen;
+               „Aus den Klicks bilde ich keine Gruppen“ steht nicht mehr da.
 l) (entfallen, Umbau 24.09.: Warnzeichen hart/weich gibt es nicht mehr)
 m) PROFILE     Die Muster aus Fach 4.7 (A, B, D, E; ohne Frage 7 und 8 —
                C und F entfielen mit ihnen) ergeben genau das erwartete
@@ -76,7 +113,34 @@ t) PRAXIS      Kein Ergebnis und kein Profil verweist in die Praxis, und
                traegt woertlich denselben festen Hinweis wie der Check, ohne
                Seelsorge-Nummer.
 
-Aufruf:  python3 scripts/pruefe-check.py
+Aufruf:  python3 scripts/pruefe-check.py              prueft kurve/ (Fassung 3)
+Release 7 Tage, Umzug (29.09.2026): kurve-test/ ist nach kurve/ kopiert und
+geloescht; die SHA-256-Festnagelung auf den alten Live-Stand 8645b42 ist
+aufgeloest. /kurve/ wird ohne Argument voll gegen Fassung 3 geprueft.
+  z) „Vermutung“ (Liam 29.09.): Die eigene Wahl aus der Einrichtung heisst auf
+     der Seite, in der Datenschutzerklaerung, in den Mails 1–9 und in den
+     Skripten „Vermutung“, nie „Tipp“ (klang wie ein Rat von Ruhepuls).
+     Wortgleich: Einrichtungssatz der Seite = Skript Tag 1, Satz 3.
+
+FASSUNG 3 (Abnahme 28.09.2026 abends, Liam 22:35 „alles nach Empfehlung“):
+Ob ein Kurven-Ordner gegen Fassung 3 geprueft wird, entscheidet sein Stand
+(`var FORMAT = 2` in kurve.js), nicht sein Name. Nach dem Umzug
+kurve-test -> kurve (reines Kopieren) prueft der Aufruf ohne Argument also
+automatisch /kurve/ gegen Fassung 3. Dann gilt zusaetzlich:
+  k) Rat nur „über den Knopf in der Mail“, kein Safari/Chrome/Lesezeichen;
+     Speicherschluessel nach Pfad (schluesselFuer, /kurve/ = ruhepuls.kurve.v1);
+     Tagesvideos unter ../videos/f3-tagN.
+  u) Tipp-Frage „Was macht für deine Energie …“, Haekchen-Schluessel Format 2.
+  v) Tipp-Saetze mit dem Zufalls-Satz (Fach 28.09.).
+  x) Sechs Danke-Seiten (+ preis, nein-durchgehalten mit Knopf zur Kurve), keine
+     Seite spricht mit „ich“ (E6), 30-tage/ und jahr/ sind weg; Mail-Datei =
+     Fassung 3: Mail 8 an Tag 10 mit Preisrahmen 29–49 €, „Noch keine 7
+     Einträge? Hier weiter“, ohne „viel besser“; Mail 7 „In drei Tagen“;
+     Mail 9 (Wochenmail) ohne 30-Tage-Hinweis; die Haekchen-Liste der
+     Mail-Datei nennt jedes Haekchen samt Erklaerzeile wortgleich zur Seite,
+     die Skripte jeden Haekchen-Namen (Zahlen ausgeschrieben).
+  y) Datenschutz 4a mit Computer/Touchscreen, 5 mit vier Gruppen und „drei
+     Tage nach der siebten“, 6 und Impressum mit Facebook.
 """
 import json
 import os
@@ -94,10 +158,29 @@ VIDEOLINKS_JS = os.path.join(CHECK, "videolinks.js")
 STIL_AB = int(os.environ.get("STIL_AB", "20"))
 HTML = os.path.join(CHECK, "index.html")
 DATENSCHUTZ = os.path.join(HIER, "datenschutz.html")
-KURVE_HTML = os.path.join(HIER, "kurve", "index.html")
-KURVE_JS = os.path.join(HIER, "kurve", "kurve.js")
-DANKE = [os.path.join(HIER, "danke", n, "index.html") for n in ("30-tage", "jahr")]
+KURVE_ORDNER = "kurve-test" if "kurve-test" in sys.argv[1:] else "kurve"
+KURVE_HTML = os.path.join(HIER, KURVE_ORDNER, "index.html")
+KURVE_JS = os.path.join(HIER, KURVE_ORDNER, "kurve.js")
+# Fassung 3 erkennt man am Stand, nicht am Namen (Umzug = Kopieren).
+F3 = os.path.exists(KURVE_JS) and bool(re.search(r"var FORMAT = 2;", open(KURVE_JS, encoding="utf-8").read()))
+# 30-tage und jahr (alter Plan, 39 €/99 €) sind geloescht (Recht 28.09., O11; Abnahme MUSS 5).
+DANKE_ALT = ("30-tage", "jahr")
+DANKE_JA_SEITEN = ("bescheid", "preis")
+DANKE_NEU = ("bescheid", "nein-woche", "nein-themen", "nein-zeit", "preis", "nein-durchgehalten")
+DANKE = [os.path.join(HIER, "danke", n, "index.html") for n in DANKE_NEU]
+_PRODUKT = os.path.expanduser("~/Desktop/Liam KI Gehirn/03 Projects/TikTok Automation/07 Produkt/")
+MAILS_F2 = _PRODUKT + ("(C) Die 7 Tage — Fassung 3 (28.09.2026).md" if F3 else
+                       "(C) Die 7 Tage — Mails und Videoskripte, Fassung 2 (28.09.2026).md")
 KURVE_SCHLUESSEL = "ruhepuls.kurve.v1"
+# Alte Danke-Seiten des Plans vom 24.09. (39 €/99 €): Die alte Mail 7 der laufenden
+# Abonnenten verlinkt sie, bis sie in MailerLite umgestellt ist (Recht O11 knuepft die
+# Loeschung genau daran). Bis dahin BLEIBEN sie — aber byte-gleich mit dem Live-Stand,
+# damit sich dort nichts still aendert. Loeschen: Ordner entfernen und DANKE_ALT_BLEIBT
+# leeren; dann wird die alte Pruefung „30-tage/jahr weg“ wieder scharf.
+DANKE_ALT_BLEIBT = {
+    "30-tage": "b7ad1f6397699de27256870c2a521b9943452c57e662784295df48c1e0450054",
+    "jahr": "ef2f54d35ff6d62176dcb5e93cc4aaa282b374d6f71d16dade36f61ba207f1b9",
+}
 PIPELINE = os.path.expanduser("~/tools/ruhepuls-pipeline/public")
 
 ZUSCHREIBUNG = [
@@ -765,11 +848,563 @@ def pruefe_kurve():
             zeile = davor.count("\n") + 1
             fehler.append("KURVE: Speicherzugriff ohne try/catch (kurve.js, etwa Zeile %d)." % zeile)
     sichtbar = re.sub(r"\s+", " ", sichtbarer_text(html))
-    if not (re.search(r"Safari", sichtbar) and re.search(r"Chrome", sichtbar)
-            and re.search(r"Lesezeichen", sichtbar)):
+    if F3:
+        # Fassung 3, Entscheidung 2: Eintraege bleiben, wo sie gemacht werden.
+        if "über den Knopf in der Mail" not in sichtbar or re.search(r"Lesezeichen|Safari oder Chrome", sichtbar):
+            fehler.append("KURVE: Fassung 3 rät „über den Knopf in der Mail“ und nicht mehr zu "
+                          "Safari/Chrome/Lesezeichen.")
+        # Abnahme MUSS 3: Schluessel nach Pfad, /kurve/ behaelt ruhepuls.kurve.v1.
+        if not (re.search(r"function schluesselFuer\(pfad\)", code) and "/kurve-test" in code
+                and re.search(r"SCHLUESSEL = schluesselFuer\(", code)):
+            fehler.append("KURVE: Der Speicherschlüssel hängt nicht vom Pfad ab (schluesselFuer) — "
+                          "nach dem Umzug sähen alle bisherigen Nutzer „0 von 7“.")
+        # Abnahme MUSS 4: das alte Tag-1-Video (verneinte Haekchen) erscheint nie.
+        if '"../videos/f3-tag"' not in code or "onboarding-tag" in code:
+            fehler.append("KURVE: Fassung 3 lädt ihre Tagesvideos nicht unter ../videos/f3-tagN.")
+    elif not (re.search(r"Safari", sichtbar) and re.search(r"Chrome", sichtbar)
+              and re.search(r"Lesezeichen", sichtbar)):
         fehler.append("KURVE: Der Hinweis aus T2 fehlt (in Safari/Chrome öffnen + Lesezeichen setzen).")
-    hinweise.append("  k) Kurve: kein Netzaufruf, kein fremdes Skript, Speicher nur in "
-                    "try/catch, T2-Hinweis steht")
+    film = re.search(r"<video[^>]*>", ohne)
+    if not film:
+        fehler.append("KURVE: Das Tagesvideo (<video>) fehlt in kurve/index.html.")
+    elif re.search(r"\bautoplay\b", film.group(0)) or "playsinline" not in film.group(0):
+        fehler.append("KURVE: Das Tagesvideo darf nicht von selbst starten (kein autoplay) "
+                      "und braucht playsinline: %s" % film.group(0))
+    if re.search(r"\.autoplay\s*=\s*true|\.play\(\)", code):
+        fehler.append("KURVE: kurve.js startet das Tagesvideo selbst — es startet nur per Tipp.")
+    hinweise.append("  k) Kurve (%s%s): kein Netzaufruf, kein fremdes Skript, Speicher nur in "
+                    "try/catch, %s, Video ohne autoplay"
+                    % (KURVE_ORDNER, ", Fassung 3" if F3 else "",
+                       "Schlüssel nach Pfad, Rat über die Mail, Videos f3-tagN" if F3 else "T2-Hinweis steht"))
+
+
+# ------------------------------------------- u, v, w) KURVE, Umbau 7 Tage
+# 28.09.2026 — Bauauftrag „Umbau 7 Tage“, Liam: *„ja, wenn dann das ganze produkt
+# und der verlauf stimmig ist mach es“*. Grundsatz: Die 7 Tage beweisen nichts, sie
+# zeigen dir deine Woche. Die Pruefung vom 28.09. fand: 82–85 % Zufallssieger,
+# Nichttrinker bekamen Alkohol-Saetze, Eintraege gingen zwischen In-App-Browser und
+# Safari verloren. Die Zweige rechnen die echte Auswertung (kurve.js) in node durch.
+TESTE_KURVE = os.path.join(HIER, "scripts", "teste-kurve.js")
+KURVE_HEBEL = (["schlaf7", "koffeinSpaet", "alkoholGetrunken", "bewegt", "pause", "suessesNachmittag"] if F3 else
+               ["schlaf7", "koffeinHeute", "alkoholHeute", "bewegt", "pause", "keinSuesses"])
+KURVE_WIRKVERB = re.compile(r"\bhilft\b|\bmacht\b|sorgt für|besser schlafen|\bwirkt\b|\bbewirk\w*|\bwirken\b", re.I)
+KURVE_WIRK_HTML = re.compile(r"\bhilft\b|sorgt für|besser schlafen|\bwirkt\b|\bbewirk\w*|\bwirken\b", re.I)
+KURVE_SIEGER = [
+    (r"\b2 Tage(?:n)? mit\b|mindestens 2 Tage|zwei Tage mit und zwei", "„2 Tage mit und 2 ohne“"),
+    (r"an zwei Tagen (?:weg|aus)|lass es [^.]{0,40}weg|Probier es an zwei Tagen", "Aufforderung zum Vergleichen"),
+    (r"deutlichste|stärksten Unterschied|staerksten Unterschied|größten Unterschied bei dir war", "Sieger-Satz"),
+    (r"Alle Häkchen im Einzelnen|vergleichListe|ergebnisSatz", "alte Rangliste"),
+    (r"bis du sie löschst", "„bleiben gespeichert, bis du sie löschst“"),
+]
+KURVE_TIPP_SAETZE = [
+    "Das liegt innerhalb deiner normalen Schwankung.",
+    # Fach 28.09. (Abnahme): Ohne echten Effekt lagen 22–31 % der Wochen darueber.
+    ("Das ist mehr als deine normale Schwankung. Auch das kommt in einer Woche oft durch Zufall zustande." if F3 else
+     "Das ist mehr als deine normale Schwankung, aber eine Woche ist kurz, und vieles verändert sich gleichzeitig."),
+    # Recht 28.09., O4: nicht mehr „zeigt erst ein längerer Versuch“ (klang sicher).
+    "Ob es wirklich daran liegt, kann eine Woche nicht zeigen.",
+    "Dafür braucht es einen längeren Versuch mit einer Sache.",
+]
+KURVE_NICHTS_AENDERN = "Ändern musst du dafür nichts. Leb deine Woche wie immer, und probier die Vorschläge aus, wenn du magst."
+KURVE_SAFARI = re.compile(r"Safari löscht (?:die Einträge|sie), wenn du die Seite "
+                          r"(?:länger als eine Woche|etwa eine Woche lang) nicht öffnest")
+
+
+def js_texte(code, mindest=12):
+    """Alle Zeichenketten "…" eines Skripts, sauber von Anfang bis Ende gelesen.
+    (Ein naives "([^"]{12,})" verrutscht nach kurzen Strings wie "#" und liest
+    dann Code als Text — ein Satz dahinter faellt durch.)"""
+    code = ohne_kommentare(code)
+    code = re.sub(r"'(?:[^'\\\n]|\\.)*'", "''", code)
+    return [t for t in re.findall(r'"((?:[^"\\\n]|\\.)*)"', code) if len(t) >= mindest]
+
+
+def kurve_lauf():
+    """Die echte Auswertung aus kurve.js, durchgerechnet von teste-kurve.js."""
+    if not os.path.exists(TESTE_KURVE):
+        fehler.append("KURVE: scripts/teste-kurve.js fehlt — ohne Lauf keine Pruefung u/v/w.")
+        return None
+    try:
+        aus = subprocess.run(["node", TESTE_KURVE, KURVE_ORDNER, "--json"], capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        fehler.append("KURVE: teste-kurve.js laeuft nicht (%s)." % e)
+        return None
+    if not aus.stdout.strip():
+        fehler.append("KURVE: teste-kurve.js bricht ab: %s" % aus.stderr.strip()[-400:])
+        return None
+    lauf = json.loads(aus.stdout)
+    for r in (lauf.get("fassung3") or {}).get("rot") or []:
+        fehler.append("FASSUNG 3 (teste-kurve.js %s): %s" % (KURVE_ORDNER, r))
+    return lauf
+
+
+def woche_saetze(w):
+    s = [w.get("schnitt"), w.get("schwankung"), w.get("schwankungErklaerung"), w.get("grenzeSatz")]
+    b = w.get("bester")
+    if isinstance(b, str):
+        s.append(b)
+    elif b:
+        s += [b["kopf"], b["haken"], w["schwaechster"]["kopf"], w["schwaechster"]["haken"]]
+    s += ["%s: %s" % (g["text"], g["name"]) for g in w.get("geschafft") or []]
+    s += w.get("tipp") or []
+    return [x for x in s if x]
+
+
+def pruefe_einrichtung(html, lauf):
+    form = element_mit_id(html, "einrichtung")
+    if not form:
+        fehler.append('EINRICHTUNG: kurve/index.html hat keine Einrichtung (id="einrichtung").')
+    else:
+        text = " ".join(sichtbarer_text(form).split())
+        for frage in ("Was kommt in deinem Alltag vor?",
+                      "Was glaubst du: Was macht für deine Energie den größten Unterschied?" if F3 else
+                      "Was glaubst du: Was macht bei dir den größten Unterschied?"):
+            if frage not in text:
+                fehler.append("EINRICHTUNG: Die Frage „%s“ fehlt." % frage)
+        for name in ("koffein", "alkohol", "suesses"):
+            m = re.search(r'<input[^>]*id="schalter-%s"[^>]*>' % name, form)
+            if not m:
+                fehler.append("EINRICHTUNG: Der Schalter „%s“ fehlt." % name)
+            elif 'role="switch"' not in m.group(0) or not re.search(r"\bchecked\b", m.group(0)):
+                fehler.append("EINRICHTUNG: Der Schalter „%s“ ist kein Schalter mit Standard Ja: %s"
+                              % (name, m.group(0)))
+        tipps = re.findall(r'<input[^>]*name="tipp"[^>]*value="(\w+)"', form)
+        if sorted(tipps) != sorted(KURVE_HEBEL + ["weissNicht"]):
+            fehler.append("EINRICHTUNG: Die Tipp-Frage bietet %s statt aller sechs Hebel plus "
+                          "„Weiß ich nicht“." % tipps)
+    if not re.search(r">\s*Einstellungen ändern\s*<", html):
+        fehler.append("EINRICHTUNG: Der Link „Einstellungen ändern“ fehlt.")
+    code = ohne_kommentare(lies(KURVE_JS))
+    if not re.search(r"gezeigt\s*:", code):
+        fehler.append("EINRICHTUNG: kurve.js merkt sich je Eintrag nicht, welche Häkchen gezeigt "
+                      "wurden — ein leeres, unsichtbares Häkchen zählte dann als „getrunken“.")
+    if not lauf:
+        return
+    a = lauf["auswertung"]
+    faelle = [("nichttrinker", r"Alkohol"), ("ohneKaffee", r"Koffein|Süß"), ("altOhneAlkohol", r"Alkohol")]
+    for fall, wort in faelle:
+        w = a.get(fall) or {}
+        if not w.get("zeigen"):
+            fehler.append("EINRICHTUNG: Die Beispielwoche „%s“ zeigt keine Woche." % fall)
+            continue
+        for satz in woche_saetze(w):
+            if re.search(wort, satz):
+                fehler.append("EINRICHTUNG: Abgeschalteter Hebel in der Woche „%s“: %s" % (fall, satz))
+    z = lauf["zufall"]
+    for satz in z["abgeschaltet"]:
+        fehler.append("EINRICHTUNG: Zufallswoche nennt einen abgeschalteten Hebel: %s" % satz)
+    hinweise.append("  u) Einrichtung: 3 Schalter (Standard Ja), Vermutungs-Frage mit 7 Antworten, "
+                    "abgeschaltete Hebel in keinem Satz (3 Beispielwochen, %d Zufallswochen)" % z["wochen"])
+
+
+def pruefe_ohne_sieger(html, lauf):
+    code = ohne_kommentare(lies(KURVE_JS))
+    sichtbar = " ".join(sichtbarer_text(html).split())
+    texte = js_texte(lies(KURVE_JS))
+    for muster, was in KURVE_SIEGER:
+        for wo, text in (("kurve/index.html", sichtbar), ("kurve/kurve.js", " ¶ ".join(texte))):
+            m = re.search(muster, text)
+            if m:
+                fehler.append("OHNE SIEGER: %s in %s — ...%s..."
+                              % (was, wo, text[max(0, m.start() - 60):m.end() + 60]))
+    for t in texte:
+        w = KURVE_WIRKVERB.search(t)
+        if w:
+            fehler.append("OHNE SIEGER: Wirkverb „%s“ in kurve.js — ...%s..." % (w.group(0), t[:120]))
+    w = KURVE_WIRK_HTML.search(sichtbar)
+    if w:
+        fehler.append("OHNE SIEGER: Wirkverb „%s“ in kurve/index.html — ...%s..."
+                      % (w.group(0), sichtbar[max(0, w.start() - 60):w.end() + 60]))
+    if KURVE_NICHTS_AENDERN not in sichtbar:
+        fehler.append("OHNE SIEGER: Der Satz „%s“ fehlt in kurve/index.html." % KURVE_NICHTS_AENDERN)
+    for ident in ("datenschutzSatz", "voll"):
+        el = element_mit_id(html, ident)
+        if not el or not KURVE_SAFARI.search(" ".join(sichtbarer_text(el).split())):
+            fehler.append("OHNE SIEGER: #%s sagt nicht, dass Safari die Einträge nach einer Woche "
+                          "ohne Besuch löscht." % ident)
+    karte = element_mit_id(html, "wocheKarte")
+    if not karte:
+        fehler.append('OHNE SIEGER: Die Karte „Deine Woche“ (id="wocheKarte") fehlt.')
+    else:
+        for ident in ("wocheTitel", "wocheSchnitt", "wocheSchwankung", "wocheBester",
+                      "wocheSchwaechster", "wocheGeschafft", "tippBlock"):
+            if 'id="%s"' % ident not in karte:
+                fehler.append('OHNE SIEGER: In der Karte fehlt id="%s".' % ident)
+    if not lauf:
+        return
+    a = lauf["auswertung"]
+    erwartet_titel = {"vier": None, "fuenf": "Deine Woche bisher", "nichttrinker": "Dein Ergebnis"}
+    for fall, titel in erwartet_titel.items():
+        w = a.get(fall) or {}
+        if titel is None and w.get("zeigen"):
+            fehler.append("OHNE SIEGER: Mit 4 Einträgen erscheint schon eine Woche.")
+        if titel and w.get("titel") != titel:
+            fehler.append("OHNE SIEGER: Woche „%s“ heißt „%s“ statt „%s“." % (fall, w.get("titel"), titel))
+    for fall, w in sorted(a.items()):
+        if not w.get("zeigen"):
+            continue
+        if "normale Schwankung" not in (w.get("schwankung") or ""):
+            fehler.append("OHNE SIEGER: Woche „%s“ nennt die normale Schwankung nicht." % fall)
+        if not w.get("schnitt") or not w.get("bester") or not w.get("geschafft"):
+            fehler.append("OHNE SIEGER: Woche „%s“ ohne Schnitt, besten Tag oder „So oft geschafft“." % fall)
+        tipp = w.get("tipp")
+        if fall in ("weissNicht", "altOhneAlkohol"):
+            if tipp:
+                fehler.append("OHNE SIEGER: Bei „Weiß ich nicht“ steht ein Tipp-Block: %s" % tipp)
+            continue
+        if not tipp:
+            fehler.append("OHNE SIEGER: Woche „%s“ hat einen Tipp, aber keinen Tipp-Block." % fall)
+            continue
+        if not tipp[0].startswith("Deine Vermutung von Tag 1:"):
+            fehler.append("OHNE SIEGER: Der Block beginnt nicht mit „Deine Vermutung von Tag 1“ (Liam 29.09.): %s" % tipp[0])
+        fehlt = [t for t in tipp if t.startswith("Dafür hattest du diese Woche keine")]
+        if fehlt:
+            continue
+        if (KURVE_TIPP_SAETZE[2] not in tipp or KURVE_TIPP_SAETZE[3] not in tipp
+                or not (KURVE_TIPP_SAETZE[0] in tipp or KURVE_TIPP_SAETZE[1] in tipp)):
+            fehler.append("OHNE SIEGER: Der Tipp-Block der Woche „%s“ hat nicht die Sätze aus dem "
+                          "Bauauftrag: %s" % (fall, " / ".join(tipp)))
+        if not re.search(r"\d+ Tagen|einem Tag", " ".join(tipp)):
+            fehler.append("OHNE SIEGER: Der Tipp-Block der Woche „%s“ nennt keine Tageszahl." % fall)
+    if not any(t.startswith("Dafür hattest du diese Woche keine Tage")
+               for t in (a.get("immerBewegt") or {}).get("tipp") or []):
+        fehler.append("OHNE SIEGER: Jeden Tag bewegt, Tipp Bewegung — der Satz „Dafür hattest du "
+                      "diese Woche keine Tage …“ fehlt.")
+    z = lauf["zufall"]
+    for satz in z["verboten"]:
+        fehler.append("OHNE SIEGER: Zufallswoche mit Sieger- oder Wirkwort: %s" % satz)
+    hinweise.append("  v) Ohne Sieger: %d Beispielwochen + %d Zufallswochen, Vermutungs-Sätze wörtlich, "
+                    "kein Ranking, kein Wirkverb, Safari-Satz steht" % (len(a), z["wochen"]))
+
+
+def pruefe_mitnehmen(html, lauf):
+    code = ohne_kommentare(lies(KURVE_JS))
+    if not re.search(r'"#"\s*\+\s*ANKER\s*\+\s*kodiere\(', code):
+        fehler.append("MITNEHMEN: kurve.js baut den Link nicht als „#“ + Daten — die Einträge "
+                      "müssen hinter dem # stehen, sonst gehen sie an den Server.")
+    if re.search(r'"\?[^"]*"\s*\+\s*(?:ANKER|kodiere)', code) or re.search(r"search\s*\+\s*kodiere", code):
+        fehler.append("MITNEHMEN: kurve.js hängt die Daten an den Query-String (?).")
+    if "Einträge übernehmen?" not in " ".join(sichtbarer_text(html).split()):
+        fehler.append("MITNEHMEN: Die Frage „Einträge übernehmen?“ fehlt in kurve/index.html.")
+    if not re.search(r">\s*Einträge mitnehmen\s*<", html):
+        fehler.append("MITNEHMEN: Der Knopf „Einträge mitnehmen“ fehlt.")
+    if not element_mit_id(html, "inApp"):
+        fehler.append('MITNEHMEN: Der Hinweis für In-App-Browser (id="inApp") fehlt.')
+    if not lauf:
+        return
+    l = lauf["link"]
+    for fall, r in sorted(l.items()):
+        if isinstance(r, dict) and "gleich" in r and not (r["gleich"] and r["zweimal"]):
+            fehler.append("MITNEHMEN: Der Link der Woche „%s“ kommt nicht gleich zurück." % fall)
+        if isinstance(r, dict) and r.get("laenge", 0) > 1500:
+            fehler.append("MITNEHMEN: Der Link der Woche „%s“ ist %d Zeichen lang." % (fall, r["laenge"]))
+    for fall in ("abgeschnitten", "muell", "boese"):
+        if not l.get(fall):
+            fehler.append("MITNEHMEN: Ein kaputter Link (%s) wird trotzdem übernommen." % fall)
+    if l.get("zusammen", {}).get("tage") != 7:
+        fehler.append("MITNEHMEN: Zusammenführen ergibt %s Tage statt 7." % l.get("zusammen"))
+    ia = lauf["inApp"]
+    for ua in ("instagram", "facebook", "facebookAndroid", "tiktok", "tiktokAndroid", "googleApp"):
+        if not ia.get(ua):
+            fehler.append("MITNEHMEN: In-App-Browser „%s“ wird nicht erkannt." % ua)
+    for ua in ("safari", "chrome", "chromeIos"):
+        if ia.get(ua):
+            fehler.append("MITNEHMEN: „%s“ gilt fälschlich als In-App-Browser." % ua)
+    uhr = lauf["uhr"]
+    soll = {"29.9. 00:30": "2026-09-28", "29.9. 01:00": "2026-09-28", "29.9. 03:59": "2026-09-28",
+            "29.9. 04:00": "2026-09-29", "29.9. 23:59": "2026-09-29", "01.10. 01:00": "2026-09-30"}
+    for k, v in soll.items():
+        if uhr.get(k) != v:
+            fehler.append("MITNEHMEN: Tageswechsel falsch — %s zählt für %s statt %s." % (k, uhr.get(k), v))
+    v = lauf["video"]
+    soll_v = {"?tag=3": 3, "?tag=7&x=1": 7, "ohne, 0 Eintraege": 1, "ohne, 2 Eintraege, heute offen": 3,
+              "ohne, 3 Eintraege, heute schon": 3}
+    for k, t in soll_v.items():
+        if v.get(k) != t:
+            fehler.append("MITNEHMEN: Tagesvideo für „%s“ ist Tag %s statt %s." % (k, v.get(k), t))
+    hinweise.append("  w) Mitnehmen: Link hinter #, %d Wochen hin und zurück gleich, kaputte Links "
+                    "abgewiesen, 6 In-App-Kennungen erkannt, Tageswechsel 4:00, Tagesvideo je Tag"
+                    % sum(1 for r in l.values() if isinstance(r, dict) and "gleich" in r))
+
+
+# ------------------------------------------------------------- x) DANKE
+# Recht 28.09.2026 (Umbau 7 Tage), R1, R2, R5. Entscheidung Hauptsession: Die Frage
+# zu den 30 Tagen steht in einer eigenen Mail 8 („Tag 8“) statt in Mail 7.
+DANKE_JA = "keine Bestellung und kostet nichts"
+DANKE_NEIN = "Zu den 30 Tagen bekommst du keine eigene Mail"
+
+
+def mail_block(md, nummer):
+    """Der ```-Block einer Mail aus der Mail-Datei (### Mail N ...)."""
+    m = re.search(r"^### Mail %d\b.*?```\n(.*?)```" % nummer, md, flags=re.S | re.M)
+    return m.group(1) if m else None
+
+
+def haken_liste(html):
+    """(Name, Erklaerzeile) je Haekchen, wie es im Formular steht."""
+    aus = []
+    for m in re.finditer(r'name="hebel" value="\w+">\s*<span>(.*?)<span class="hilfe">(.*?)</span>', html, re.S):
+        aus.append((" ".join(re.sub(r"<[^>]+>", " ", m.group(1)).split()), " ".join(m.group(2).split())))
+    return aus
+
+
+def gesprochen(name):
+    """Haekchen-Name, wie ihn ein Skript spricht: Zahlen ausgeschrieben, ohne Klammer."""
+    name = name.split(" (")[0]
+    for z, w in (("5", "fünf"), ("7", "sieben")):
+        name = re.sub(r"\b%s\b" % z, w, name)
+    return name
+
+
+def pruefe_danke_f3(md):
+    """Abnahme 28.09. abends: E1, E2, E3, E4, E6 als Pruefung, die rot wird."""
+    import hashlib
+    for alt in DANKE_ALT:
+        pfad_alt = os.path.join(HIER, "danke", alt, "index.html")
+        if alt in DANKE_ALT_BLEIBT and os.path.exists(pfad_alt):
+            ist = hashlib.sha256(open(pfad_alt, "rb").read()).hexdigest()
+            if ist != DANKE_ALT_BLEIBT[alt] or len(os.listdir(os.path.dirname(pfad_alt))) != 1:
+                fehler.append("DANKE: /danke/%s/ weicht vom Live-Stand ab — die Seite bleibt nur "
+                              "unveraendert stehen, bis die alte Mail 7 umgestellt ist." % alt)
+            else:
+                hinweise.append("  x) HINWEIS: /danke/%s/ (alter Plan, 39/99 €) bleibt, bis die alte Mail 7 "
+                                "in MailerLite umgestellt ist — danach loeschen (DANKE_ALT_BLEIBT)" % alt)
+            continue
+        if os.path.exists(os.path.join(HIER, "danke", alt)):
+            fehler.append("DANKE: /danke/%s/ gibt es noch — die Seite verspricht öffentlich einen "
+                          "Preis für einen Plan, den es nicht mehr gibt (Recht O11, MUSS 5)." % alt)
+    for name in DANKE_NEU:
+        pfad = os.path.join(HIER, "danke", name, "index.html")
+        if os.path.exists(pfad):
+            t = " ".join(sichtbarer_text(lies(pfad)).split())
+            m = re.search(r"\b(ich|mir|mich|mein\w*)\b", t, re.I)
+            if m:
+                fehler.append("DANKE: /danke/%s/ spricht mit „%s“ — Absender ist „Ruhepuls“ (E6)." % (name, m.group(0)))
+    nd = os.path.join(HIER, "danke", "nein-durchgehalten", "index.html")
+    if os.path.exists(nd):
+        roh = lies(nd)
+        if ("Deine Einträge sind noch da. Trag einfach weiter ein" not in " ".join(sichtbarer_text(roh).split())
+                or not re.search(r'<a class="btn" href="\.\./\.\./kurve/"', roh)):
+            fehler.append("DANKE: /danke/nein-durchgehalten/ ist eine Sackgasse — es fehlt „Deine Einträge "
+                          "sind noch da. Trag einfach weiter ein …“ mit Knopf zur Kurve (E3).")
+    acht = mail_block(md, 8) or ""
+    kopf8 = re.search(r"^### Mail 8\b.*$", md, re.M)
+    if not kopf8 or "Tag 10" not in kopf8.group(0):
+        fehler.append("DANKE: Mail 8 kommt nicht an Tag 10 (E2).")
+    for muss, was in (("zwischen 29 und 49 €", "Preisrahmen (E1)"),
+                      ("eine Woche ist noch nicht voll? Trag erst fertig ein, diese Mail kann warten.", "E2-Satz"),
+                      ("Noch keine 7 Einträge? Hier weiter", "E2-Knopf"),
+                      ("Erst will ich den Preis wissen", "Knopf „Preis“"),
+                      ("Deine Energiekurve – 30 Tage", "was man bekommt (E1)")):
+        if muss not in acht:
+            fehler.append("DANKE: Mail 8 fehlt %s: „%s“." % (was, muss))
+    if "viel besser" in acht:
+        fehler.append("DANKE: Mail 8 sagt noch „viel besser“ (Recht, Strengeprinzip).")
+    if not re.search(r"\[LINK: https://mein-ruhepuls\.de/kurve/[^\]]*\]", acht):
+        fehler.append("DANKE: Der Knopf „Noch keine 7 Einträge?“ in Mail 8 führt nicht zur Kurve.")
+    sieben = mail_block(md, 7) or ""
+    if "In drei Tagen" not in sieben or "Morgen Abend schreibt" in sieben:
+        fehler.append("DANKE: Mail 7 kündigt Mail 8 nicht „In drei Tagen“ an (E2, Tag 10).")
+    neun = mail_block(md, 9)
+    if neun is None:
+        fehler.append("DANKE: Die Wochenmail (### Mail 9) fehlt (E3).")
+    else:
+        m = re.search(r"30 Tage|/danke/|kosten|€|Preis", neun)
+        if m:
+            fehler.append("DANKE: Die Wochenmail enthält „%s“ — sie geht an alle, auch an „Nein“, "
+                          "ohne 30-Tage-Hinweis (E3, Recht)." % m.group(0))
+    # E4: Haekchen wortgleich in Seite, Mail-Datei und Skripten
+    kurve = lies(KURVE_HTML)
+    haken = haken_liste(kurve)
+    if len(haken) != 6:
+        fehler.append("DANKE/E4: Im Formular stehen %d statt 6 Häkchen mit Erklärzeile." % len(haken))
+    teil2 = md.split("## 2. Die Skripte", 1)[1].split("\n## 3.", 1)[0] if "## 2. Die Skripte" in md else ""
+    if not teil2:
+        fehler.append("DANKE/E4: In der Mail-Datei fehlt „## 2. Die Skripte …“.")
+    for name, hilfe in haken:
+        if "- %s · *%s*" % (name, hilfe) not in md:
+            fehler.append("DANKE/E4: Die Häkchen-Liste der Mail-Datei nennt nicht wortgleich: „%s“ · „%s“."
+                          % (name, hilfe))
+        if teil2 and gesprochen(name) not in teil2:
+            fehler.append("DANKE/E4: Kein Skript nennt das Häkchen wortgleich: „%s“." % gesprochen(name))
+
+
+def pruefe_danke():
+    for name in DANKE_NEU:
+        pfad = os.path.join(HIER, "danke", name, "index.html")
+        if not os.path.exists(pfad):
+            fehler.append("DANKE: /danke/%s/ fehlt — der Link in Mail 8 liefe ins Leere (R5)." % name)
+            continue
+        roh = lies(pfad)
+        ohne = re.sub(r"<!--.*?-->", " ", roh, flags=re.S)
+        text = " ".join(sichtbarer_text(roh).split())
+        if not re.search(r'<meta name="robots" content="noindex', ohne):
+            fehler.append("DANKE: /danke/%s/ hat kein noindex." % name)
+        if re.search(r"<script|<form|<img|<iframe", ohne, re.I):
+            fehler.append("DANKE: /danke/%s/ hat Skript, Formular oder Bild (kein Zähler erlaubt)." % name)
+        for ziel in ("index.html", "impressum.html", "datenschutz.html"):
+            if not re.search(r'<footer>.*href="\.\./\.\./%s"' % re.escape(ziel), ohne, re.S):
+                fehler.append("DANKE: /danke/%s/ — im Fuß fehlt der Link auf %s." % (name, ziel))
+        if name in DANKE_JA_SEITEN:
+            if DANKE_JA not in text:
+                fehler.append("DANKE: /danke/%s/ sagt nicht „%s“." % (name, DANKE_JA))
+        elif DANKE_NEIN not in text:
+            fehler.append("DANKE: /danke/%s/ sagt nicht „%s“ (§ 7 Abs. 1 S. 2 UWG)." % (name, DANKE_NEIN))
+        if re.search(r"\d+\s*€|Euro", text):
+            fehler.append("DANKE: /danke/%s/ nennt einen Preis." % name)
+    if not os.path.exists(MAILS_F2):
+        hinweise.append("  x) Danke: %d Seiten geprüft (Mail-Datei nicht gefunden, Mails nicht geprüft)" % len(DANKE_NEU))
+        return
+    md = lies(MAILS_F2)
+    for name in sorted(set(re.findall(r"mein-ruhepuls\.de/danke/([\w-]+)/", md))):
+        if not os.path.exists(os.path.join(HIER, "danke", name, "index.html")):
+            fehler.append("DANKE: Die Mail-Datei verlinkt /danke/%s/, die Seite gibt es nicht." % name)
+    sieben = mail_block(md, 7)
+    acht = mail_block(md, 8)
+    if sieben is None or acht is None:
+        fehler.append("DANKE: In der Mail-Datei fehlt Mail 7 oder Mail 8 (R1: Frage in eigener Mail 8).")
+    else:
+        m = re.search(r"Bescheid|/danke/|30 Tage|kosten", sieben)
+        if m:
+            fehler.append("DANKE: Mail 7 enthält „%s“ — der 30-Tage-Absatz gehört in Mail 8 "
+                          "(Einwilligung deckt Angebote erst danach, Recht R1)." % m.group(0))
+        if not re.search(r"Zu den 30 Tagen bekommst du (?:dann )?keine eigene Mail", acht):
+            fehler.append("DANKE: Mail 8 sagt vor den Nein-Links nicht, dass dann keine eigene "
+                          "30-Tage-Mail kommt (Recht R2).")
+        for muss in ("Ja, Bescheid geben", DANKE_JA, "plant", "lebst wie immer",
+                     "zwischen 29 und 49 €" if F3 else "etwas kosten", "besser auseinanderhalten"):
+            if muss not in acht:
+                fehler.append("DANKE: Mail 8 fehlt „%s“ (Fassung Recht 28.09., Abschnitt 3)." % muss)
+        if re.search(r"Als Nächstes baut|zeigt erst", acht):
+            fehler.append("DANKE: Mail 8 hat wieder „baut“ oder „zeigt erst“ (Recht O1/O4).")
+    if F3:
+        pruefe_danke_f3(md)
+    hinweise.append("  x) Danke: %d Seiten mit noindex, ohne Skript, Fuß vollständig; Mail 7 ohne "
+                    "30-Tage-Absatz, Mail 8 mit Recht-Fassung, jeder /danke/-Link hat eine Seite%s"
+                    % (len(DANKE_NEU), "; Fassung 3: Tag 10, 29–49 €, Wochenmail ohne 30 Tage, "
+                       "kein „ich“, Häkchen wortgleich in Seite/Liste/Skripten, 30-tage/jahr weg oder unverändert bis zur Umstellung" if F3 else ""))
+
+
+# ------------------------------------------------------- z) VERMUTUNG
+# Liam 29.09.2026: „was war denn der tipp bei tag 1? da gab es doch noch keinen.“ →
+# „vermutung passt“. Die eigene Wahl aus der Einrichtung heisst ueberall „Vermutung“.
+# „tipp auf …“ (antippen) ist ein Verb und bleibt. Interne Namen (tipp, tippBlock) bleiben.
+TIPP_HAUPTWORT = re.compile(r"\b(?:dein|deine|deinen|deinem|deiner|der|den|dem|ein|einen|kein|Dein|Deine)\s+Tipps?\b|"
+                            r"\bTipp von Tag|\bTipp-(?:Frage|Block|Satz)")
+VERMUTUNG_SEITE = "Am siebten Tag siehst du deine Zahl an Tagen mit und ohne deine Vermutung."
+VERMUTUNG_KERN = "deine Zahl an Tagen mit und ohne deine Vermutung"
+
+
+def pruefe_vermutung():
+    if not F3:
+        return
+    seite = " ".join(sichtbarer_text(re.sub(r"<!--.*?-->", " ", lies(KURVE_HTML), flags=re.S)).split())
+    js_sicht = " | ".join(js_texte(lies(KURVE_JS)))
+    for wo, text in (("kurve/index.html", seite), ("kurve/kurve.js", js_sicht),
+                     ("datenschutz.html", " ".join(sichtbarer_text(lies(DATENSCHUTZ)).split()))):
+        m = TIPP_HAUPTWORT.search(text)
+        if m:
+            fehler.append("VERMUTUNG: %s sagt noch „%s“ — die eigene Wahl heisst „Vermutung“ (Liam 29.09.)." % (wo, m.group(0)))
+    if VERMUTUNG_SEITE not in seite:
+        fehler.append("VERMUTUNG: kurve/index.html fehlt wortgleich: „%s“" % VERMUTUNG_SEITE)
+    if "Deine Vermutung von Tag 1: " not in js_sicht:
+        fehler.append("VERMUTUNG: kurve.js beginnt den Block nicht mit „Deine Vermutung von Tag 1: “.")
+    if not os.path.exists(MAILS_F2):
+        hinweise.append("  z) Vermutung: Seite und Datenschutz geprüft (Mail-Datei nicht gefunden)")
+        return
+    md = lies(MAILS_F2)
+    teil1 = md.split("## 1. Die Mails", 1)[1].split("\n## 2.", 1)[0] if "## 1. Die Mails" in md else ""
+    teil2 = md.split("## 2. Die Skripte", 1)[1].split("\n## 3.", 1)[0] if "## 2. Die Skripte" in md else ""
+    if not teil1 or not teil2:
+        fehler.append("VERMUTUNG: In der Mail-Datei fehlt „## 1. Die Mails“ oder „## 2. Die Skripte“.")
+        return
+    for wo, text in (("Mails (Abschnitt 1)", teil1), ("Skripte (Abschnitt 2)", teil2)):
+        for m in TIPP_HAUPTWORT.finditer(text):
+            zeile = text[:m.start()].count("\n")
+            fehler.append("VERMUTUNG: %s sagt noch „%s“ (etwa Zeile %d des Abschnitts) — heisst „Vermutung“."
+                          % (wo, m.group(0), zeile + 1))
+    for nr in (6, 7):
+        if VERMUTUNG_KERN not in (mail_block(md, nr) or ""):
+            fehler.append("VERMUTUNG: Mail %d sagt nicht wortgleich zur Seite „%s“." % (nr, VERMUTUNG_KERN))
+    if "Betreff:** Tag 7 von 7: Deine Woche und deine Vermutung nebeneinander" not in md:
+        fehler.append("VERMUTUNG: Betreff Mail 7 ist nicht „Tag 7 von 7: Deine Woche und deine Vermutung nebeneinander“.")
+    tag1 = teil2.split("### Tag 1", 1)[-1].split("### Tag 2", 1)[0]
+    if VERMUTUNG_KERN not in tag1 or "Dann deine Vermutung:" not in tag1:
+        fehler.append("VERMUTUNG: Skript Tag 1, Satz 3 sagt nicht „Dann deine Vermutung: …“ und wortgleich zur "
+                      "Seite „%s“." % VERMUTUNG_KERN)
+    tag7 = teil2.split("### Tag 7", 1)[-1]
+    if "Dann deine Vermutung von Tag eins" not in tag7:
+        fehler.append("VERMUTUNG: Skript Tag 7, Satz 3 sagt nicht „Dann deine Vermutung von Tag eins“ "
+                      "(Seite: „Deine Vermutung von Tag 1:“).")
+    hinweise.append("  z) Vermutung: Seite, kurve.js, Datenschutz, Mails 1–9 und Skripte ohne „Tipp“ als "
+                    "Hauptwort; Seite = Mail 6/7 = Skript Tag 1 wortgleich; Betreff Mail 7; Skript Tag 7")
+
+
+# ------------------------------------------------------- y) DATENSCHUTZ
+# Recht 28.09.2026 (Umbau 7 Tage), R3/R4: Die Erklaerung muss die neue Kurve und die
+# Gruppen aus Klicks beschreiben, sonst ist die Einwilligung nicht informiert.
+DS_4A_MUSS = [
+    ("localStorage", "localStorage"),
+    ("(„deine Vermutung“)", "Einrichtung und Vermutung (Liam 29.09.: nicht „Tipp“)"),
+    ("4 Uhr", "Tageswechsel 4 Uhr"),
+    ("etwa eine Woche", "Safari löscht nach etwa einer Woche"),
+    ("Einträge mitnehmen", "Einträge mitnehmen"),
+    ("hinter dem Zeichen #", "Daten hinter #"),
+    ("Verlauf", "Browserverlauf"),
+    ("Browserkennung", "Browserkennung (In-App-Warnung)"),
+    ("am Computer", "Computer-Erkennung (Abnahme 28.09., Technik)"),
+    ("Touchscreen", "Touch-Erkennung (iPad gilt nicht als Computer)"),
+    ("nicht dafür gedacht, Krankheiten zu erkennen oder zu behandeln", "Zweckbestimmung"),
+]
+DS_5_MUSS = [
+    ("kurzen Video", "Video je Mail"),
+    ("Vorschlag", "Vorschlag je Mail"),
+    ("drei Tage nach der siebten", "eigene Mail drei Tage nach der siebten (E2, Tag 10)"),
+    ("30 Tage – Bescheid", "Gruppe „30 Tage – Bescheid“"),
+    ("30 Tage – Preis", "Gruppe „30 Tage – Preis“"),
+    ("30 Tage – Nein", "Gruppe „30 Tage – Nein“"),
+    ("30 Tage – nicht durchgehalten", "Gruppe „30 Tage – nicht durchgehalten“"),
+    ("vier Gründen für „Nein“", "vier Nein-Gründe"),
+]
+DS_VERBOTEN = [
+    ("„dein Tipp“", "alter Name „Tipp“ (Liam 29.09.: „Vermutung“)"),
+    ("Die Einträge bleiben gespeichert, bis du sie löschst", "alte 4a-Aussage ohne Safari"),
+    ("Aus den Klicks bilde ich keine Gruppen", "absolutes „keine Gruppen“ (widerspricht R2)"),
+    ("welche der beiden Antworten", "alte Frage mit zwei Antworten"),
+    ("jede mit einem Punkt aus dem Energie-Check", "alte Mail-Strecke"),
+    ("drei Gründen für „Nein“", "alte Nein-Gründe (heute vier)"),
+    ("am Tag nach der siebten", "Mail 8 kommt jetzt drei Tage nach der siebten"),
+]
+
+
+def pruefe_datenschutz():
+    if not os.path.exists(DATENSCHUTZ):
+        fehler.append("DATENSCHUTZ: datenschutz.html fehlt.")
+        return
+    ds = lies(DATENSCHUTZ)
+    ohne = re.sub(r"<!--.*?-->", " ", ds, flags=re.S)
+    viera = ds_abschnitt(ohne, "<h2>4a. Die Energiekurve</h2>")
+    fuenf = ds_abschnitt(ohne, "<h2>5. Newsletter-Versand über MailerLite</h2>")
+    for kopf, abschnitt, liste in (("4a", viera, DS_4A_MUSS), ("5", fuenf, DS_5_MUSS)):
+        if abschnitt is None:
+            fehler.append("DATENSCHUTZ: Abschnitt %s fehlt." % kopf)
+            continue
+        t = " ".join(sichtbarer_text(abschnitt).split())
+        for wort, was in liste:
+            if wort not in t:
+                fehler.append("DATENSCHUTZ: Abschnitt %s nennt nicht: %s („%s“)." % (kopf, was, wort))
+    alles = " ".join(sichtbarer_text(ohne).split())
+    sechs = ds_abschnitt(ohne, "<h2>6. Profile")
+    if not sechs or "Facebook" not in sechs:
+        fehler.append("DATENSCHUTZ: Abschnitt 6 nennt Facebook nicht (Recht, Abnahme 28.09.).")
+    imp = os.path.join(HIER, "impressum.html")
+    if os.path.exists(imp) and "Facebook" not in lies(imp):
+        fehler.append("DATENSCHUTZ: Das Impressum gilt nicht für Facebook (Recht, Abnahme 28.09.).")
+    for wort, was in DS_VERBOTEN:
+        if wort in alles:
+            fehler.append("DATENSCHUTZ: Veraltet — %s: „%s“." % (was, wort))
+    hinweise.append("  y) Datenschutz: 4a mit %d Stichworten, 5 mit %d, %d veraltete Sätze nicht mehr da"
+                    % (len(DS_4A_MUSS), len(DS_5_MUSS), len(DS_VERBOTEN)))
 
 
 # ----------------------------------------------------------- m) PROFILE
@@ -839,7 +1474,7 @@ def text_quellen(d, html):
         if os.path.exists(pfad):
             quellen.append((os.path.relpath(pfad, HIER), sichtbarer_text(lies(pfad))))
     if os.path.exists(KURVE_JS):
-        quellen.append(("kurve/kurve.js", " ".join(re.findall(r'"([^"]{12,})"', lies(KURVE_JS)))))
+        quellen.append(("kurve/kurve.js", " ".join(js_texte(lies(KURVE_JS)))))
     return quellen
 
 
@@ -1031,7 +1666,7 @@ def pruefe_praxis(d, html):
     stellen.append(("kurve/index.html", sichtbarer_text(ohne_festen_hinweis(kurve), True)))
     if os.path.exists(KURVE_JS):
         stellen.append(("kurve/kurve.js",
-                        " ¶ ".join(re.findall(r'"([^"]{12,})"', ohne_kommentare(lies(KURVE_JS))))))
+                        " ¶ ".join(js_texte(lies(KURVE_JS)))))
     if os.path.exists(START_HTML):
         stellen.append(("index.html (Startseite)", sichtbarer_text(lies(START_HTML), True)))
     for wo, text in stellen:
@@ -1104,6 +1739,15 @@ def main():
     pruefe_versprechen(html)
     pruefe_mail(html)
     pruefe_kurve()
+    if os.path.exists(KURVE_HTML) and os.path.exists(KURVE_JS):
+        kurve_html = re.sub(r"<!--.*?-->", " ", lies(KURVE_HTML), flags=re.S)
+        lauf = kurve_lauf()
+        pruefe_einrichtung(kurve_html, lauf)
+        pruefe_ohne_sieger(kurve_html, lauf)
+        pruefe_mitnehmen(kurve_html, lauf)
+    pruefe_danke()
+    pruefe_vermutung()
+    pruefe_datenschutz()
     pruefe_worte(d, html)
     pruefe_zweck(d, html)
     pruefe_hinweis(html)
@@ -1118,8 +1762,9 @@ def main():
         print("\nROT: Der Energie-Check ist nicht abnahmefaehig.")
         return 1
     print("\nGRUEN: Quelle, Abdeckung, Ergebnis, Reihenfolge, Video, Ton, Ausschluss, "
-          "Speicher, Versprechen, Mail, Kurve, Profile, Worte, Zweck, Mail-Block, "
-          "Ueberschrift, Hinweis, PEM und Praxis stimmen.")
+          "Speicher, Versprechen, Mail, Kurve, Einrichtung, Ohne Sieger, Mitnehmen, Danke, "
+          "Datenschutz, Vermutung, Profile, "
+          "Worte, Zweck, Mail-Block, Ueberschrift, Hinweis, PEM und Praxis stimmen.")
     return 0
 
 
