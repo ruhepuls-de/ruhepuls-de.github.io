@@ -283,6 +283,9 @@ if (F3) {
     var m = /<aside class="ausnahme weg" id="ausnahme3"[\s\S]*?<p class="ausnahme-titel">([^<]*)<\/p>/.exec(html);
     soll(m && /^Liegst du nachts oft lange wach\?/.test(m[1]) && /nicht für dich/.test(m[1]) && !/^Ausnahme:/.test(m[1]),
          "5 Ausnahme 3: Titel sagt, wen es betrifft und was nicht gilt (Liam 30.09.)");
+    var m5 = /<aside class="ausnahme weg" id="ausnahme5"[\s\S]*?<p class="ausnahme-titel">([^<]*)<\/p>/.exec(html);
+    soll(m5 && /^Erschöpft dich schon leichte Anstrengung tagelang\?/.test(m5[1]) && /ärztlich abklären/.test(m5[1]) && !/^Ausnahme:/.test(m5[1]),
+         "5 Ausnahme 5: Titel sagt, wen es betrifft und was zu tun ist (Liam 30.09.)");
   })();
   soll(/zeig\(\$\("ausnahme3"\), tag === 3\)/.test(js) && /zeig\(\$\("ausnahme5"\), tag === 5\)/.test(js),
        "5 Kasten erscheint zum Tagesvideo 3 bzw. 5");
