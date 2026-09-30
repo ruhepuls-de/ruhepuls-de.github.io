@@ -335,6 +335,11 @@ function merk(liste, x) { if (liste.length < 3) { liste.push(x); } }
     }
     /* Teilen-Text */
     var tt = R.teilText(e, "https://mein-ruhepuls.de/check/");
+    /* 30.09. abends: das Teilen-Bild traegt dieselbe Regel (nur Profil-Titel) */
+    if (R.teilBild) {
+      var tb = R.teilBild(e);
+      tt += " " + Object.keys(tb).map(function (k) { return tb[k]; }).join(" ");
+    }
     teiltexte[e.profil] = tt;
     var verrat = Object.keys(R.REGELN).filter(function (id) {
       return tt.indexOf(R.REGELN[id].titel) >= 0;
@@ -1489,6 +1494,23 @@ MAILS_MD = os.path.expanduser("~/Desktop/Liam KI Gehirn/03 Projects/TikTok Autom
                               "(C) MailerLite — die 7 Mails, Klartext (24.09.2026).md")
 
 
+def pruefe_teilbild(html):
+    """30.09. abends, Liam: Beim Teilen kam nur eine Textdatei an („das muss ja irgendwie
+    eine schönere Übersicht sein“). Geteilt wird ein Bild; Text nur als Notfall."""
+    ordner = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "check")
+    js = lies(os.path.join(ordner, "check.js"))
+    regeln = lies(os.path.join(ordner, "regeln.js"))
+    fehlt = []
+    if "function teilBild(" not in regeln: fehlt.append("teilBild() in regeln.js")
+    if "canShare(" not in js or "files: [teilDatei]" not in js: fehlt.append("Bild-Teilen (canShare + files) in check.js")
+    if 'id="teilBild"' not in html or 'id="teilBildImg"' not in html: fehlt.append("Bild-Vorschau #teilBild in index.html")
+    if "bereiteTeilBild(e)" not in js: fehlt.append("Bild wird beim Ergebnis vorbereitet (iOS: share nur im frischen Tipp)")
+    if fehlt:
+        fehler.append("TEILEN: Geteilt wird ein Bild, nicht nur Text (Liam 30.09.). Es fehlt: " + " · ".join(fehlt))
+    else:
+        hinweise.append("  ab) Teilen: Bild 1080×1920 (canShare/files), Vorschau als Rückfall, Text nur im Notfall")
+
+
 def pruefe_worte(d, html):
     # 30.09. abends, Liam: Das Beispiel stand ueber dem Ergebnis ("das wuerde ich jetzt nicht
     # machen … da einbauen, wo das mit der Energiekurve 7 Tage steht"). Ausserhalb des
@@ -1759,6 +1781,7 @@ def main():
     pruefe_vermutung()
     pruefe_datenschutz()
     pruefe_worte(d, html)
+    pruefe_teilbild(html)
     pruefe_zweck(d, html)
     pruefe_hinweis(html)
 

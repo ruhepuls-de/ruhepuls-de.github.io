@@ -33,6 +33,7 @@
   function starte() {
     antworten = {}; schritt = 0; letztesErgebnis = null;
     $("teilenStatus").textContent = "";
+    zeig($("teilBild"), false);
     zeig($("start"), false); zeig($("ergebnis"), false); zeig($("fragen"), true);
     male();
     window.scrollTo(0, 0);
@@ -167,7 +168,101 @@
 
     $("balken").style.width = "100%";
     zeig($("fragen"), false); zeig($("ergebnis"), true);
+    bereiteTeilBild(e);
     window.scrollTo(0, 0);
+  }
+
+  /* ------------------------------------------------------- Teilen-Bild
+     30.09. abends (Liam): Geteilt kam nur eine Textdatei an. Jetzt ein Bild im
+     Hochformat 1080 x 1920, im Browser gezeichnet, nichts geht an einen Server.
+     Es wird VOR dem Tipp fertig gemacht: iOS erlaubt share() nur, solange der
+     Tipp noch „frisch“ ist, und toBlob() ist langsam. */
+  var teilDatei = null, teilUrl = null;
+  var SCHRIFT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
+  function umbrechen(ctx, text, breite) {
+    var zeilen = [], zeile = "";
+    text.split(" ").forEach(function (wort) {
+      var probe = zeile ? zeile + " " + wort : wort;
+      if (ctx.measureText(probe).width > breite && zeile) { zeilen.push(zeile); zeile = wort; }
+      else { zeile = probe; }
+    });
+    if (zeile) { zeilen.push(zeile); }
+    return zeilen;
+  }
+
+  function zeichneTeilBild(e) {
+    var t = R.teilBild(e);
+    var c = document.createElement("canvas");
+    c.width = 1080; c.height = 1920;
+    var ctx = c.getContext("2d");
+    var X = 110, B = 860, y;
+    ctx.fillStyle = "#0f1b2d"; ctx.fillRect(0, 0, 1080, 1920);
+    ctx.textBaseline = "top";
+
+    /* Marke oben */
+    ctx.fillStyle = "#e0b45a"; ctx.font = "700 52px " + SCHRIFT;
+    ctx.fillText(t.marke, X, 150);
+
+    /* Ergebnis-Karte mit goldenem Rand links, wie auf der Seite */
+    ctx.font = "700 86px " + SCHRIFT;
+    var titel = umbrechen(ctx, t.titel, B - 60);
+    var kartenH = 150 + titel.length * 108 + 60;
+    var kartenY = 380;
+    ctx.fillStyle = "#16243a"; ctx.fillRect(X - 30, kartenY, B + 60, kartenH);
+    ctx.fillStyle = "#e0b45a"; ctx.fillRect(X - 30, kartenY, 14, kartenH);
+    ctx.fillStyle = "#b7c0d0"; ctx.font = "500 40px " + SCHRIFT;
+    ctx.fillText(t.oben.toUpperCase(), X + 30, kartenY + 70);
+    ctx.fillStyle = "#e0b45a"; ctx.font = "700 86px " + SCHRIFT;
+    y = kartenY + 150;
+    titel.forEach(function (z) { ctx.fillText(z, X + 30, y); y += 108; });
+
+    /* Frage + Zusatz */
+    y = kartenY + kartenH + 100;
+    if (t.frage) {
+      ctx.fillStyle = "#f2f4f8"; ctx.font = "600 60px " + SCHRIFT;
+      umbrechen(ctx, t.frage, B).forEach(function (z) { ctx.fillText(z, X, y); y += 78; });
+      y += 20;
+    }
+    ctx.fillStyle = "#b7c0d0"; ctx.font = "400 46px " + SCHRIFT;
+    ctx.fillText(t.zusatz, X, y);
+
+    /* Aufruf + Adresse unten; darunter bleibt Platz fuer die Leisten von Story-Apps */
+    var unten = Math.max(y + 130, 1470);
+    ctx.fillStyle = "#f2f4f8"; ctx.font = "600 58px " + SCHRIFT;
+    ctx.fillText(t.aufruf, X, unten);
+    ctx.fillStyle = "#e0b45a"; ctx.fillRect(X - 30, unten + 100, B + 60, 150);
+    ctx.fillStyle = "#101820"; ctx.font = "700 64px " + SCHRIFT;
+    ctx.textAlign = "center";
+    ctx.fillText(t.adresse, 540, unten + 140);
+    ctx.textAlign = "left";
+    return c;
+  }
+
+  function bereiteTeilBild(e) {
+    teilDatei = null;
+    if (teilUrl) { URL.revokeObjectURL(teilUrl); teilUrl = null; }
+    zeig($("teilBild"), false);
+    try {
+      zeichneTeilBild(e).toBlob(function (blob) {
+        if (!blob || letztesErgebnis !== e) { return; }
+        teilUrl = URL.createObjectURL(blob);
+        try { teilDatei = new File([blob], "energie-check-ruhepuls.png", { type: "image/png" }); }
+        catch (x) { teilDatei = null; }
+      }, "image/png");
+    } catch (x) { teilDatei = null; }
+  }
+
+  /* Ohne Bild-Teilen (Computer, manche App-Browser): Bild zeigen, lange
+     drücken sichert es; am Computer ein Download-Link. */
+  function zeigeTeilBild(status) {
+    if (!teilUrl) { return false; }
+    $("teilBildImg").src = teilUrl;
+    $("teilBildLaden").href = teilUrl;
+    zeig($("teilBild"), true);
+    status.textContent = "";
+    $("teilBild").scrollIntoView({ behavior: "smooth", block: "center" });
+    return true;
   }
 
   function ort() {
@@ -186,14 +281,40 @@
     $("teilen").addEventListener("click", function () {
       var status = $("teilenStatus");
       var text = R.teilText(letztesErgebnis, ort());
+      /* 1. Bild teilen, wo das Geraet es kann (iPhone, Android). Nur die Datei:
+         Mit Text dazu nehmen viele iOS-Ziele nur den Text. Der Link steht im Bild. */
+      if (teilDatei && navigator.canShare && navigator.share) {
+        var paket = { files: [teilDatei] };
+        var kann = false;
+        try { kann = navigator.canShare(paket); } catch (x) { kann = false; }
+        if (kann) {
+          navigator.share(paket).catch(function (f) {
+            if (!f || f.name !== "AbortError") { zeigeTeilBild(status); }
+          });
+          return;
+        }
+      }
+      /* 2. Sonst das Bild auf der Seite zeigen (lange drücken = sichern) */
+      if (zeigeTeilBild(status)) { return; }
+      /* 3. Notfall: Text wie bisher. 28.09. (Liam: "teilt man einfach nur den link"):
+         ohne url-Feld, sonst nehmen viele Apps NUR die url. */
       if (navigator.share) {
-        /* 28.09. (Liam: "teilt man einfach nur den link"): ohne url-Feld, sonst
-           nehmen viele Apps (iOS, Instagram, Kopieren) NUR die url und
-           verwerfen den Ergebnis-Text. Der Link steht schon im Text. */
         navigator.share({ title: "Energie-Check von Ruhepuls", text: text })
           .catch(function () {});
         return;
       }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { status.textContent = "Link und Ergebnis kopiert."; },
+          function () { status.textContent = "Kopieren hat nicht geklappt, der Link steht oben in der Adresszeile."; }
+        );
+      } else {
+        status.textContent = "Der Link steht oben in der Adresszeile.";
+      }
+    });
+    $("teilLink").addEventListener("click", function () {
+      var status = $("teilenStatus");
+      var text = R.teilText(letztesErgebnis, ort());
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(
           function () { status.textContent = "Link und Ergebnis kopiert."; },

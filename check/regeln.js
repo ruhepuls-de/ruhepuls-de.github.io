@@ -553,6 +553,22 @@
       " Sechs Fragen, unter zwei Minuten: " + url;
   }
 
+  /* Teilen-Bild (30.09. abends, Liam: geteilt kam nur eine Textdatei an, „das muss
+     ja irgendwie eine schönere Übersicht sein“). Hochformat 1080 × 1920 für Story
+     und Chat. Dieselbe Regel wie beim Teilen-Text: nur der Profil-Titel, nie eine
+     Regel. Der Link steht IM Bild, weil iOS beim Teilen mit Bild den Text verwirft. */
+  function teilBild(e) {
+    return {
+      oben: "Mein Ergebnis · Energie-Check",
+      titel: e ? e.titel : FRAGE_OBEN,
+      frage: e ? FRAGE_OBEN : "",
+      zusatz: "Sechs Fragen, unter zwei Minuten",
+      aufruf: "Und worum geht es bei dir?",
+      adresse: "mein-ruhepuls.de/check",
+      marke: "Ruhepuls"
+    };
+  }
+
   var API = {
     REGELN: REGELN,
     FRAGEN: FRAGEN,
@@ -563,7 +579,8 @@
     ausloeserGilt: ausloeserGilt,
     werteAus: werteAus,
     reihenfolge: reihenfolge,
-    teilText: teilText
+    teilText: teilText,
+    teilBild: teilBild
   };
 
   if (typeof module !== "undefined" && module.exports) { module.exports = API; }

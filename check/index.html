@@ -124,6 +124,12 @@
     <button class="btn sekundaer" id="nochmal" type="button">Noch einmal</button>
   </div>
   <p class="small" id="teilenStatus" aria-live="polite"></p>
+  <!-- 30.09. abends: Teilen als Bild. Erscheint nur, wo das Geraet kein Bild teilen kann. -->
+  <div class="teilbild weg" id="teilBild">
+    <p class="small">Dein Ergebnis als Bild. Am Handy: Bild gedrückt halten, dann sichern oder teilen.</p>
+    <img id="teilBildImg" alt="Dein Ergebnis beim Energie-Check als Bild" width="1080" height="1920">
+    <p class="small"><a id="teilBildLaden" download="energie-check-ruhepuls.png" href="#">Bild herunterladen</a> · <button class="link" id="teilLink" type="button">Nur den Link kopieren</button></p>
+  </div>
 
   <!-- [K] Fester Hinweis, immer, hoechstens 2 Saetze (U1, Zweig r).
        Alarmzeichen nur aus der DEGAM-Grundlage der Fach-Datei, 2.1:
