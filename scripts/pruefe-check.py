@@ -1451,6 +1451,8 @@ def mailblock_woerter(html):
     block = re.sub(r'<label class="sr-only".*?</label>', " ", block, flags=re.S)
     block = re.sub(r'<p[^>]*id="mailFehler".*?</p>', " ", block, flags=re.S)
     block = re.sub(r'<div[^>]*id="mailDanke".*?</div>', " ", block, flags=re.S)
+    # 30.09. abends: Beispiel-Karte ist ein Bild aus Zahlen, kein Lesetext
+    block = re.sub(r'<div class="beispiel-karte".*?</div>', " ", block, flags=re.S)
     return len(WORT.findall(sichtbarer_text(block)))
 
 
@@ -1488,6 +1490,13 @@ MAILS_MD = os.path.expanduser("~/Desktop/Liam KI Gehirn/03 Projects/TikTok Autom
 
 
 def pruefe_worte(d, html):
+    # 30.09. abends, Liam: Das Beispiel stand ueber dem Ergebnis ("das wuerde ich jetzt nicht
+    # machen … da einbauen, wo das mit der Energiekurve 7 Tage steht"). Ausserhalb des
+    # Mail-Blocks landet es oben, weil check.js die Bausteine hinter sie haengt.
+    block = element_mit_id(html, "mailblock") or ""
+    if html.count('class="beispiel-karte"') != 1 or 'class="beispiel-karte"' not in block:
+        fehler.append("WORTE: Die Beispiel-Karte muss genau einmal und IM Mail-Block stehen "
+                      "(unter „Deine Energiekurve – 7 Tage“), sonst steht sie über dem Ergebnis.")
     n = mailblock_woerter(html)
     if n is None:
         fehler.append('WORTE: Der Mail-Block (id="mailblock") fehlt.')
