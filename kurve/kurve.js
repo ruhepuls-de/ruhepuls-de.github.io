@@ -390,7 +390,7 @@
   function istInApp(ua) {
     return /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Bytedance|\bGSA\//i.test(ua || "");
   }
-  /* Fassung 3: Am Computer nicht eintragen (Klaus). Kein Handy, kein Tablet im
+  /* 30.09.2026 (Liam: "warum können wir es nicht auch über computer möglich machen?"): weicher Hinweis statt Sperre — eintragen erlaubt, dasselbe Geraet die ganze Woche. Vorher Fassung 3: Am Computer nicht eintragen (Klaus). Kein Handy, kein Tablet im
      Kennzeichen. Das iPad meldet sich wie ein Mac — die Seite prueft deshalb
      zusaetzlich die Touch-Punkte. */
   function istAmPC(ua) {
