@@ -275,8 +275,15 @@ if (F3) {
   /* 5. Ausnahme-Kasten */
   ["ausnahme3", "ausnahme5"].forEach(function (id) {
     var m = new RegExp('<aside class="ausnahme weg" id="' + id + '"[\\s\\S]*?</aside>').exec(html);
-    soll(m && /Ausnahme: nur für dich, wenn/.test(m[0]), "5 grauer Ausnahme-Kasten " + id);
+    soll(m && /<p class="ausnahme-titel">[^<]{10,}<\/p>/.test(m[0]), "5 grauer Ausnahme-Kasten " + id);
   });
+  /* Liam 30.09.: „Ausnahme: nur für dich, wenn …“ versteht man nicht. Der Titel
+     fragt, wen es betrifft, und sagt, was dann nicht gilt. */
+  (function () {
+    var m = /<aside class="ausnahme weg" id="ausnahme3"[\s\S]*?<p class="ausnahme-titel">([^<]*)<\/p>/.exec(html);
+    soll(m && /^Liegst du nachts oft lange wach\?/.test(m[1]) && /nicht für dich/.test(m[1]) && !/^Ausnahme:/.test(m[1]),
+         "5 Ausnahme 3: Titel sagt, wen es betrifft und was nicht gilt (Liam 30.09.)");
+  })();
   soll(/zeig\(\$\("ausnahme3"\), tag === 3\)/.test(js) && /zeig\(\$\("ausnahme5"\), tag === 5\)/.test(js),
        "5 Kasten erscheint zum Tagesvideo 3 bzw. 5");
 
