@@ -177,10 +177,7 @@ KURVE_SCHLUESSEL = "ruhepuls.kurve.v1"
 # Loeschung genau daran). Bis dahin BLEIBEN sie — aber byte-gleich mit dem Live-Stand,
 # damit sich dort nichts still aendert. Loeschen: Ordner entfernen und DANKE_ALT_BLEIBT
 # leeren; dann wird die alte Pruefung „30-tage/jahr weg“ wieder scharf.
-DANKE_ALT_BLEIBT = {
-    "30-tage": "b7ad1f6397699de27256870c2a521b9943452c57e662784295df48c1e0450054",
-    "jahr": "ef2f54d35ff6d62176dcb5e93cc4aaa282b374d6f71d16dade36f61ba207f1b9",
-}
+DANKE_ALT_BLEIBT = {}  # 30.09. abends geleert: alte Mail 7 stand nie in MailerLite (Automation endete bei Mail 2), neue Mail 7 ist eingesetzt
 PIPELINE = os.path.expanduser("~/tools/ruhepuls-pipeline/public")
 
 ZUSCHREIBUNG = [
