@@ -5,3 +5,8 @@ p{margin:.6em 0}a{color:var(--gold)}.lead{color:var(--muted);font-size:1.05rem}
 .btn{display:inline-block;background:var(--gold);color:#101820;text-decoration:none;font-weight:700;padding:14px 22px;border-radius:10px;margin:18px 0}
 footer{margin-top:56px;padding-top:18px;border-top:1px solid #2a3b57;color:var(--muted);font-size:.95rem}footer a{margin-right:18px}
 .legal p{white-space:pre-line}.small{font-size:.9rem;color:var(--muted)}
+/* 30.09.2026 Beispiel-Ergebniskarte (Nutzen sichtbar statt nur beschrieben) */
+.beispiel-karte{background:var(--card,#16233a);border:1px solid var(--gold);border-radius:12px;padding:12px 16px;margin:12px 0}
+.beispiel-titel{margin:0 0 6px;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.beispiel-zeile{display:flex;justify-content:space-between;gap:12px;margin:4px 0}
+.beispiel-zeile b{color:var(--gold);white-space:nowrap}

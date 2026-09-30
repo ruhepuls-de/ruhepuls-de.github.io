@@ -264,7 +264,10 @@ if (F3) {
        "2 kein Safari/Chrome/Lesezeichen-Rat auf der Seite");
   soll(/über den Knopf in der Mail, (?:immer )?auf demselben Handy/.test(sicht), "2 Rat: über den Knopf in der Mail, auf demselben Handy");
   soll(/Mail-App/.test((/id="inApp"[\s\S]*?<\/div>/.exec(html) || [""])[0]), "2 In-App-Hinweis nennt Mail-Apps");
-  soll(/Am Computer/.test(sicht) && /id="amPC"/.test(html), "2 Satz gegen das Eintragen am Computer");
+  /* 30.09.2026 (Liam: „warum können wir es nicht auch über computer möglich machen?“): weicher Hinweis statt Sperre. */
+  var pcSatz = (/id="amPC"[^>]*>([\s\S]*?)<\/p>/.exec(html) || ["", ""])[1];
+  soll(/am Computer/i.test(pcSatz) && /eintragen/.test(pcSatz) && /ganze Woche/.test(pcSatz) && !/nicht ein/.test(pcSatz),
+       "2 Computer: weicher Hinweis (eintragen erlaubt, ganze Woche dasselbe Gerät), keine Sperre");
   soll(K.istAmPC("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36") &&
        !K.istAmPC(UA.safari) && !K.istAmPC(UA.chrome) && !K.istAmPC(UA.instagram), "2 Computer erkannt, Handys nicht");
   soll(/>\s*Einträge mitnehmen\s*</.test(html), "2 „Einträge mitnehmen“ bleibt als Notlösung");
@@ -367,7 +370,7 @@ if (F3) {
   var jsSicht = js_texte(jsText).join(" | ");
   soll(!alsHauptwort.test(sicht) && !alsHauptwort.test(jsSicht),
        "Vermutung: sichtbar nirgends „Tipp“ als Hauptwort (" + ((sicht.match(alsHauptwort) || jsSicht.match(alsHauptwort) || ["—"])[0]) + ")");
-  soll(sicht.indexOf("Am siebten Tag siehst du deine Zahl an Tagen mit und ohne deine Vermutung.") >= 0 &&
+  soll(sicht.indexOf("Am siebten Tag siehst du mit deinen eigenen Zahlen, ob deine Vermutung stimmt: deine Energie an den Tagen mit und an den Tagen ohne.") >= 0 &&
        sicht.indexOf("Wähl bei deiner Vermutung eine Antwort. „Weiß ich nicht“ geht auch.") >= 0,
        "Vermutung: Einrichtung sagt „deine Vermutung“ (wortgleich Fassung 3)");
   var wv = K.auswerten(woche("2026-10-05", [6, 7, 4, 7, 5, 8, 5],

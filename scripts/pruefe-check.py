@@ -1291,8 +1291,9 @@ def pruefe_danke():
 # „tipp auf …“ (antippen) ist ein Verb und bleibt. Interne Namen (tipp, tippBlock) bleiben.
 TIPP_HAUPTWORT = re.compile(r"\b(?:dein|deine|deinen|deinem|deiner|der|den|dem|ein|einen|kein|Dein|Deine)\s+Tipps?\b|"
                             r"\bTipp von Tag|\bTipp-(?:Frage|Block|Satz)")
-VERMUTUNG_SEITE = "Am siebten Tag siehst du deine Zahl an Tagen mit und ohne deine Vermutung."
-VERMUTUNG_KERN = "deine Zahl an Tagen mit und ohne deine Vermutung"
+# 30.09.2026 Nutzen-Satz (Liam: „was man von diesem Ergebnis hat … größter Hebel“)
+VERMUTUNG_SEITE = "Am siebten Tag siehst du mit deinen eigenen Zahlen, ob deine Vermutung stimmt: deine Energie an den Tagen mit und an den Tagen ohne."
+VERMUTUNG_KERN = "ob deine Vermutung stimmt: deine Energie an den Tagen mit und an den Tagen ohne"  # 30.09.2026 Nutzen-Satz
 
 
 def pruefe_vermutung():
