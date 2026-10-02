@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Energie-Check: Was kostet dich im Alltag Energie? · Ruhepuls</title>
 <meta name="description" content="Sechs Fragen zu Schlaf, Koffein, Alkohol, Bewegung und deinem Nachmittag, unter zwei Minuten. Danach siehst du, wo du im Alltag selbst ansetzen kannst, jeweils mit der Studie dazu.">
-<link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="check.css">
+<link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="check.css?v=20261002">
 <meta name="robots" content="index,follow"></head><body><main>
 <!-- Texte: „(C) Abteilung Produkt & Text — Energie-Check, 7 Tage, Tag-7-Angebot
      (24.09.2026)“, Abschnitt 1. Umbau 24.09. abends (Entscheidungen, Nachtrag
@@ -89,8 +89,24 @@
       <p class="small weg" id="mailFehler" role="alert">Das hat nicht geklappt. Prüf die Adresse und versuch es noch einmal.</p>
     </form>
     <div class="weg" id="mailDanke" aria-live="polite">
-      <h3><span class="haken" aria-hidden="true">✓</span> Fast geschafft</h3>
-      <p>Schau in dein Postfach und bestätige deine Adresse. Ein Klick auf den Knopf in der Mail reicht. Danach kommt sofort Tag 1. Keine Mail da? Sieh im Spam-Ordner nach.</p>
+      <!-- 02.10.2026: 7 von 15 Eintragungen nie bestaetigt (MailerLite „Unconfirmed“).
+           Der alte Hinweis nannte den falschen Betreff. Echte Mail (Liams Screenshot 02.10.):
+           Absender „Ruhepuls“, Betreff „Confirmation email“, gruener Knopf „Confirm your email“.
+           Text der Mail ist im Free-Tarif nicht aenderbar (24.09.). -->
+      <h3><span class="haken" aria-hidden="true">✓</span> Noch 1 Schritt: Mail bestätigen</h3>
+      <p>Ohne diesen Klick kommt keine einzige Mail. Die Bestätigung ist leider auf Englisch. So sieht sie aus:</p>
+      <figure class="mailvorschau" role="img" aria-label="Mail von Ruhepuls, Betreff Confirmation email, mit grünem Knopf Confirm your email">
+        <span class="mv-kopf"><b>Ruhepuls</b><span>Confirmation email</span></span>
+        <span class="mv-titel">Confirm your email address</span>
+        <span class="mv-knopf">Confirm your email</span>
+      </figure>
+      <ol class="schritte">
+        <li>Postfach öffnen.</li>
+        <li>Mail von <b>Ruhepuls</b> mit dem Betreff <b>„Confirmation email“</b> suchen.</li>
+        <li>Auf den grünen Knopf <b>„Confirm your email“</b> tippen. Dann kommt sofort Tag 1.</li>
+      </ol>
+      <a class="btn weg" id="postfachKnopf" href="#" target="_blank" rel="noopener">Postfach öffnen</a>
+      <p class="small">Keine Mail da? Sieh im Spam-Ordner nach, bei Gmail auch unter „Werbung“.</p>
       <p>Die Mails sind für alle gleich, denn dein Ergebnis bleibt in deinem Browser. Niemand außer dir sieht es. Ruhepuls sieht, welche Links du in den Mails anklickst, aber nicht, ob du eine Mail öffnest.</p>
     </div>
     <!-- Einwilligungssatz: Abteilung Recht 24.09.2026, Textvorschlag (b), Inhalt woertlich;
@@ -142,6 +158,7 @@
 </main>
 <script src="regeln.js"></script>
 <script src="videolinks.js"></script>
-<script src="check.js"></script>
-<script src="mail.js"></script>
+<script src="check.js?v=20260929"></script>
+<script src="postfach.js?v=20261002"></script>
+<script src="mail.js?v=20261002"></script>
 </body></html>

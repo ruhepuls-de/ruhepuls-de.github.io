@@ -26,6 +26,7 @@
       })
       .then(function () {
         form.classList.add("weg");
+        if (window.ruhepulsPostfach) window.ruhepulsPostfach(feld.value);
         danke.classList.remove("weg");
       })
       .catch(function () {
