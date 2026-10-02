@@ -17,6 +17,8 @@
 
    Nichts hier geht ins Netz. */
 "use strict";
+/* 02.10.2026: Zeitumstellung (25.10.2026, 28.03.2027) nur mit deutscher Zeitzone pruefbar. */
+process.env.TZ = "Europe/Berlin";
 var path = require("path");
 var fs = require("fs");
 var ORDNER = process.argv.indexOf("kurve-test") >= 0 ? "kurve-test" : "kurve";
@@ -80,8 +82,8 @@ F.fuenf = woche("2026-09-28", [5, 7, 6, 4, 6],
   RR([["pause"], ["pause", "schlaf"], [], ["suesses"], ["pause"]]), mit(JA, "pause"));
 /* 6. Nur 4 Eintraege: noch keine Woche */
 F.vier = woche("2026-09-28", [5, 7, 6, 4], RR([[], [], [], []]), mit(JA, "pause"));
-/* 7. Tipp Bewegung, aber jeden Tag bewegt: keine Tage ohne */
-F.immerBewegt = woche("2026-09-28", [6, 7, 6, 5, 7], RR([["bewegt"], ["bewegt"], ["bewegt"], ["bewegt"], ["bewegt"]]),
+/* 7. Tipp Bewegung, aber jeden Tag bewegt: keine Tage ohne (02.10.: 7 Eintraege, Vergleich erst an Tag 7) */
+F.immerBewegt = woche("2026-09-28", [6, 7, 6, 5, 7, 6, 5], RR([["bewegt"], ["bewegt"], ["bewegt"], ["bewegt"], ["bewegt"], ["bewegt"], ["bewegt"]]),
   mit(JA, "bewegt"));
 /* 8. Alte Eintraege (vor 28.09., ohne „gezeigt“), danach Alkohol ausgeschaltet */
 F.altOhneAlkohol = woche("2026-09-25", [5, 6, 5, 7, 6],
@@ -224,7 +226,7 @@ if (F3) {
        "4 Tipp-Block: Tage mit Koffein = Tage mit Häkchen");
   soll(wk.tipp && wk.tipp.some(function (t) { return /^Verglichen werden die Tage mit dem Häkchen „/.test(t); }),
        "4 Tipp-Block nennt das Häkchen wörtlich");
-  var sl = K.auswerten(woche("2026-10-05", [5, 6, 5, 6, 5], [[], [], [], [], []], mit(JA, "schlaf")));
+  var sl = K.auswerten(woche("2026-10-05", [5, 6, 5, 6, 5, 6, 5], [[], [], [], [], [], [], []], mit(JA, "schlaf")));
   soll(sl.tipp && sl.tipp.join(" ").indexOf("Ein Vergleich geht erst, wenn es beides gibt.") >= 0,
        "Tipp Schlaf, nie 7 Stunden: Satz „Ein Vergleich geht erst …“");
   soll(!/So oft geschafft/.test(sicht + jsText) && /So oft angehakt/.test(sicht), "„So oft angehakt“ statt „geschafft“");
@@ -253,7 +255,7 @@ if (F3) {
 
   /* 3. Sieben Eintraege, keine Kalendertage */
   var luecke = K.auswerten(woche("2026-10-05", [6, 5, null, 7, 4, 6, 5, 7], [[], [], [], [], [], [], [], []], mit(JA, "bewegt")));
-  soll(luecke.n === 7 && luecke.fertig && luecke.titel === "Dein Ergebnis", "3 Ein Tag verpasst: Ergebnis mit dem 7. Eintrag, an Tag 8");
+  soll(luecke.n === 7 && luecke.fertig && luecke.titel === "Deine Woche", "3 Ein Tag verpasst: Woche mit dem 7. Eintrag, an Tag 8");
   var sechs = K.auswerten(woche("2026-10-05", [6, 5, null, null, 7, 4, 6, 5], [[], [], [], [], [], [], [], []], mit(JA, "bewegt")));
   soll(sechs.n === 6 && !sechs.fertig && sechs.titel === "Deine Woche bisher", "3 Sechs Einträge über 8 Tage: noch kein Ergebnis");
   soll(/sobald sieben Einträge da sind/.test(sicht), "3 Seite sagt: fertig, sobald sieben Einträge da sind");
@@ -334,8 +336,10 @@ if (F3) {
   soll(/bei 7,0/.test(rs) && /bei 5,3/.test(rs) && /Der Unterschied beträgt 1,7 Punkte\./.test(rs),
        "Rundung: 7,0 und 5,3 ergeben gezeigt 1,7 (" + (rs.match(/Unterschied beträgt [\d,]+/) || ["?"])[0] + ")");
   soll(/"uebernehmenJa"\)\.addEventListener\("click", function \(\) \{\s*if \(!linkDaten\) \{ return; \}/.test(js), "Doppeltipp auf „Ja, übernehmen“ ohne Fehler");
-  soll(/if \(!ok && !letzterKonflikt\) \{ if \(vorher\)/.test(js), "Speicherfehler: Eintrag zählt nicht mit (bei Konflikt steht der neuere Stand)");
-  soll(/tage\[0\] < gestern\(\)/.test(js), "„Für gestern“ erst ab dem zweiten Tag");
+  soll(/if \(!ok && !letzterKonflikt\) \{\s*if \(vorher\)/.test(js), "Speicherfehler: Eintrag zählt nicht mit (bei Konflikt steht der neuere Stand)");
+  /* 02.10.: ersetzt durch nachholbar() — nie vor dem Start (Einrichtung oder erster Eintrag), siehe Bau 02.10. */
+  soll(K.nachholbar(woche("2026-10-05", [6], [[]], mit(JA, "bewegt")), new Date(2026, 9, 5, 21)).length === 0,
+       "„Für gestern“ nie für den Tag vor dem Start");
   var css = fs.readFileSync(path.join(__dirname, "..", ORDNER, "kurve.css"), "utf8");
   soll(/fieldset label\{min-height:44px\}/.test(css) && /button\.link\{min-height:44px/.test(css), "Tippziele ≥ 44 px (Tipp-Antworten, Link-Knöpfe)");
   /* N2 (Zweitabnahme 29.09., Technik SOLLTE): zwei Tabs, dieselbe Revisionsloesung wie 30-tage (N1) */
@@ -368,6 +372,166 @@ if (F3) {
          /function male\(meldung\) \{\s*synchron\(\);/.test(js), "Abgleich bei storage/pageshow/visibilitychange und vor jedem Zeichnen");
     soll(/id="andererTab"[^>]*>In einem anderen Tab hat sich inzwischen etwas geändert\. Hier steht jetzt der neuere Stand\./.test(html) &&
          /zeig\(\$\("andererTab"\), konflikt\)/.test(js), "Hinweis #andererTab erscheint nach einem Konflikt");
+  })();
+
+  /* ---------------------------------------------------------------------------
+     Bau „Kurve repariert“ (02.10.2026). Grundlage: Ablauf-Pruefung 02.10. (Befunde 4, 5, 8),
+     Recherche 02.10. (Loop #374/#1312, Stone 2002/2003, Habitica, Sleepio). Jede Pruefung
+     hier wurde einmal absichtlich gebrochen und wurde rot (Bruchtest im Baubericht). */
+  (function () {
+    var D = function (j, m, t, h, mi) { return new Date(j, m - 1, t, h, mi || 0); };
+    var leer = function (seit, einst) { var e = mit(einst || JA, "bewegt"); if (seit) { e.seit = seit; } return { v: 2, eintraege: {}, einstellung: e }; };
+    var mitTagen = function (seit, tage, einst) {
+      var d = leer(seit, einst);
+      tage.forEach(function (t) { d.eintraege[t] = { energie: 6, hebel: [], gezeigt: ALLE, am: t }; });
+      return d;
+    };
+
+    /* B1 — 17-Uhr-Fenster: fuer HEUTE oeffnet das Formular erst um 17 Uhr, auch am Einrichtungstag */
+    var einr = leer("2026-10-05");
+    soll(K.zielTag(einr, D(2026, 10, 5, 13, 0)) === null, "B1 17 Uhr: Einrichtung 13:00 — kein Formular für heute");
+    soll(K.zielTag(einr, D(2026, 10, 5, 16, 59)) === null, "B1 17 Uhr: 16:59 noch kein Formular");
+    soll(K.zielTag(einr, D(2026, 10, 5, 17, 0)) === "2026-10-05", "B1 17 Uhr: ab 17:00 Formular für heute");
+    soll(K.zielTag(einr, D(2026, 10, 5, 23, 30)) === "2026-10-05", "B1 Einrichtung 23:30 — Formular für heute");
+    soll(K.zielTag(leer("2026-10-05"), D(2026, 10, 6, 1, 30)) === "2026-10-05", "B1 Einrichtung 01:30 — Formular für den Vortag (4-Uhr-Grenze)");
+    soll(K.istAbend(D(2026, 10, 6, 3, 59)) && !K.istAbend(D(2026, 10, 6, 4, 0)) && !K.istAbend(D(2026, 10, 6, 16, 59)) &&
+         K.istAbend(D(2026, 10, 6, 17, 0)), "B1 Abend = 17:00 bis 3:59");
+    soll(/zielTag\(daten, jetzt\)/.test(jsText) && /id="abHeuteAbend"[^>]*><span id="abHeuteSatz">Heute trägst du ab 17 Uhr ein/.test(html) &&
+         /id="trotzdemJetzt"[^>]*>trotzdem jetzt eintragen</.test(html), "B1 Seite nutzt zielTag und zeigt „Heute ab 17 Uhr“ + „trotzdem jetzt eintragen“");
+
+    /* B2 — Tag aus dem Mail-Link, nicht aus der Klickzeit: Mail 20:00, gelesen 08:00 → gestern */
+    var morgens = mitTagen("2026-10-05", ["2026-10-05", "2026-10-06", "2026-10-07"]);
+    soll(K.zielTag(morgens, D(2026, 10, 9, 8, 0)) === "2026-10-08", "B2 Mail um 20 Uhr, morgens 08:00 geöffnet: Formular für gestern (8.10.)");
+    soll(K.zielTag(mitTagen("2026-10-05", ["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08"]), D(2026, 10, 9, 8, 0)) === null,
+         "B2 Gestern schon eingetragen, morgens: kein Formular (heute ab 17 Uhr)");
+    soll(K.zielTag(leer("2026-10-08"), D(2026, 10, 9, 8, 0)) === "2026-10-08", "B2 Mittags eingerichtet, abends nicht eingetragen: morgens Frage nach gestern");
+    soll(K.zielTag(leer("2026-10-09"), D(2026, 10, 9, 8, 0)) === null, "B2 Morgens eingerichtet: kein Nachholen vor dem Start");
+
+    /* B3 — Nachholen hoechstens 2 Tage zurueck, nie vor dem Start, Luecke zaehlt als entschieden */
+    var hinten = mitTagen("2026-10-05", ["2026-10-05", "2026-10-06"]);
+    var nb = K.nachholbar(hinten, D(2026, 10, 10, 20, 0));
+    soll(JSON.stringify(nb) === '["2026-10-09","2026-10-08"]', "B3 Nachholen: nur gestern und vorgestern (" + JSON.stringify(nb) + ")");
+    soll(K.NACHHOLEN === 2, "B3 NACHHOLEN = 2");
+    hinten.luecken = ["2026-10-09"];
+    soll(JSON.stringify(K.nachholbar(hinten, D(2026, 10, 10, 20, 0))) === '["2026-10-08"]', "B3 „Lücke lassen“: der Tag wird nicht mehr nachgefragt");
+    soll(K.nachholbar(mitTagen("2026-10-06", ["2026-10-06"]), D(2026, 10, 7, 9, 0)).length === 0, "B3 Nichts vor dem Start nachholbar");
+    var voll = mitTagen("2026-10-01", ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"]);
+    soll(K.nachholbar(voll, D(2026, 10, 10, 9, 0)).length === 0 && K.zielTag(voll, D(2026, 10, 10, 20, 0)) === null, "B3 Woche voll: kein Nachholen, kein Formular");
+    soll(!/type="date"|showPicker/.test(html + jsText), "B3 kein freier Datumswähler");
+    var nach = mitTagen("2026-10-05", ["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11"]);
+    nach.eintraege["2026-10-08"].am = "2026-10-09";
+    nach.eintraege["2026-10-09"].am = "2026-10-11";
+    var wn = K.auswerten(nach);
+    soll(K.nachgetragen("2026-10-08", nach.eintraege["2026-10-08"]) && !K.nachgetragen("2026-10-07", nach.eintraege["2026-10-07"]) &&
+         !K.nachgetragen("2026-09-27", { energie: 5, hebel: [] }), "B3 Nachgetragen = später eingetragen; alte Einträge ohne Datum nie");
+    soll(wn.nachgetragen === 2 && /2 Einträge hast du erst am Tag danach oder später gemacht/.test(wn.nachSatz || ""),
+         "B3 Woche nennt nachgetragene Einträge (" + wn.nachgetragen + ")");
+    soll(/"punkt nach"/.test(jsText) && /id="nachLegende"/.test(html), "B3 Kurve zeichnet nachgetragene Punkte hohl, mit Legende");
+    soll(/am: heute\(\)/.test(jsText), "B3 jeder neue Eintrag speichert den Tag des Eintragens");
+
+    /* B4 — „Weiß ich nicht“: Vergleich kommt trotzdem, vorher einmal fragen (ueberspringbar) */
+    var wnW = woche("2026-10-05", [4, 6, 5, 8, 3, 6, 7], RR([["schlaf"], ["bewegt"], [], ["schlaf", "bewegt"], [], ["koffein"], ["schlaf"]]), mit(JA, "weissNicht"));
+    var w0 = K.auswerten(wnW);
+    soll(w0.frageTag7 === true && !w0.tipp, "B4 „Weiß ich nicht“ an Tag 7: erst die Frage „Bevor du's siehst“");
+    wnW.einstellung.tipp7 = K.OFFEN;
+    var w1 = K.auswerten(wnW), w1t = (w1.tipp || []).join(" ");
+    soll(!w1.frageTag7 && w1.tipp && /an \d+ Tagen/.test(w1t) && /Ob es wirklich/.test(w1t) && /kein Beweis/.test(w1t),
+         "B4 Übersprungen: Vergleich trotzdem, mit Tageszahlen (" + (w1.tipp ? w1.tipp.length : 0) + " Zeilen)");
+    soll(!/Unterschied beträgt/.test(w1t), "B4 Übersprungen: keine Differenz, kein Sieger");
+    wnW.einstellung.tipp7 = R("bewegt");
+    var w2 = K.auswerten(wnW);
+    soll(w2.tipp && /^Deine Vermutung, bevor du die Zahlen gesehen hast: Bewegung\./.test(w2.tipp[0]) && /an \d+ Tagen|An \d+ Tagen/.test(w2.tipp.join(" ")),
+         "B4 Vermutung an Tag 7 nachgeholt: Vergleich für sie");
+    soll(/id="vorherFrage"/.test(html) && /Bevor du's siehst/.test(sicht) && />\s*Überspringen\s*</.test(html), "B4 Seite hat die Frage mit „Überspringen“");
+    var kd = K.dekodiere(K.kodiere(wnW));
+    soll(kd && kd.einstellung.tipp7 === R("bewegt"), "B4 Vermutung von Tag 7 reist im Mitnehmen-Link mit");
+
+    /* B5 — Vergleich nicht frueher als angekuendigt (Mail 6/7, Video 5) und ehrlich */
+    [5, 6].forEach(function (n) {
+      var werte = [6, 7, 4, 7, 5, 8, 5].slice(0, n);
+      var w = K.auswerten(woche("2026-10-05", werte, RR([[], ["bewegt"], [], ["bewegt"], [], ["bewegt"], []]).slice(0, n), mit(JA, "bewegt")));
+      soll(w.zeigen && !w.tipp && w.titel === "Deine Woche bisher", "B5 " + n + " Einträge: Woche bisher, aber noch kein Vergleich");
+    });
+    var w7 = K.auswerten(woche("2026-10-05", [6, 7, 4, 7, 5, 8, 5], RR([[], ["bewegt"], [], ["bewegt"], [], ["bewegt"], []]), mit(JA, "bewegt")));
+    soll(w7.titel === "Deine Woche" && w7.tipp && w7.tipp.indexOf("Das ist ein Hinweis, kein Beweis.") >= 0 && !/Ergebnis/.test(w7.tipp.join(" ") + w7.titel),
+         "B5 Tag 7: „Deine Woche“, „Hinweis, kein Beweis“, nirgends „Ergebnis“");
+    var wenig = K.auswerten(woche("2026-10-05", [6, 7, 4, 7, 5, 8, 5], RR([[], ["bewegt"], [], [], [], [], []]), mit(JA, "bewegt")));
+    soll(wenig.tipp && /Auf einer Seite stehen nur ein Tag\. Das ist sehr wenig für einen Vergleich\./.test(wenig.tipp.join(" ")),
+         "B5 Nur 1 Tag mit: Satz „sehr wenig für einen Vergleich“");
+
+    /* B6 — Leerer Speicher gross, Einfuegefeld; TikTok/Instagram: keine Einrichtung */
+    soll(/class="warnkasten weg" id="leerHinweis"/.test(html) && /Einträge mitnehmen/.test((/id="leerHinweis"[\s\S]*?<\/div>/.exec(html) || [""])[0]) &&
+         /id="einfuegenFeld"/.test(html), "B6 Leerer Speicher: großer Kasten mit Anleitung und Feld „Link einfügen“");
+    soll(K.istSozialApp(UA.tiktok) && K.istSozialApp(UA.instagram) && K.istSozialApp(UA.facebook) && !K.istSozialApp(UA.googleApp) &&
+         !K.istSozialApp(UA.safari), "B6 TikTok/Instagram/Facebook erkannt, Google-App und Safari nicht");
+    soll(/var sozial = istSozialApp\(navigator\.userAgent\) && !eingerichtet && n === 0;/.test(jsText) &&
+         /zeigeEinrichtung = !sozial &&/.test(jsText) && /Öffne den Link aus deiner Mail/.test(sicht), "B6 In TikTok/Instagram keine Einrichtung, sondern „Öffne den Link aus deiner Mail“");
+
+    /* B7 — Rueckkehr: Tag neu berechnen, nicht nur bei Speicheraenderung; persist() einmal */
+    soll(/function rueckkehr\(\)[\s\S]{0,200}tagVon\(j\) \+ \(istAbend\(j\)/.test(jsText) &&
+         /addEventListener\("pageshow", rueckkehr\)/.test(jsText) && /visibilityState === "visible"\) \{ rueckkehr\(\); \}/.test(jsText),
+         "B7 pageshow/visibilitychange zeichnen neu, wenn Tag oder 17-Uhr-Grenze gewechselt hat");
+    soll(/try \{\s*if \(navigator\.storage && navigator\.storage\.persist\)/.test(jsText) && /if \(persistGefragt\) \{ return; \}/.test(jsText),
+         "B8 navigator.storage.persist() einmal, in try/catch");
+
+    /* B9 — Zeitumstellung: kalendarisch, 25-Stunden-Tag und 23-Stunden-Tag */
+    var dst = { v: 2, eintraege: {}, einstellung: mit(JA, "bewegt") };
+    [D(2026, 10, 24, 20), D(2026, 10, 25, 20), D(2026, 10, 26, 20)].forEach(function (d) {
+      dst.eintraege[K.tagVon(d)] = { energie: 5, hebel: [], gezeigt: ALLE, am: K.tagVon(d) };
+    });
+    var doppelt1 = new Date("2026-10-25T02:30:00+02:00"), doppelt2 = new Date("2026-10-25T02:30:00+01:00");
+    soll(JSON.stringify(Object.keys(dst.eintraege).sort()) === '["2026-10-24","2026-10-25","2026-10-26"]' &&
+         K.tagVon(doppelt1) === "2026-10-24" && K.tagVon(doppelt2) === "2026-10-24" && K.tagVon(D(2026, 10, 25, 4, 0)) === "2026-10-25",
+         "B9 25.10.2026: Sa/So/Mo 20:00 = drei Tage; 02:30 in der doppelten Stunde zählt beide Male für Samstag");
+    soll(JSON.stringify(K.nachholbar({ v: 2, eintraege: { "2026-10-24": dst.eintraege["2026-10-24"] }, einstellung: mit(JA, "bewegt") }, D(2026, 10, 26, 9))) === '["2026-10-25"]',
+         "B9 Nachholen über die Zeitumstellung: Mo früh fehlt So");
+    soll(K.tagVon(D(2027, 3, 28, 2, 30)) === "2027-03-27" && K.tagVon(D(2027, 3, 28, 4, 0)) === "2027-03-28" &&
+         JSON.stringify(K.nachholbar(mitTagen("2027-03-26", ["2027-03-26"]), D(2027, 3, 29, 9))) === '["2027-03-28","2027-03-27"]',
+         "B9 28.03.2027 (23-Stunden-Tag): Tageswechsel und Nachholen stimmen");
+    var kd2 = K.dekodiere(K.kodiere(nach));
+    soll(kd2 && kd2.eintraege["2026-10-09"].am === "2026-10-11" && kd2.eintraege["2026-10-05"].am === "2026-10-05" && kd2.einstellung.seit === "2026-10-05",
+         "B9 Mitnehmen-Link trägt Eintragsdatum und Einrichtungstag");
+
+    /* B10 — Migration verliert nichts: echte Speicherstaende von heute (Format 2 mit rev, ohne „am“/„seit“) */
+    var heuteRoh = JSON.stringify({ v: 2, rev: 1759421234567, einstellung: { koffein: true, alkohol: false, suesses: true, tipp: "weissNicht" },
+      eintraege: { "2026-09-29": { energie: 5, hebel: ["schlaf7", "bewegt"], gezeigt: ["schlaf7", "koffeinSpaet", "bewegt", "pause", "suessesNachmittag"] },
+                   "2026-09-30": { energie: 7, hebel: [], gezeigt: ["schlaf7", "koffeinSpaet", "bewegt", "pause", "suessesNachmittag"] },
+                   "2026-10-01": { energie: 4, hebel: ["koffeinSpaet", "suessesNachmittag"], gezeigt: ["schlaf7", "koffeinSpaet", "bewegt", "pause", "suessesNachmittag"] } } });
+    var vorher = JSON.parse(heuteRoh);
+    var geladen = K.ausSpeicher(heuteRoh);
+    soll(JSON.stringify(geladen.eintraege) === JSON.stringify(vorher.eintraege) && JSON.stringify(geladen.einstellung) === JSON.stringify(vorher.einstellung),
+         "B10 Heutiges Format wird unverändert gelesen (Einträge und Einstellung byte-gleich)");
+    var sp10 = {}; var Sp = { getItem: function (k) { return k in sp10 ? sp10[k] : null; }, setItem: function (k, v) { sp10[k] = String(v); }, removeItem: function (k) { delete sp10[k]; } };
+    Sp.setItem("ruhepuls.kurve.v1", heuteRoh);
+    geladen.eintraege["2026-10-02"] = { energie: 6, hebel: [], gezeigt: ["schlaf7"], am: "2026-10-03" };
+    geladen.luecken = ["2026-09-28"];
+    var e10 = K.schreibeSicher(Sp, "ruhepuls.kurve.v1", geladen, vorher.rev, false);
+    var danach = JSON.parse(Sp.getItem("ruhepuls.kurve.v1"));
+    var alteGleich = Object.keys(vorher.eintraege).every(function (t) { return JSON.stringify(danach.eintraege[t]) === JSON.stringify(vorher.eintraege[t]); });
+    soll(e10.ok && alteGleich && Object.keys(danach.eintraege).length === 4 && danach.einstellung.tipp === "weissNicht",
+         "B10 Nach neuem Eintrag (mit Datum) bleiben alle alten Einträge byte-gleich");
+    var nAlt = K.nachholbar(K.ausSpeicher(heuteRoh), D(2026, 10, 3, 9));
+    soll(JSON.stringify(nAlt) === '["2026-10-02"]', "B10 Altdaten ohne Einrichtungstag: Start = erster Eintrag, Nachholen geht");
+    var alt10 = K.ausSpeicher(heuteRoh);
+    soll(K.auswerten(alt10).n === 3 && Object.keys(alt10.eintraege).every(function (t) { return !K.nachgetragen(t, alt10.eintraege[t]); }),
+         "B10 Alte Einträge zählen mit und nie als nachgetragen");
+    /* Abwaertsvertraeglich: die LIVE-Seite (f1b9a45) liest einen Link der neuen Seite */
+    (function () {
+      var altCode = null;
+      try { altCode = require("child_process").execFileSync("git", ["-C", path.join(__dirname, ".."), "show", "f1b9a45:kurve/kurve.js"], { encoding: "utf8" }); } catch (e) { altCode = null; }
+      if (!altCode) { soll(false, "B10 Live-Stand f1b9a45 nicht lesbar (git)"); return; }
+      var datei = path.join(require("os").tmpdir(), "kurve-f1b9a45-" + process.pid + ".js");
+      fs.writeFileSync(datei, altCode);
+      var ALT = require(datei);
+      fs.unlinkSync(datei);
+      var linkNeu = K.kodiere(Object.assign({}, nach, { luecken: ["2026-10-04"] }));
+      var gelesen = ALT.dekodiere(linkNeu);
+      soll(gelesen && Object.keys(gelesen.eintraege).length === 7 && gelesen.eintraege["2026-10-09"].energie === 6,
+           "B10 Live-Seite (f1b9a45) liest einen Mitnehmen-Link der neuen Seite (7 Einträge)");
+      var altLink = ALT.kodiere(K.ausSpeicher(heuteRoh));
+      var neuGelesen = K.dekodiere(altLink);
+      soll(neuGelesen && JSON.stringify(neuGelesen.eintraege) === JSON.stringify(vorher.eintraege), "B10 Neue Seite liest Mitnehmen-Links der Live-Seite unverändert");
+    })();
   })();
 
   /* Release 7 Tage (29.09.2026): /kurve/ ohne Produkt — kein Übergang, kein Link auf 30-tage/ */

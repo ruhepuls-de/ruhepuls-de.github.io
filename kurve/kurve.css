@@ -80,3 +80,16 @@ fieldset label .hilfe{display:block;font-size:.8rem;color:var(--muted);margin-to
 /* Abnahme 28.09. (Technik): Tippziele mindestens 44 px (Tipp-Antworten, „Einstellungen ändern“, „Alle Einträge löschen“, „Für gestern eintragen“) */
 fieldset label{min-height:44px}
 button.link{min-height:44px;padding:0 4px}
+/* 02.10.2026 (Bau „Kurve repariert“): Nachholen, Feld „Link einfügen“, nachgetragene Punkte */
+.nachholen{background:var(--card);border:1px solid var(--gold);border-radius:12px;padding:14px 16px;margin:18px 0 0}
+.nachholen h2{margin:0 0 .3em;color:#fff;font-size:1.15rem}
+.nachholen + .eintrag{margin-top:10px}
+.nachhol-wahl label{display:flex;gap:10px;align-items:center;min-height:44px;cursor:pointer}
+.nachhol-wahl input{width:18px;height:18px;flex:0 0 18px;accent-color:#e0b45a;margin:0}
+.eintrag-fuer{font-weight:700;color:var(--gold);margin:-.2em 0 .4em}
+.schritte{margin:.4em 0;padding-left:22px}
+.schritte li{margin:4px 0}
+.feld-titel{display:block;margin-top:10px;font-weight:700}
+#leerHinweis .btn{margin:10px 0 4px}
+#vorherFrage .btn{margin:10px 10px 0 0}
+.kurve-svg .punkt.nach{fill:var(--bg);stroke:#e0b45a;stroke-width:3}

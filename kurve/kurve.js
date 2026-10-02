@@ -1,4 +1,6 @@
-/* Deine Energiekurve – 7 Tage.  Stand 28.09.2026 abends (Fassung 3, Liam 22:15:
+/* Deine Energiekurve – 7 Tage.  02.10.2026: Bau „Kurve repariert“ (17-Uhr-Fenster, Nachholen
+   hoechstens 2 Tage mit Kennzeichnung und „Lücke lassen“, Vergleich erst an Tag 7 und auch bei
+   „Weiß ich nicht“, Rueckkehr zeichnet neu, persist()). Davor: Stand 28.09.2026 abends (Fassung 3, Liam 22:15:
    Häkchen fragen, was man getan hat · die Woche zählt sieben Einträge, keine
    Kalendertage · Einträge bleiben, wo sie gemacht werden · Ausnahme-Kasten).
    Davor: Umbau 7 Tage, Teil A.
@@ -36,6 +38,14 @@
   var HOECHSTENS = 7;          // nach sieben Eintraegen keine weiteren
   var WOCHE_AB = 5;            // „Deine Woche bisher“ ab dem 5. Eintrag
   var TAGESWECHSEL = 4;        // 28.09.: neuer Tag erst um 4:00 — ein Eintrag um 1 Uhr zaehlt fuer den Vortag
+  /* 02.10.2026 (Bau „Kurve repariert“, Ablauf-Pruefung Befund 4): Fuer HEUTE oeffnet das
+     Formular erst um 17 Uhr (vorher nur ueber „trotzdem jetzt eintragen“). Wer mittags
+     eintrug, sah abends „schon eingetragen“; wer die 20-Uhr-Mail morgens las, trug fuer den
+     neuen Tag statt fuer gestern ein (Loop Habit Tracker #374/#1312: der Eintrag gehoert
+     zum Tag, an den erinnert wurde). Nachholen hoechstens 2 Tage zurueck, gekennzeichnet
+     (Stone 2002/2003: stilles Nachtragen vergiftet Tagebuecher). */
+  var ABEND_AB = 17;
+  var NACHHOLEN = 2;
   var ANKER = "mitnehmen=";    // Mitnehmen-Link: …/kurve/#mitnehmen=<daten>
 
   /* Die Haekchen. Namen woertlich wie im Formular (Leser-Test 25.09.:
@@ -71,6 +81,7 @@
   var ALLE = HEBEL.map(function (h) { return h.k; });
   var SCHALTER = ["koffein", "alkohol", "suesses"];
   var WEISS_NICHT = "weissNicht";
+  var OFFEN = "offen";         // 02.10.: Frage „Bevor du's siehst“ an Tag 7 uebersprungen
   var FORMAT = 2;              // daten.v: 2 = Haekchen fragen, was man getan hat
   /* Alte Schluessel (bis 28.09.) fragten verneint: gesetzt = NICHT getan. */
   var ALT_UMKEHR = { koffeinHeute: "koffeinSpaet", alkoholHeute: "alkoholGetrunken", keinSuesses: "suessesNachmittag" };
@@ -105,6 +116,51 @@
   }
   function tagSchild(d) { return WOCHENTAG[d.getDay()] + " " + d.getDate() + "." + (d.getMonth() + 1) + "."; }
   function tagLang(s) { var d = ausText(s); return WOCHENTAG_LANG[d.getDay()] + ", " + d.getDate() + "." + (d.getMonth() + 1) + "."; }
+  /* Kalendertage zwischen zwei Tagen (Text). Math.round vertraegt 23-/25-Stunden-Tage. */
+  function abstand(von, bis) { return Math.round((ausText(bis) - ausText(von)) / 86400000); }
+
+  /* ------------------------------------------- Welcher Tag? (02.10.2026) */
+  /* Abend = ab 17 Uhr bis zum Tageswechsel um 4 Uhr. Nur dann steht das Formular
+     von selbst auf „heute“. */
+  function istAbend(jetzt) {
+    var h = jetzt.getHours();
+    return h >= ABEND_AB || h < TAGESWECHSEL;
+  }
+  /* Erster Tag der Woche: Tag der Einrichtung oder erster Eintrag, was frueher ist.
+     Vor diesem Tag laesst sich nie etwas nachtragen. */
+  function startTag(daten) {
+    var t = Object.keys((daten && daten.eintraege) || {}).sort();
+    var s = daten && daten.einstellung && daten.einstellung.seit;
+    if (s && (!t.length || s < t[0])) { return s; }
+    return t.length ? t[0] : null;
+  }
+  /* Tage, die sich nachtragen lassen: gestern und vorgestern, nicht vor dem Start, nicht
+     schon eingetragen, nicht bewusst als Luecke gelassen, und nur solange die Woche nicht
+     voll ist. Neuester Tag zuerst. Kein freier Datumswaehler (Recherche 02.10.). */
+  function nachholbar(daten, jetzt) {
+    var e = (daten && daten.eintraege) || {}, r = [];
+    var start = startTag(daten), luecken = (daten && daten.luecken) || [];
+    if (!start || Object.keys(e).length >= HOECHSTENS) { return r; }
+    var h = ausText(tagVon(jetzt));
+    for (var i = 1; i <= NACHHOLEN; i++) {
+      var t = datumText(plusTage(h, -i));
+      if (t >= start && !e[t] && luecken.indexOf(t) < 0) { r.push(t); }
+    }
+    return r;
+  }
+  /* Fuer welchen Tag steht das Formular, wenn niemand etwas gewaehlt hat?
+     Abends: heute (falls noch offen). Tagsueber: der juengste nachholbare Tag, also nach
+     der 20-Uhr-Mail am Morgen „gestern“. Sonst keiner: „Heute ab 17 Uhr“. */
+  function zielTag(daten, jetzt) {
+    var e = (daten && daten.eintraege) || {}, h = tagVon(jetzt);
+    if (Object.keys(e).length >= HOECHSTENS) { return null; }
+    if (istAbend(jetzt)) { return e[h] ? null : h; }
+    var offen = nachholbar(daten, jetzt);
+    return offen.length ? offen[0] : null;
+  }
+  /* Nachgetragen = an einem spaeteren Tag eingetragen als dem, fuer den der Eintrag gilt
+     (am = Tag des Eintragens, gleiche 4-Uhr-Grenze). Alte Eintraege ohne „am“ zaehlen nie. */
+  function nachgetragen(tag, e) { return !!(e && e.am && e.am > tag); }
 
   /* ------------------------------------------------------- Einstellung */
   function hebelAktiv(h, einst) {
@@ -198,7 +254,14 @@
     var n = tage.length;
     var w = { n: n, zeigen: n >= WOCHE_AB, fertig: n >= HOECHSTENS };
     if (!w.zeigen) { return w; }
-    w.titel = w.fertig ? "Dein Ergebnis" : "Deine Woche bisher";
+    /* 02.10.: „Deine Woche“ statt „Dein Ergebnis“ — so sagen es Mail 7 und Video 7
+       („dann siehst du deine Woche“); eine Woche liefert einen Hinweis, kein Ergebnis. */
+    w.titel = w.fertig ? "Deine Woche" : "Deine Woche bisher";
+    /* 02.10.: nachgetragene Tage sichtbar machen (Recherche, Absicherung 4). */
+    w.nachgetragen = tage.filter(function (t) { return nachgetragen(t, eintraege[t]); }).length;
+    w.nachSatz = !w.nachgetragen ? null :
+      (w.nachgetragen === 1 ? "Einen Eintrag hast du" : w.nachgetragen + " Einträge hast du") +
+      " erst am Tag danach oder später gemacht. In der Kurve sind sie hohl gezeichnet. Solche Werte sind aus der Erinnerung geschätzt.";
 
     var werte = tage.map(function (t) { return eintraege[t].energie; });
     var mittel = schnitt(werte);
@@ -258,13 +321,56 @@
     /* Deine Vermutung von Tag 1 (29.09., Liam: „Tipp“ klang wie ein Rat von Ruhepuls → „Vermutung“).
        Interne Namen (tipp, tippHebel, tippBlock) bleiben, damit alte Einträge und Links lesbar bleiben. */
     w.tipp = null;
-    var tippHebel = null;
+    w.frageTag7 = false;
+    /* 02.10. (Ablauf-Pruefung Befund 8): Der Vergleich erscheint erst mit dem siebten
+       Eintrag. So kuendigen es Mail 6, Mail 7 und Video 5 an („Was den Unterschied macht,
+       steht dort nicht“). Vorher zeigt „Deine Woche bisher“ nur Tatsachen. */
+    if (!w.fertig) {
+      w.grenzeSatz = grenzeSatzText();
+      return w;
+    }
+    var hebelVon = function (k) {
+      return HEBEL.filter(function (h) { return h.k === k && hebelAktiv(h, einst); })[0] || null;
+    };
+    var tippHebel = null, vonTag = 1;
     if (einst && einst.tipp && einst.tipp !== WEISS_NICHT) {
-      tippHebel = HEBEL.filter(function (h) { return h.k === einst.tipp && hebelAktiv(h, einst); })[0] || null;
+      tippHebel = hebelVon(einst.tipp);
+    } else if (einst && einst.tipp7 && einst.tipp7 !== OFFEN) {
+      /* 02.10. (Befund 5): „Weiß ich nicht“ — vor dem Aufdecken einmal gefragt. */
+      tippHebel = hebelVon(einst.tipp7);
+      vonTag = 7;
+    } else if (einst && einst.tipp === WEISS_NICHT && !einst.tipp7) {
+      w.frageTag7 = true;              /* erst fragen, dann zeigen (Seite: #vorherFrage) */
+    }
+    if (!tippHebel && !w.frageTag7) {
+      /* „Weiß ich nicht“ und uebersprungen, oder die Vermutung ist inzwischen abgeschaltet:
+         Mail 1, 6, 7 versprechen trotzdem „deine Energie an den Tagen mit und an den Tagen
+         ohne“. Jedes Haekchen in der Reihenfolge des Formulars, mit Tageszahlen, ohne
+         Unterschied, ohne Hervorhebung (Grundsatz 28.09.: kein Sieger). */
+      var zeilen = ["Deine Häkchen: Tage mit und Tage ohne"];
+      zeilen.push(einst && einst.tipp && einst.tipp !== WEISS_NICHT
+        ? "Deine Vermutung von Tag 1 ist inzwischen ausgeschaltet. Deshalb stehen hier alle Häkchen in der Reihenfolge des Formulars."
+        : "Du hattest keine Vermutung gewählt. Deshalb stehen hier alle Häkchen in der Reihenfolge des Formulars.");
+      aktiveHebel(einst).forEach(function (h) {
+        var q = paare(eintraege, h);
+        var kopf = h.tipp + (h.versetzt ? " (Zahl vom Tag danach)" : "") + ": ";
+        if (!q.mit.length || !q.ohne.length) {
+          zeilen.push(kopf + "kein Vergleich, " + (q.mit.length ? "keine Tage " + h.ohne : q.ohne.length ? "keine Tage " + h.mit : "keine passenden Tage") + ".");
+        } else {
+          zeilen.push(kopf + anTagen(q.mit.length) + " " + h.mit + " " + (q.mit.length > 1 ? "im Schnitt " : "") + zahl(schnitt(q.mit)) +
+                      ", " + anTagen(q.ohne.length) + " " + h.ohne + " " + (q.ohne.length > 1 ? "im Schnitt " : "") + zahl(schnitt(q.ohne)) + ".");
+        }
+      });
+      zeilen.push("Das ist ein Hinweis, kein Beweis. Unterschiede wie diese entstehen in einer Woche oft durch Zufall.");
+      zeilen.push("Ob es wirklich an einer dieser Sachen liegt, kann eine Woche nicht zeigen.");
+      zeilen.push("Dafür braucht es einen längeren Versuch mit einer Sache.");
+      w.tipp = zeilen;
+      w.tippListe = true;
     }
     if (tippHebel) {
       var p = paare(eintraege, tippHebel);
-      var s = ["Deine Vermutung von Tag 1: " + tippHebel.tipp + "."];
+      var s = [vonTag === 1 ? "Deine Vermutung von Tag 1: " + tippHebel.tipp + "."
+                            : "Deine Vermutung, bevor du die Zahlen gesehen hast: " + tippHebel.tipp + "."];
       /* Fassung 3: eindeutig sagen, welche Tage „mit“ sind (Befund 8). */
       s.push("Verglichen werden die Tage mit dem Häkchen „" + tippHebel.name + "“ und die Tage ohne.");
       if (!p.mit.length && !p.ohne.length) {
@@ -285,15 +391,24 @@
         s.push(d > grenze
           ? "Das ist mehr als deine normale Schwankung. Auch das kommt in einer Woche oft durch Zufall zustande."
           : "Das liegt innerhalb deiner normalen Schwankung.");
+        /* 02.10. (Recherche, Absicherung 5): Bearable verlangt mindestens 3 Tage je Seite. */
+        var wenig = Math.min(p.mit.length, p.ohne.length);
+        if (wenig < 3) {
+          s.push("Auf einer Seite stehen nur " + (wenig === 1 ? "ein Tag" : wenig + " Tage") + ". Das ist sehr wenig für einen Vergleich.");
+        }
+        s.push("Das ist ein Hinweis, kein Beweis.");
         /* Recht 28.09., O4: „zeigt erst“ klang, als zeige der längere Versuch es sicher. */
         s.push("Ob es wirklich daran liegt, kann eine Woche nicht zeigen.");
         s.push("Dafür braucht es einen längeren Versuch mit einer Sache.");
       }
       w.tipp = s;
     }
-    w.grenzeSatz = "Eine Woche zeigt dir, wie deine Tage waren. Warum sie so waren, kann sie nicht trennen, " +
-      "denn an jedem Tag spielt vieles mit, das hier nicht steht: Stress, Wetter, ein Infekt.";
+    w.grenzeSatz = grenzeSatzText();
     return w;
+  }
+  function grenzeSatzText() {
+    return "Eine Woche zeigt dir, wie deine Tage waren. Warum sie so waren, kann sie nicht trennen, " +
+      "denn an jedem Tag spielt vieles mit, das hier nicht steht: Stress, Wetter, ein Infekt.";
   }
 
   /* -------------------------------------------------- Mitnehmen-Link */
@@ -313,13 +428,26 @@
     Object.keys(daten.eintraege || {}).sort().forEach(function (t) {
       var x = daten.eintraege[t];
       var z = [x.energie, x.hebel.map(function (k) { return ZEICHEN[k] || ""; }).join("")];
-      if (x.gezeigt) { z.push(x.gezeigt.map(function (k) { return ZEICHEN[k] || ""; }).join("")); }
+      if (x.gezeigt) {
+        z.push(x.gezeigt.map(function (k) { return ZEICHEN[k] || ""; }).join(""));
+        /* 02.10.: Tag des Eintragens als Abstand in Tagen (aeltere Seiten lesen nur z[0..2]). */
+        if (x.am) { z.push(Math.max(0, abstand(t, x.am))); }
+      }
       e[t.replace(/-/g, "")] = z;
     });
     var roh = { v: 2, e: e };
     var s = daten.einstellung;
-    if (s) { roh.s = [s.koffein === false ? 0 : 1, s.alkohol === false ? 0 : 1, s.suesses === false ? 0 : 1, s.tipp || ""]; }
+    if (s) {
+      roh.s = [s.koffein === false ? 0 : 1, s.alkohol === false ? 0 : 1, s.suesses === false ? 0 : 1, s.tipp || ""];
+      /* 02.10.: Tag der Einrichtung und die Vermutung von Tag 7 (aeltere Seiten lesen nur s[0..3]). */
+      if (s.seit || s.tipp7) { roh.s.push(s.seit ? s.seit.replace(/-/g, "") : "", s.tipp7 || ""); }
+    }
+    if (daten.luecken && daten.luecken.length) { roh.l = daten.luecken.map(function (t) { return t.replace(/-/g, ""); }); }
     return b64(JSON.stringify(roh));
+  }
+  function ausAcht(s) {
+    var m = /^(\d{4})(\d{2})(\d{2})$/.exec(s);
+    return m ? m[1] + "-" + m[2] + "-" + m[3] : null;
   }
 
   /* Liest einen Mitnehmen-Link. Alles wird geprueft; bei jedem Fehler null. */
@@ -347,11 +475,16 @@
       var hebel = liste(z[1]);
       if (!hebel) { return null; }
       var x = { energie: z[0], hebel: hebel };
+      var tagText = m[1] + "-" + m[2] + "-" + m[3];
       if (typeof z[2] === "string") {
         x.gezeigt = liste(z[2]);
         if (!x.gezeigt) { return null; }
       }
-      eintraege[m[1] + "-" + m[2] + "-" + m[3]] = x;
+      if (z.length > 3) {
+        if (typeof z[3] !== "number" || z[3] % 1 || z[3] < 0 || z[3] > 30) { return null; }
+        x.am = datumText(plusTage(ausText(tagText), z[3]));
+      }
+      eintraege[tagText] = x;
     }
     var daten = { eintraege: eintraege };
     if (Array.isArray(roh.s)) {
@@ -359,6 +492,23 @@
       if (tipp && tipp !== WEISS_NICHT && erlaubt.indexOf(tipp) < 0) { return null; }
       daten.einstellung = { koffein: roh.s[0] !== 0, alkohol: roh.s[1] !== 0, suesses: roh.s[2] !== 0,
                             tipp: tipp || WEISS_NICHT };
+      if (roh.s.length > 4) {
+        var seit = roh.s[4], t7 = roh.s[5];
+        if (typeof seit !== "string" || (seit && !ausAcht(seit))) { return null; }
+        if (t7 != null && t7 !== "" && t7 !== OFFEN && ALLE.indexOf(t7) < 0) { return null; }
+        if (seit) { daten.einstellung.seit = ausAcht(seit); }
+        if (t7) { daten.einstellung.tipp7 = t7; }
+      }
+    }
+    if (roh.l != null) {
+      if (!Array.isArray(roh.l) || roh.l.length > 30) { return null; }
+      var l = [];
+      for (var k = 0; k < roh.l.length; k++) {
+        var lt = typeof roh.l[k] === "string" ? ausAcht(roh.l[k]) : null;
+        if (!lt) { return null; }
+        if (l.indexOf(lt) < 0) { l.push(lt); }
+      }
+      if (l.length) { daten.luecken = l.sort(); }
     }
     if (roh.v === 1) { return migriere(daten); }   /* alter Link: verneinte Haekchen */
     daten.v = FORMAT;
@@ -372,7 +522,21 @@
     Object.keys(lokal.eintraege || {}).forEach(function (t) { e[t] = lokal.eintraege[t]; });
     Object.keys(link.eintraege).forEach(function (t) { e[t] = link.eintraege[t]; });
     Object.keys(e).sort().slice(HOECHSTENS).forEach(function (t) { delete e[t]; });
-    return { v: FORMAT, eintraege: e, einstellung: link.einstellung || lokal.einstellung || undefined };
+    /* 02.10.: Einrichtungstag und Vermutung von Tag 7 gehen nicht verloren, wenn der Link
+       von einer aelteren Seite stammt; Luecken aus beiden bleiben. */
+    var einst = link.einstellung || lokal.einstellung || undefined;
+    if (link.einstellung && lokal.einstellung) {
+      var s = {};
+      for (var k in link.einstellung) { s[k] = link.einstellung[k]; }
+      var a = link.einstellung.seit, b = lokal.einstellung.seit;
+      if (a || b) { s.seit = a && b ? (a < b ? a : b) : (a || b); }
+      if (!s.tipp7 && lokal.einstellung.tipp7) { s.tipp7 = lokal.einstellung.tipp7; }
+      einst = s;
+    }
+    var r = { v: FORMAT, eintraege: e, einstellung: einst };
+    var l = (lokal.luecken || []).concat(link.luecken || []).filter(function (t, i, x) { return x.indexOf(t) === i && !e[t]; });
+    if (l.length) { r.luecken = l.sort(); }
+    return r;
   }
 
   /* Abnahme 28.09. (Technik, SOLLTE): Welche Tage fielen beim Zusammenlegen weg?
@@ -389,6 +553,13 @@
      getrennt von Safari/Chrome. */
   function istInApp(ua) {
     return /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Bytedance|\bGSA\//i.test(ua || "");
+  }
+  /* 02.10.2026 (Bau „Kurve repariert“, Punkt 6): In TikTok, Instagram und Facebook keine
+     Einrichtung — wer dort startet, findet seine Eintraege ueber die Mail nie wieder.
+     Die Google-App (GSA) bleibt aussen vor: Ob Mail-Apps sich so melden, ist ungeprueft,
+     und eine Sperre im Mail-Weg waere schlimmer als der Hinweis. */
+  function istSozialApp(ua) {
+    return /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Bytedance/i.test(ua || "");
   }
   /* 30.09.2026 (Liam: "warum können wir es nicht auch über computer möglich machen?"): weicher Hinweis statt Sperre — eintragen erlaubt, dasselbe Geraet die ganze Woche. Vorher Fassung 3: Am Computer nicht eintragen (Klaus). Kein Handy, kein Tablet im
      Kennzeichen. Das iPad meldet sich wie ein Mac — die Seite prueft deshalb
@@ -436,7 +607,9 @@
 
   var API = { HEBEL: HEBEL, revVon: revVon, ausSpeicher: ausSpeicher, schreibeSicher: schreibeSicher, tagVon: tagVon, auswerten: auswerten, kodiere: kodiere, dekodiere: dekodiere,
               zusammen: zusammen, wegfallend: wegfallend, istInApp: istInApp, istAmPC: istAmPC, videoTag: videoTag, aktiveHebel: aktiveHebel,
-              paare: paare, migriere: migriere, schluesselFuer: schluesselFuer, SCHLUESSEL: SCHLUESSEL, ANKER: ANKER, FORMAT: FORMAT, HOECHSTENS: HOECHSTENS };
+              paare: paare, migriere: migriere, schluesselFuer: schluesselFuer, SCHLUESSEL: SCHLUESSEL, ANKER: ANKER, FORMAT: FORMAT, HOECHSTENS: HOECHSTENS,
+              istAbend: istAbend, startTag: startTag, nachholbar: nachholbar, zielTag: zielTag, nachgetragen: nachgetragen,
+              istSozialApp: istSozialApp, ABEND_AB: ABEND_AB, NACHHOLEN: NACHHOLEN, OFFEN: OFFEN };
   if (typeof module === "object" && module.exports) { module.exports = API; return; }
 
   /* ================================================================ Seite */
@@ -452,14 +625,30 @@
 
   var daten = { v: FORMAT, eintraege: {} };
   var speicherGeht = true;
-  var modus = "heute";         // oder "gestern", "aendern"
+  /* 02.10.2026: statt „modus“ (heute/gestern/aendern) ein Tag. Ohne Wahl rechnet zielTag(),
+     fuer welchen Tag das Formular steht (abends heute, tagsueber der nachholbare Vortag). */
+  var wahlTag = null;          // vom Nutzer gewaehlt: gestern, vorgestern oder heute vor 17 Uhr
+  var aendern = false;         // heutigen Eintrag aendern
+  var formTag = null;          // fuer diesen Tag steht das Formular gerade
+  var gefuelltFuer = null;     // Formular zuletzt fuer diesen Tag gefuellt (Auswahl bleibt beim Neuzeichnen)
   var gewaehlt = 0;            // Zahl 1–10, 0 = noch keine
   var einrichten = false;      // Einstellungen gerade offen
   var linkDaten = null;        // Daten aus einem Mitnehmen-Link, noch nicht uebernommen
+  var gezeichnetFuer = "";     // Tag + Tageszeit beim letzten Zeichnen (Rueckkehr in einen alten Tab)
+  var persistGefragt = false;
 
   function heute() { return tagVon(new Date()); }
   function gestern() { return datumText(plusTage(ausText(heute()), -1)); }
   function daten7() { return Object.keys(daten.eintraege).sort(); }
+  function tagParam() {
+    var m = /[?&]tag=([1-7])(?:&|$)/.exec(window.location.search || "");
+    return m ? parseInt(m[1], 10) : 0;
+  }
+  /* „heute“, „gestern“, „vorgestern“ — weiter zurueck geht kein Formular. */
+  function tagWort(t) {
+    var a = abstand(t, heute());
+    return a === 0 ? "heute" : a === 1 ? "gestern" : "vorgestern";
+  }
 
   /* ---------------------------------------------------------- Speicher */
   /* N2: geladenRev = Revision des Stands, den diese Seite zuletzt gelesen oder geschrieben hat.
@@ -487,7 +676,7 @@
     try { neu = ausSpeicher(roh); } catch (e) { neu = null; }
     if (!neu) { return false; }
     daten = neu; geladenRev = rev;
-    if (modus === "aendern") { modus = "heute"; }
+    aendern = false; gefuelltFuer = null;
     fuelleEinrichtung();
     return true;
   }
@@ -497,11 +686,23 @@
       var e = schreibeSicher(window.localStorage, SCHLUESSEL, daten, geladenRev, false);
       if (e.konflikt) { daten = e.neu; geladenRev = e.rev; konflikt = letzterKonflikt = true; fuelleEinrichtung(); return false; }
       geladenRev = e.rev;
+      bitteBehalten();
       return true;
     } catch (e) {
       speicherGeht = false;
       return false;
     }
+  }
+  /* 02.10.2026 (Punkt 8): den Browser einmal bitten, die Eintraege nicht von selbst zu
+     loeschen. Safari/Chrome entscheiden still; schadet nie, Ergebnis egal. Kein Netz. */
+  function bitteBehalten() {
+    if (persistGefragt) { return; }
+    persistGefragt = true;
+    try {
+      if (navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().then(function () {}, function () {});
+      }
+    } catch (e) { /* egal */ }
   }
   function loesche() {
     try { window.localStorage.removeItem(SCHLUESSEL); } catch (e) { speicherGeht = false; }
@@ -541,9 +742,13 @@
     var tipp = null, t = tippKnoepfe();
     for (var i = 0; i < t.length; i++) { if (t[i].checked) { tipp = t[i].value; } }
     if (!tipp) { zeig($("tippFehlt"), true); $("tippFehlt").focus(); return; }
-    var neu = !daten.einstellung;
-    daten.einstellung = { koffein: schalter("koffein").checked, alkohol: schalter("alkohol").checked,
-                          suesses: schalter("suesses").checked, tipp: tipp };
+    var alt = daten.einstellung, neu = !alt;
+    var s = { koffein: schalter("koffein").checked, alkohol: schalter("alkohol").checked,
+              suesses: schalter("suesses").checked, tipp: tipp };
+    /* 02.10.: Tag der Einrichtung = fruehester Tag zum Nachtragen. Bleibt beim Aendern. */
+    if (alt && alt.seit) { s.seit = alt.seit; } else if (neu) { s.seit = heute(); }
+    if (alt && alt.tipp7) { s.tipp7 = alt.tipp7; }
+    daten.einstellung = s;
     var ok = schreibe();
     einrichten = false;
     male(ok ? (neu ? "eingerichtet" : "einstellungGespeichert") : null);
@@ -597,40 +802,74 @@
     zeigeAktiveHaken();
   }
 
-  function setzeModus(m) {
-    modus = m;
-    $("frageEnergie").textContent = m === "gestern"
-      ? "Wie viel Energie hattest du gestern insgesamt?"
-      : "Wie viel Energie hattest du heute insgesamt?";
-    $("frageHaken").firstChild.textContent = m === "gestern" ? "Was hast du gestern gemacht?" : "Was hast du heute gemacht?";
-    $("labelSchlaf").textContent = m === "gestern"
-      ? "In der Nacht von vorgestern auf gestern mindestens 7 Stunden geschlafen"
-      : "Letzte Nacht mindestens 7 Stunden geschlafen";
-    $("gruppeHeute").textContent = m === "gestern" ? "Gestern" : "Heute";
-    fuelle(daten.eintraege[m === "gestern" ? gestern() : heute()] || null);
+  /* Formular fuer einen Tag beschriften und fuellen (heute, gestern oder vorgestern). */
+  function setzeFormular(tag) {
+    var wort = tagWort(tag), istHeute = wort === "heute";
+    $("frageEnergie").textContent = "Wie viel Energie hattest du " + wort + " insgesamt?";
+    $("frageHaken").firstChild.textContent = "Was hast du " + wort + " gemacht?";
+    $("labelSchlaf").textContent = istHeute ? "Letzte Nacht mindestens 7 Stunden geschlafen"
+      : wort === "gestern" ? "In der Nacht von vorgestern auf gestern mindestens 7 Stunden geschlafen"
+      : "In der Nacht vor diesem Tag mindestens 7 Stunden geschlafen";
+    $("gruppeHeute").textContent = erstGross(wort);
+    /* 02.10.: Der Tag steht immer mit Datum da — auch um 1 Uhr nachts ist klar, welcher gemeint ist. */
+    $("eintragFuer").textContent = "Eintrag für " + (istHeute && new Date().getHours() < TAGESWECHSEL ? "" : wort + ", ") +
+      tagLang(tag) + (istHeute && new Date().getHours() < TAGESWECHSEL ? " (bis 4 Uhr nachts zählt noch der Tag davor)" : "");
+    zeig($("abendsHinweis"), istHeute);
+    zeig($("nachHinweis"), !istHeute);
+    fuelle(daten.eintraege[tag] || null);
+    gefuelltFuer = tag;
   }
 
   function speichere(ev) {
     ev.preventDefault();
     if (!gewaehlt) { zeig($("fehltZahl"), true); return; }
-    var tag = modus === "gestern" ? gestern() : heute();
+    var tag = formTag;
+    if (!tag) { male(); return; }
     var neu = !daten.eintraege[tag];
     if (neu && daten7().length >= HOECHSTENS) { male(); return; }
     var gewaehlteHaken = [];
     var h = haken();
     for (var i = 0; i < h.length; i++) { if (h[i].checked) { gewaehlteHaken.push(h[i].value); } }
-    var vorher = daten.eintraege[tag];
+    var vorher = daten.eintraege[tag], vorherLuecken = daten.luecken;
+    /* 02.10.: „am“ = Tag des Eintragens (4-Uhr-Grenze). Liegt er nach dem Tag des Eintrags,
+       ist der Eintrag nachgetragen und wird in Kurve und Woche so gekennzeichnet. */
     daten.eintraege[tag] = { energie: gewaehlt, hebel: gewaehlteHaken,
-                             gezeigt: aktiveHebel(daten.einstellung).map(function (x) { return x.k; }) };
+                             gezeigt: aktiveHebel(daten.einstellung).map(function (x) { return x.k; }),
+                             am: heute() };
+    if (daten.luecken) { daten.luecken = daten.luecken.filter(function (t) { return t !== tag; }); }
     var ok = schreibe();
     /* Abnahme 28.09. (Technik): Ging das Speichern schief, zaehlt der Eintrag nicht mit
        (sonst stand „1 von 7“ da, obwohl nichts gespeichert war). */
-    if (!ok && !letzterKonflikt) { if (vorher) { daten.eintraege[tag] = vorher; } else { delete daten.eintraege[tag]; } }
+    if (!ok && !letzterKonflikt) {
+      if (vorher) { daten.eintraege[tag] = vorher; } else { delete daten.eintraege[tag]; }
+      daten.luecken = vorherLuecken;
+      if (!vorherLuecken) { delete daten.luecken; }
+    }
     /* N2: Bei einem Konflikt steht in daten schon der neuere Stand des anderen Tabs, nichts zuruecksetzen. */
-    var warGestern = modus === "gestern";
-    modus = "heute";
-    if (ok && warGestern && !daten.eintraege[heute()] && daten7().length < HOECHSTENS) { male("gesternGespeichert"); return; }
-    male(ok ? "gespeichert" : null);
+    var warHeute = tag === heute();
+    wahlTag = null; aendern = false; gefuelltFuer = null;
+    male(ok ? (warHeute ? "gespeichert" : "nachgetragen:" + tag) : null);
+  }
+
+  /* 02.10.: „Lücke lassen“ — der Tag bleibt leer und wird nicht mehr nachgefragt. */
+  function lueckeLassen() {
+    var tag = formTag;
+    if (!tag || tag === heute()) { return; }
+    var vorher = daten.luecken;
+    daten.luecken = (daten.luecken || []).filter(function (t) { return t !== tag; }).concat([tag]).sort();
+    var ok = schreibe();
+    if (!ok && !letzterKonflikt) { daten.luecken = vorher; if (!vorher) { delete daten.luecken; } }
+    wahlTag = null; gefuelltFuer = null;
+    male(ok ? "luecke" : null);
+  }
+
+  /* 02.10. (Befund 5): „Weiß ich nicht“ — vor dem Aufdecken an Tag 7 einmal fragen. */
+  function speichereVorher(wert) {
+    if (!daten.einstellung) { return; }
+    daten.einstellung.tipp7 = wert;
+    schreibe();
+    male();
+    try { $("wocheKarte").scrollIntoView(); } catch (e) { /* egal */ }
   }
 
   /* -------------------------------------------------- Mitnehmen-Link */
@@ -672,7 +911,10 @@
   function pruefeAnker() {
     var h = window.location.hash || "";
     if (h.indexOf("#" + ANKER) !== 0) { return; }
-    var code = h.slice(ANKER.length + 1);
+    frageUebernehmen(h.slice(ANKER.length + 1));
+  }
+  /* 02.10.: auch aus dem Feld „Link einfügen“ (In-App-Browser haben keine Adresszeile). */
+  function frageUebernehmen(code) {
     var d = dekodiere(code);
     zeig($("linkKaputt"), !d);
     if (!d) { ohneAnker(); return; }
@@ -696,15 +938,25 @@
     }
     $("uebernehmenText").textContent = satz;
     zeig($("uebernehmen"), true);
+    try { $("uebernehmen").scrollIntoView(); } catch (e) { /* egal */ }
+  }
+  function einfuegen() {
+    var v = ($("einfuegenFeld").value || "").trim(), i = v.indexOf("#" + ANKER);
+    if (i < 0) { zeig($("linkKaputt"), true); return; }
+    frageUebernehmen(v.slice(i + 1 + ANKER.length));
   }
 
   /* ------------------------------------------------------------ Anzeige */
   function male(meldung) {
     synchron();
+    var jetzt = new Date(), H = tagVon(jetzt), abend = istAbend(jetzt);
+    gezeichnetFuer = H + (abend ? "a" : "t");
     var tage = daten7();
     var n = tage.length;
-    var hatHeute = !!daten.eintraege[heute()];
+    var hatHeute = !!daten.eintraege[H];
     var eingerichtet = !!daten.einstellung;
+    var offen = nachholbar(daten, jetzt);
+    var nachMeldung = /^nachgetragen:/.test(meldung || "") ? meldung.slice(13) : null;
 
     /* Fortschrittszeile */
     var zeile = $("fortschritt");
@@ -718,44 +970,107 @@
     punkte.textContent = p.join(" ");
     zeile.appendChild(punkte);
 
-    var zeigeEinrichtung = einrichten || (!eingerichtet && n < HOECHSTENS);
+    /* 02.10. (Punkt 6): In TikTok/Instagram/Facebook ohne gespeicherte Daten keine Einrichtung. */
+    var sozial = istSozialApp(navigator.userAgent) && !eingerichtet && n === 0;
+    var zeigeEinrichtung = !sozial && (einrichten || (!eingerichtet && n < HOECHSTENS));
+    zeig($("sozialApp"), sozial);
+    zeig($("inApp"), istInApp(navigator.userAgent) && !sozial);
     zeig($("einrichtung"), zeigeEinrichtung);
     zeig($("einrichtungAbbrechen"), einrichten && eingerichtet);
     $("einrichtungSpeichern").textContent = eingerichtet ? "Speichern" : "Einrichtung speichern";
     zeig($("ersterBesuch"), n === 0 && !einrichten);
-    zeig($("lesezeichen"), n === 0);
-    zeig($("leerHinweis"), n === 0 && /[?&]tag=[2-7]/.test(window.location.search));
+    zeig($("lesezeichen"), n === 0 && !sozial);
+    /* 02.10. (Punkt 6): leerer Speicher bei einer Mail ab Tag 2 — gross, mit Anleitung. */
+    zeig($("leerHinweis"), n === 0 && !eingerichtet && tagParam() >= 2);
     zeig($("speicherFehler"), !speicherGeht);
     zeig($("andererTab"), konflikt);
     konflikt = false;
-    zeig($("eingerichtet"), meldung === "eingerichtet");
+    zeig($("eingerichtet"), meldung === "eingerichtet" && !abend);
+    zeig($("eingerichtetAbend"), meldung === "eingerichtet" && abend);
     zeig($("einstellungGespeichert"), meldung === "einstellungGespeichert");
     zeig($("uebernommen"), meldung === "uebernommen");
     zeig($("gespeichert"), meldung === "gespeichert" && n < HOECHSTENS);
-    zeig($("gespeichertLetzter"), meldung === "gespeichert" && n >= HOECHSTENS);
-    zeig($("gesternGespeichert"), meldung === "gesternGespeichert");
+    zeig($("gespeichertLetzter"), (meldung === "gespeichert" || !!nachMeldung) && n >= HOECHSTENS);
+    if (nachMeldung && n < HOECHSTENS) {
+      $("gesternGespeichert").textContent = erstGross(tagWort(nachMeldung)) + " (" + tagSchild(ausText(nachMeldung)) +
+        ") ist gespeichert, als nachgetragen." +
+        (offen.length || hatHeute || !abend ? "" : " Trag jetzt noch heute ein.");
+    }
+    zeig($("gesternGespeichert"), !!nachMeldung && n < HOECHSTENS);
+    zeig($("lueckeGelassen"), meldung === "luecke");
     zeig($("voll"), n >= HOECHSTENS);
 
-    var ruhig = !meldung || meldung === "gesternGespeichert" || meldung === "eingerichtet" ||
-                meldung === "einstellungGespeichert" || meldung === "uebernommen";
-    var zeigeFormular = ruhig && (modus === "gestern" || !hatHeute) && (n < HOECHSTENS || modus === "aendern");
-    if (modus === "aendern") { zeigeFormular = true; }
-    if (zeigeEinrichtung) { zeigeFormular = false; }
-    zeig($("schonEingetragen"), ruhig && hatHeute && !zeigeFormular && !zeigeEinrichtung);
+    /* ---- Fuer welchen Tag steht das Formular? (02.10.) */
+    if (wahlTag && !(wahlTag === H ? !hatHeute : offen.indexOf(wahlTag) >= 0)) { wahlTag = null; }
+    if (aendern && !hatHeute) { aendern = false; }
+    var ziel = aendern ? H : (wahlTag || zielTag(daten, jetzt));
+    var zeigeFormular = !!ziel && !zeigeEinrichtung && !sozial && (n < HOECHSTENS || aendern);
+    formTag = zeigeFormular ? ziel : null;
     zeig($("eintrag"), zeigeFormular);
-    /* Leser-Test 25.09.: auch NACH dem heutigen Eintrag nachholbar (Mail 4 verspricht das). */
-    zeig($("gesternZeile"), !zeigeEinrichtung && modus === "heute" && meldung !== "gesternGespeichert" &&
-         n < HOECHSTENS && !daten.eintraege[gestern()] && n > 0 && tage[0] < gestern() && (zeigeFormular || hatHeute));
-    /* Abnahme 28.09. (Technik, KANN): „Für gestern“ erst ab dem zweiten Tag, nie fuer den Tag vor dem Start. */
-    if (zeigeFormular) { setzeModus(modus === "aendern" ? "heute" : modus); }
+    if (zeigeFormular && (ziel !== gefuelltFuer || meldung)) { setzeFormular(ziel); }
+    if (!zeigeFormular) { gefuelltFuer = null; }
+
+    /* Nachhol-Frage: tagsueber, wenn ein Tag fehlt („Für gestern Abend (Mi 7.10.)?“), oder
+       wenn jemand abends „Für gestern eintragen“ gewaehlt hat. Mit „Lücke lassen“. */
+    var nachholen = !zeigeEinrichtung && !sozial && n < HOECHSTENS &&
+                    ((!abend && offen.length > 0) || (zeigeFormular && ziel !== H));
+    zeig($("nachholen"), nachholen);
+    if (nachholen) { maleNachholen(ziel, offen, abend, hatHeute, zeigeFormular); }
+
+    /* Vor 17 Uhr: „Heute ab 17 Uhr“ + „trotzdem jetzt eintragen“ (auch am Einrichtungstag). */
+    zeig($("abHeuteAbend"), !abend && !hatHeute && n < HOECHSTENS && !zeigeEinrichtung && !sozial && eingerichtet && ziel !== H);
+    zeig($("abHeuteSatz"), meldung !== "eingerichtet");   /* direkt nach der Einrichtung sagt #eingerichtet dasselbe */
+    zeig($("schonEingetragen"), hatHeute && !aendern && !zeigeEinrichtung && ziel !== H);
+    zeig($("naechsterAbend"), n < HOECHSTENS);
+    /* Abends: „Gestern vergessen? Für gestern eintragen“ (Video 4, Satz 2), hoechstens 2 Tage zurueck. */
+    var zeileZeigen = abend && !zeigeEinrichtung && !sozial && offen.length > 0 && (ziel === H || !ziel) && !aendern;
+    zeig($("gesternZeile"), zeileZeigen);
+    if (zeileZeigen) {
+      var g = offen.indexOf(gestern()) >= 0;
+      $("gesternFrage").textContent = g ? "Gestern vergessen?" : "Vorgestern vergessen?";
+      zeig($("fuerGestern"), g);
+      zeig($("fuerVorgestern"), offen.some(function (t) { return t !== gestern(); }));
+    }
     zeig($("fehltZahl"), false);
-    zeig($("einstellungenZeile"), !zeigeEinrichtung);
+    zeig($("einstellungenZeile"), !zeigeEinrichtung && eingerichtet);
     zeig($("mitnehmenKnopf"), n > 0);
     zeig($("inAppMitnehmen"), n > 0);
     if (!n) { zeig($("mitnehmenBox"), false); }
 
     maleKurve(tage);
     maleWoche(tage);
+  }
+
+  function maleNachholen(ziel, offen, abend, hatHeute, zeigeFormular) {
+    var titel;
+    if (ziel && ziel !== heute()) {
+      titel = "Für " + tagWort(ziel) + (abend || tagWort(ziel) !== "gestern" ? "" : " Abend") + " (" + tagSchild(ausText(ziel)) + ")?";
+    } else {
+      titel = "Für welchen Tag trägst du ein?";
+    }
+    $("nachholTitel").textContent = titel;
+    var fehlt = offen.map(function (t) { return tagWort(t); });
+    $("nachholText").textContent = (fehlt.length === 2 ? "Für gestern und vorgestern fehlt" :
+      fehlt.length === 1 ? "Für " + fehlt[0] + " fehlt" : "Hier fehlt") +
+      " noch ein Eintrag. Weißt du es nicht mehr, lass die Lücke: Deine Woche ist fertig, sobald sieben Einträge da sind.";
+    var wahl = $("nachholWahl");
+    leere(wahl);
+    var optionen = offen.slice();
+    if ((abend || ziel === heute()) && !hatHeute) { optionen.push(heute()); }
+    optionen.sort().reverse();
+    if (optionen.length > 1) {
+      optionen.forEach(function (t) {
+        var l = document.createElement("label");
+        var r = document.createElement("input");
+        r.type = "radio"; r.name = "nachholTag"; r.value = t; r.checked = t === ziel;
+        r.addEventListener("change", function () { wahlTag = t; aendern = false; male(); });
+        l.appendChild(r);
+        l.appendChild(document.createTextNode(" " + erstGross(tagWort(t)) + ", " + tagSchild(ausText(t))));
+        wahl.appendChild(l);
+      });
+    }
+    zeig(wahl, optionen.length > 1);
+    zeig($("lueckeLassen"), zeigeFormular && !!ziel && ziel !== heute());
   }
 
   /* SVG-Kurve: Tag 1 = erster Eintrag, dann Kalendertage. Ein Tag ohne
@@ -766,6 +1081,7 @@
     leere(box);
     var tbody = $("kurveTabelle").querySelector("tbody");
     leere(tbody);
+    zeig($("nachLegende"), false);
     if (!tage.length) { return; }
 
     var erster = ausText(tage[0]);
@@ -795,7 +1111,7 @@
     neu("text", { x: 12, y: (O + H - U) / 2, "class": "achse titel", "text-anchor": "middle",
                   transform: "rotate(-90 12 " + ((O + H - U) / 2) + ")" }, "Energie, 1 bis 10");
 
-    var vorher = null;
+    var vorher = null, nachDa = false;
     for (var i = 0; i < anzahl; i++) {
       var d = plusTage(erster, i);
       var e = daten.eintraege[datumText(d)];
@@ -805,7 +1121,8 @@
       neu("text", { x: x(i), y: H - U + 36, "class": "achse klein", "text-anchor": "middle" }, d.getDate() + "." + (d.getMonth() + 1) + ".");
 
       var zeile = document.createElement("tr");
-      var zellen = [tagSchild(d), e ? String(e.energie) : "kein Eintrag",
+      var nach = nachgetragen(datumText(d), e);
+      var zellen = [tagSchild(d), e ? String(e.energie) + (nach ? " (nachgetragen)" : "") : "kein Eintrag",
         e ? hakenNamen(e, daten.einstellung).join(", ") : ""];
       zellen.forEach(function (z) {
         var td = document.createElement("td");
@@ -827,23 +1144,29 @@
       }
     }
     for (var j = 0; j < anzahl; j++) {
-      var e2 = daten.eintraege[datumText(plusTage(erster, j))];
+      var t2 = datumText(plusTage(erster, j));
+      var e2 = daten.eintraege[t2];
       if (e2) {
-        neu("circle", { cx: x(j), cy: y(e2.energie), r: 6, "class": "punkt" });
+        /* 02.10.: nachgetragen = hohler Punkt */
+        var n2 = nachgetragen(t2, e2);
+        if (n2) { nachDa = true; }
+        neu("circle", { cx: x(j), cy: y(e2.energie), r: 6, "class": n2 ? "punkt nach" : "punkt" });
         neu("text", { x: x(j), y: y(e2.energie) - 12, "class": "wert", "text-anchor": "middle" }, String(e2.energie));
       }
     }
     box.appendChild(svg);
+    zeig($("nachLegende"), nachDa);
   }
 
-  /* „Deine Woche bisher“ ab dem 5. Eintrag, „Dein Ergebnis“ ab dem 7. Kein Sieger. */
+  /* „Deine Woche bisher“ ab dem 5. Eintrag, „Deine Woche“ ab dem 7. Kein Sieger. */
   function maleWoche(tage) {
     zeig($("woche"), tage.length > 0);
     zeig($("wocheBald"), tage.length > 0 && tage.length < WOCHE_AB);
     var w = auswerten(daten);
     zeig($("wocheKarte"), w.zeigen);
     ["wocheSchnitt", "wocheSchwankung", "wocheErklaerung", "wocheBester", "wocheSchwaechster",
-     "wocheGeschafft", "tippBlock", "wocheGrenze"].forEach(function (id) { leere($(id)); });
+     "wocheGeschafft", "tippBlock", "wocheGrenze", "wocheNach"].forEach(function (id) { leere($(id)); });
+    zeig($("vorherFrage"), false);
     if (!w.zeigen) { return; }
     $("wocheTitel").textContent = w.titel;
     $("wocheSchnitt").textContent = w.schnitt;
@@ -865,6 +1188,23 @@
       li.appendChild(document.createTextNode(": " + g.name));
       $("wocheGeschafft").appendChild(li);
     });
+    zeig($("wocheNach"), !!w.nachSatz);
+    if (w.nachSatz) { $("wocheNach").textContent = w.nachSatz; }
+    /* 02.10.: „Bevor du's siehst“ — nur bei „Weiß ich nicht“, einmal, ueberspringbar. */
+    if (w.frageTag7) {
+      var wahl = $("vorherWahl");
+      leere(wahl);
+      aktiveHebel(daten.einstellung).forEach(function (h) {
+        var l = document.createElement("label");
+        var r = document.createElement("input");
+        r.type = "radio"; r.name = "vorher"; r.value = h.k;
+        l.appendChild(r);
+        l.appendChild(document.createTextNode(" " + h.tipp));
+        wahl.appendChild(l);
+      });
+      zeig($("vorherFehlt"), false);
+      zeig($("vorherFrage"), true);
+    }
     zeig($("tippBlock"), !!w.tipp);
     if (w.tipp) {
       var kopf = document.createElement("h3");
@@ -901,10 +1241,20 @@
     probe.src = basis + ".jpg";
   }
 
+  /* 02.10. (Punkt 7, Loop #159/#1709): Kommt die Seite zurueck (Tab von gestern, Zurueck-Cache,
+     17-Uhr-Grenze bei offener Seite), wird der Tag neu berechnet und neu gezeichnet — nicht nur,
+     wenn sich der Speicher geaendert hat. */
+  function rueckkehr() {
+    var j = new Date(), stand = tagVon(j) + (istAbend(j) ? "a" : "t");
+    var neu = synchron();
+    if (!neu && stand === gezeichnetFuer) { return; }
+    if (stand.slice(0, 10) !== gezeichnetFuer.slice(0, 10)) { wahlTag = null; aendern = false; gefuelltFuer = null; }
+    male();
+  }
+
   /* ---------------------------------------------------------- Verdrahtung */
   document.addEventListener("DOMContentLoaded", function () {
     lade();
-    zeig($("inApp"), istInApp(navigator.userAgent));
     zeig($("amPC"), istAmPC(navigator.userAgent) && !(navigator.maxTouchPoints > 1));
     zeigeTagesvideo();
     baueSkala();
@@ -919,20 +1269,29 @@
       $("einrichtung").scrollIntoView();
     });
     $("eintrag").addEventListener("submit", speichere);
-    $("fuerGestern").addEventListener("click", function () {
-      modus = "gestern";
-      male();
+    $("fuerGestern").addEventListener("click", function () { wahlTag = gestern(); aendern = false; male(); });
+    $("fuerVorgestern").addEventListener("click", function () {
+      wahlTag = datumText(plusTage(ausText(heute()), -2)); aendern = false; male();
     });
+    $("trotzdemJetzt").addEventListener("click", function () { wahlTag = heute(); aendern = false; male(); });
+    $("lueckeLassen").addEventListener("click", lueckeLassen);
     $("aendern").addEventListener("click", function () {
-      modus = "aendern";
+      aendern = true; wahlTag = null; gefuelltFuer = null;
       male();
     });
+    $("vorherJa").addEventListener("click", function () {
+      var r = document.querySelector('input[name="vorher"]:checked');
+      if (!r) { zeig($("vorherFehlt"), true); return; }
+      speichereVorher(r.value);
+    });
+    $("vorherNein").addEventListener("click", function () { speichereVorher(OFFEN); });
     $("mitnehmenKnopf").addEventListener("click", mitnehmen);
     $("inAppMitnehmen").addEventListener("click", function () {
       mitnehmen();
       $("mitnehmen").scrollIntoView();
     });
     $("kopieren").addEventListener("click", kopiere);
+    $("einfuegenKnopf").addEventListener("click", einfuegen);
     $("uebernehmenJa").addEventListener("click", function () {
       if (!linkDaten) { return; }   /* Abnahme 28.09.: Doppeltipp warf einen TypeError */
       synchron();                   /* N2: auf den neuesten Stand legen, nicht auf den beim Laden */
@@ -942,7 +1301,7 @@
       ohneAnker();
       var ok = schreibe();
       fuelleEinrichtung();
-      modus = "heute";
+      wahlTag = null; aendern = false; gefuelltFuer = null;
       male(ok ? "uebernommen" : null);
     });
     $("uebernehmenNein").addEventListener("click", function () {
@@ -951,16 +1310,18 @@
       ohneAnker();
     });
     window.addEventListener("hashchange", pruefeAnker);
-    /* N2: Ein anderer Tab hat geschrieben / Seite aus dem Zurueck-Cache / Tab wieder sichtbar → neu lesen */
+    /* N2: Ein anderer Tab hat geschrieben / Seite aus dem Zurueck-Cache / Tab wieder sichtbar → neu lesen.
+       02.10.: bei Rueckkehr auch neu zeichnen, wenn sich der Tag oder die 17-Uhr-Grenze geaendert hat. */
     window.addEventListener("storage", function (e) { if ((e.key === SCHLUESSEL || e.key === null) && synchron()) { male(); } });
-    window.addEventListener("pageshow", function (e) { if (e.persisted && synchron()) { male(); } });
-    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && synchron()) { male(); } });
+    window.addEventListener("pageshow", rueckkehr);
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") { rueckkehr(); } });
+    window.setInterval(function () { if (document.visibilityState !== "hidden") { rueckkehr(); } }, 60000);
     $("loeschen").addEventListener("click", function () { zeig($("loeschenFrage"), true); });
     $("loeschenNein").addEventListener("click", function () { zeig($("loeschenFrage"), false); });
     $("loeschenJa").addEventListener("click", function () {
       loesche();
       zeig($("loeschenFrage"), false);
-      modus = "heute";
+      wahlTag = null; aendern = false; gefuelltFuer = null;
       einrichten = false;
       fuelleEinrichtung();
       male();

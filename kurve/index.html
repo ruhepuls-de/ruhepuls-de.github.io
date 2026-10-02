@@ -19,6 +19,14 @@
 
 <!-- 28.09.: In-App-Browser (TikTok, Instagram, Facebook, Google-App) haben einen
      eigenen Speicher. Prüfung Personas P8: Wer wechselt, sieht „0 von 7“. -->
+<!-- 02.10.2026 (Bau „Kurve repariert“, Punkt 6): In TikTok, Instagram und Facebook ohne
+     gespeicherte Daten keine Einrichtung — dort Eingerichtetes findet man über die Mail nie wieder. -->
+<div class="warnkasten weg" id="sozialApp" role="note">
+  <p><b>Öffne den Link aus deiner Mail.</b></p>
+  <p>Du bist gerade im Browser von TikTok, Instagram oder Facebook. Was du hier einrichtest und einträgst, bleibt in dieser App. Über den Knopf in deiner Mail findest du es nicht wieder.</p>
+  <p>Öffne die Kurve deshalb über den Knopf in der Mail „Tag 1 von 7“. Noch keine Mail? Dann melde dich zuerst über den <a href="../check/">Energie-Check</a> an.</p>
+</div>
+
 <div class="warnkasten weg" id="inApp" role="note">
   <!-- Fassung 3 (Liam 28.09., 22:15): Einträge bleiben, wo sie gemacht werden. Kein Rat
        mehr zu Safari/Chrome/Lesezeichen — genau der Wechsel trennte die Einträge
@@ -36,7 +44,22 @@
 </div>
 <p class="fehler weg" id="linkKaputt" role="alert">Der Link ist unvollständig. Kopier ihn noch einmal ganz, bis zum Ende.</p>
 <p class="meldung weg" id="uebernommen" aria-live="polite">Übernommen. Deine Einträge sind jetzt auf diesem Gerät.</p>
-<p class="meldung weg" id="leerHinweis">Du hast schon etwas eingetragen und siehst hier nichts? Dann warst du in einer anderen App, einem anderen Browser oder am Computer. Öffne dort die Seite und tipp auf „Einträge mitnehmen“.</p>
+<!-- 02.10.2026 (Punkt 6): Leerer Speicher bei einer Mail ab Tag 2 ist der Normalfall bei jedem
+     Wegwechsel (jede App hat ihren eigenen Speicher). Gross, mit Anleitung; das Feld ersetzt die
+     Adresszeile, die In-App-Browser nicht haben. Der Link wird nur hier im Browser gelesen. -->
+<div class="warnkasten weg" id="leerHinweis" role="note">
+  <p><b>Hier ist noch nichts gespeichert.</b></p>
+  <p>Hast du schon eingetragen? Dann liegen deine Einträge dort, wo du die Seite bisher geöffnet hast: in einer anderen App, einem anderen Browser oder auf einem anderen Gerät. So holst du sie her:</p>
+  <ol class="schritte">
+    <li>Öffne die Seite dort, wo du bisher eingetragen hast.</li>
+    <li>Tipp unten auf „Einträge mitnehmen“ und dann auf „Link kopieren“.</li>
+    <li>Füg den Link hier ein und tipp auf „Einträge holen“.</li>
+  </ol>
+  <label class="feld-titel" for="einfuegenFeld">Link einfügen</label>
+  <input class="link-feld" id="einfuegenFeld" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="…/kurve/#mitnehmen=…">
+  <button class="btn" id="einfuegenKnopf" type="button">Einträge holen</button>
+  <p>Hast du noch nichts eingetragen? Dann fang einfach hier an.</p>
+</div>
 
 <!-- Fassung 3: Am PC nicht eintragen (Klaus, Durchlauf-Test: Tag 1 am Büro-PC „gefangen“). -->
 <p class="meldung weg" id="amPC" role="note"><b>Du bist gerade am Computer.</b> Du kannst hier eintragen. Bleib dann aber die ganze Woche an diesem Computer: Deine Einträge bleiben auf dem Gerät, auf dem du einträgst, und fehlen dir sonst am Handy.</p>
@@ -117,16 +140,29 @@
 
 <!-- Fassung 3: nicht mehr „Jetzt kommt dein erster Eintrag“ — das verleitete mittags zum Eintragen (Befund 6, 3/4). -->
 <p class="meldung weg" id="eingerichtet" aria-live="polite">Eingerichtet. Deinen ersten Tag trägst du heute Abend ein, wenn er vorbei ist. Öffne die Seite dann wieder über den Knopf in der Mail.</p>
+<!-- 02.10.: Einrichtung ab 17 Uhr — das Formular ist dann gleich offen. -->
+<p class="meldung weg" id="eingerichtetAbend" aria-live="polite">Eingerichtet. Deinen ersten Tag trägst du gleich hier unten ein, wenn er für dich vorbei ist, sonst später bis 4 Uhr nachts.</p>
 <p class="meldung weg" id="einstellungGespeichert" aria-live="polite">Deine Einstellungen sind gespeichert.</p>
 <p class="meldung weg" id="gespeichert" aria-live="polite">Gespeichert. Bis morgen Abend.</p>
 <p class="meldung weg" id="gespeichertLetzter" aria-live="polite">Gespeichert. Das war dein letzter Tag. Unten siehst du deine Woche.</p>
 <p class="meldung weg" id="gesternGespeichert" aria-live="polite">Gestern ist gespeichert. Trag jetzt noch heute ein.</p>
-<p class="meldung weg" id="schonEingetragen">Für heute hast du schon etwas eingetragen. <button class="btn sekundaer klein" id="aendern" type="button">Ändern</button></p>
+<p class="meldung weg" id="lueckeGelassen" aria-live="polite">Lücke gelassen. Verpasst du einen Abend, trägst du einfach einen Tag länger ein. Deine Woche ist fertig, sobald sieben Einträge da sind.</p>
+<p class="meldung weg" id="schonEingetragen">Für heute hast du schon etwas eingetragen. <span id="naechsterAbend">Den nächsten Tag trägst du morgen Abend ein.</span> <button class="btn sekundaer klein" id="aendern" type="button">Ändern</button></p>
+<!-- 02.10.2026 (Punkt 1 und 3): Nachholen, höchstens 2 Tage zurück, gekennzeichnet, mit „Lücke lassen“.
+     Wer die 20-Uhr-Mail morgens öffnet, trägt so für gestern ein, nicht für den neuen Tag. -->
+<div class="nachholen weg" id="nachholen">
+  <h2 id="nachholTitel">Für gestern Abend?</h2>
+  <p class="small" id="nachholText"></p>
+  <div class="nachhol-wahl weg" id="nachholWahl" role="radiogroup" aria-labelledby="nachholTitel"></div>
+  <p><button class="link" id="lueckeLassen" type="button">Lücke lassen</button></p>
+</div>
 <p class="meldung weg" id="voll"><b>Deine sieben Einträge sind da.</b> Weitere Einträge gehen nicht. Deine Werte sind nur auf diesem Gerät gespeichert. Safari löscht sie, wenn du die Seite länger als eine Woche nicht öffnest.</p>
 
 <form class="eintrag weg" id="eintrag" novalidate>
   <h2 id="frageEnergie">Wie viel Energie hattest du heute insgesamt?</h2>
+  <p class="eintrag-fuer" id="eintragFuer"></p>
   <p class="small" id="abendsHinweis">Trag erst am Abend ein, wenn dein Tag vorbei ist. Bis 4 Uhr nachts zählt ein Eintrag noch für den Tag davor.</p>
+  <p class="small weg" id="nachHinweis">Trag so ein, wie du dich an den Tag erinnerst. Der Eintrag wird als nachgetragen gekennzeichnet.</p>
   <div class="skala" id="skala" role="radiogroup" aria-labelledby="frageEnergie"></div>
   <p class="skala-legende"><span>1 = sehr erschöpft</span><span>10 = richtig wach und frisch</span></p>
   <!-- Fassung 3: „insgesamt“ = Tagesschnitt (Befund 10, 3/4). -->
@@ -155,11 +191,15 @@
   <p class="fehler weg" id="fehltZahl" role="alert">Tipp zuerst eine Zahl von 1 bis 10 an.</p>
   <button class="btn" id="speichern" type="submit">Speichern</button>
 </form>
-<p class="small weg" id="gesternZeile">Gestern vergessen? <button class="link" id="fuerGestern" type="button">Für gestern eintragen</button></p>
+<p class="small weg" id="gesternZeile"><span id="gesternFrage">Gestern vergessen?</span> <button class="link" id="fuerGestern" type="button">Für gestern eintragen</button> <button class="link weg" id="fuerVorgestern" type="button">Für vorgestern eintragen</button></p>
+<!-- 02.10.2026 (Punkt 2, Ablauf-Prüfung Befund 4): Für heute öffnet das Formular erst um 17 Uhr,
+     auch am Einrichtungstag. Für Schicht und Nachteulen bleibt „trotzdem jetzt eintragen“. -->
+<p class="meldung weg" id="abHeuteAbend"><span id="abHeuteSatz">Heute trägst du ab 17 Uhr ein, wenn dein Tag vorbei ist.</span> <button class="link" id="trotzdemJetzt" type="button">trotzdem jetzt eintragen</button></p>
 
 <section class="weg" id="kurveBox">
   <h2>Deine Werte, Tag für Tag</h2>
   <div class="diagramm" id="diagramm" aria-hidden="true"></div>
+  <p class="small weg" id="nachLegende">Hohler Punkt: nachgetragen, also nicht am selben Abend eingetragen.</p>
   <p class="small">Einzelne Tage können stark voneinander abweichen.</p>
   <table class="sr-only" id="kurveTabelle">
     <thead><tr><th>Datum</th><th>Zahl</th><th>Häkchen</th></tr></thead>
@@ -181,6 +221,17 @@
     <div class="tag-block" id="wocheSchwaechster"></div>
     <h3>So oft angehakt</h3>
     <ul class="geschafft-liste" id="wocheGeschafft"></ul>
+    <p class="small weg" id="wocheNach"></p>
+    <!-- 02.10.2026 (Punkt 4, Ablauf-Prüfung Befund 5): „Weiß ich nicht“ bekommt den Vergleich trotzdem.
+         Vorher einmal fragen, überspringbar (Recherche: Hypothese vor der Auflösung). -->
+    <div class="tipp-block weg" id="vorherFrage">
+      <h3>Bevor du's siehst: Was glaubst du jetzt?</h3>
+      <p>Am Anfang hast du „Weiß ich nicht“ gewählt. Wenn du magst, rate jetzt einmal: Was hat in deiner Woche für deine Energie den größten Unterschied gemacht? Danach siehst du deine Energie an den Tagen mit und an den Tagen ohne.</p>
+      <div class="nachhol-wahl" id="vorherWahl" role="radiogroup"></div>
+      <p class="fehler weg" id="vorherFehlt" role="alert">Wähl eine Antwort, oder tipp auf „Überspringen“.</p>
+      <button class="btn" id="vorherJa" type="button">Das vermute ich</button>
+      <button class="btn sekundaer" id="vorherNein" type="button">Überspringen</button>
+    </div>
     <div class="tipp-block weg" id="tippBlock"></div>
     <p class="ergebnis-vorsicht" id="wocheGrenze"></p>
   </div>
@@ -198,7 +249,7 @@
       <label for="mitnehmenLink">Dein Link mit allen Einträgen</label>
       <input class="link-feld" id="mitnehmenLink" type="text" readonly>
       <button class="btn" id="kopieren" type="button">Link kopieren</button>
-      <p class="meldung weg" id="kopiert" aria-live="polite">Kopiert. Füg den Link dort in die Adresszeile ein, wo du weiter eintragen willst.</p>
+      <p class="meldung weg" id="kopiert" aria-live="polite">Kopiert. Füg den Link dort in die Adresszeile ein, wo du weiter eintragen willst. Ist dort noch nichts gespeichert, gibt es dafür oben auch ein Feld „Link einfügen“.</p>
       <!-- Recht 28.09., O7: auch „an dich selbst schicken“ läuft über einen Server;
            der Link steht im Browserverlauf. -->
       <p class="small">Öffnest du den Link in einem anderen Browser, fragt die Seite, ob sie deine Einträge übernehmen soll. Die Einträge stehen im Link selbst, hinter dem Zeichen #. Beim Öffnen des Links wird dieser Teil nicht an den Server geschickt, auch nicht an Ruhepuls. Wo du den Link speicherst oder hinschickst, liegen aber auch deine Einträge. Wer den Link hat, sieht sie. Der Link kann außerdem im Verlauf deines Browsers stehen.</p>

@@ -1035,7 +1035,8 @@ def pruefe_ohne_sieger(html, lauf):
     if not lauf:
         return
     a = lauf["auswertung"]
-    erwartet_titel = {"vier": None, "fuenf": "Deine Woche bisher", "nichttrinker": "Dein Ergebnis"}
+    # 02.10.2026 (Bau „Kurve repariert“): „Deine Woche“ statt „Dein Ergebnis“ — wie Mail 7/Video 7.
+    erwartet_titel = {"vier": None, "fuenf": "Deine Woche bisher", "nichttrinker": "Deine Woche"}
     for fall, titel in erwartet_titel.items():
         w = a.get(fall) or {}
         if titel is None and w.get("zeigen"):
@@ -1050,9 +1051,18 @@ def pruefe_ohne_sieger(html, lauf):
         if not w.get("schnitt") or not w.get("bester") or not w.get("geschafft"):
             fehler.append("OHNE SIEGER: Woche „%s“ ohne Schnitt, besten Tag oder „So oft geschafft“." % fall)
         tipp = w.get("tipp")
-        if fall in ("weissNicht", "altOhneAlkohol"):
+        # 02.10.2026 (Ablauf-Prüfung Befund 8): Der Vergleich kommt erst mit dem 7. Eintrag —
+        # so kündigen es Mail 6, Mail 7 und Video 5 an.
+        if not w.get("fertig"):
             if tipp:
-                fehler.append("OHNE SIEGER: Bei „Weiß ich nicht“ steht ein Tipp-Block: %s" % tipp)
+                fehler.append("OHNE SIEGER: Woche „%s“ (%s Einträge) zeigt den Vergleich vor dem 7. Eintrag: %s"
+                              % (fall, w.get("n"), tipp[0]))
+            continue
+        # 02.10.2026 (Befund 5): „Weiß ich nicht“ — an Tag 7 erst die Frage „Bevor du's siehst“,
+        # danach kommt der Vergleich trotzdem (teste-kurve.js B4).
+        if fall == "weissNicht":
+            if tipp or not w.get("frageTag7"):
+                fehler.append("OHNE SIEGER: „Weiß ich nicht“ an Tag 7 fragt nicht zuerst „Bevor du's siehst“: %s" % tipp)
             continue
         if not tipp:
             fehler.append("OHNE SIEGER: Woche „%s“ hat einen Tipp, aber keinen Tipp-Block." % fall)
@@ -1068,6 +1078,8 @@ def pruefe_ohne_sieger(html, lauf):
                           "Bauauftrag: %s" % (fall, " / ".join(tipp)))
         if not re.search(r"\d+ Tagen|einem Tag", " ".join(tipp)):
             fehler.append("OHNE SIEGER: Der Tipp-Block der Woche „%s“ nennt keine Tageszahl." % fall)
+        if "Das ist ein Hinweis, kein Beweis." not in tipp:
+            fehler.append("OHNE SIEGER: Der Block der Woche „%s“ sagt nicht „Das ist ein Hinweis, kein Beweis.“" % fall)
     if not any(t.startswith("Dafür hattest du diese Woche keine Tage")
                for t in (a.get("immerBewegt") or {}).get("tipp") or []):
         fehler.append("OHNE SIEGER: Jeden Tag bewegt, Tipp Bewegung — der Satz „Dafür hattest du "
@@ -1358,6 +1370,12 @@ DS_4A_MUSS = [
     ("am Computer", "Computer-Erkennung (Abnahme 28.09., Technik)"),
     ("Touchscreen", "Touch-Erkennung (iPad gilt nicht als Computer)"),
     ("nicht dafür gedacht, Krankheiten zu erkennen oder zu behandeln", "Zweckbestimmung"),
+    # 02.10.2026 (Bau „Kurve repariert“): neue gespeicherte Daten
+    ("an welchem Tag du ihn gemacht", "Eintragsdatum (nachgetragen)"),
+    ("eingerichtet hast", "Tag der Einrichtung"),
+    ("„Lücke lassen“", "bewusst gelassene Lücken"),
+    ("am siebten Tag", "Vermutung von Tag 7"),
+    ("„Link einfügen“", "Feld „Link einfügen“"),
 ]
 DS_5_MUSS = [
     ("kurzen Video", "Video je Mail"),
