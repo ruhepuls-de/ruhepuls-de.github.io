@@ -86,3 +86,5 @@ button.btn{font:inherit;font-weight:700;cursor:pointer;border:none}
 /* 06.10.2026: Adresse aendern / Tippfehler-Vorschlag */
 .linkknopf{background:none;border:0;padding:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer}
 #mailAn{word-break:break-all}
+.mailan{margin:6px 0 4px}
+.btn-zweit{display:block;width:100%;background:transparent;color:inherit;border:1.5px solid currentColor;border-radius:10px;padding:10px;font:inherit;font-weight:700;cursor:pointer;margin:4px 0 12px}

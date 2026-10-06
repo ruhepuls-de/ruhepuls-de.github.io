@@ -824,6 +824,14 @@ def pruefe_mail(html):
                           "(Liam 06.10.)." % pflicht)
     if "mailAendern" not in code or "TIPPFEHLER" not in code:
         fehler.append("MAIL: mail.js zeigt keine Aendern-Moeglichkeit oder keinen Tippfehler-Vorschlag (Liam 06.10.).")
+    # 06.10.2026: Liam sah nach dem Deploy noch die alte mail.js (Cache, ?v= unveraendert).
+    # Die Version jeder eingebundenen Datei muss der Inhalts-Pruefsumme entsprechen.
+    import hashlib
+    for f in ("check.css", "check.js", "postfach.js", "mail.js"):
+        soll = hashlib.md5(open(os.path.join(HIER, "check", f), "rb").read()).hexdigest()[:8]
+        if "%s?v=%s" % (f, soll) not in html:
+            fehler.append("CACHE: check/index.html bindet %s nicht mit ?v=%s ein — Besucher bekommen "
+                          "sonst die alte Datei aus dem Cache (Liam 06.10.)." % (f, soll))
     hinweise.append("  j) Mail: ein Netzaufruf, nur die Adresse, nur nach Klick, "
                     "kein fremdes Skript")
 
