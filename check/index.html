@@ -86,24 +86,25 @@
       <input type="hidden" name="ml-submit" value="1">
       <input type="hidden" name="anticsrf" value="true">
       <button class="btn" type="submit">Kostenlos mitmachen</button>
+      <p class="small weg" id="mailTipp" role="alert">Meintest du <b id="mailTippAdresse"></b>? <button type="button" class="linkknopf" id="mailTippJa">Ja, so ändern</button></p>
       <p class="small weg" id="mailFehler" role="alert">Das hat nicht geklappt. Prüf die Adresse und versuch es noch einmal.</p>
     </form>
     <div class="weg" id="mailDanke" aria-live="polite">
-      <!-- 02.10.2026: 7 von 15 Eintragungen nie bestaetigt (MailerLite „Unconfirmed“).
-           Der alte Hinweis nannte den falschen Betreff. Echte Mail (Liams Screenshot 02.10.):
-           Absender „Ruhepuls“, Betreff „Confirmation email“, gruener Knopf „Confirm your email“.
-           Text der Mail ist im Free-Tarif nicht aenderbar (24.09.). -->
+      <!-- 06.10.2026: Bestaetigungsmail jetzt deutsch (MailerLite Comfort, Liam). Betreff und Knopf
+           muessen woertlich zur Mail passen. Adresse wird angezeigt und ist aenderbar (Liam 06.10.:
+           „wenn du die Mail falsch eingetragen hast, dann kannst du sie ja nicht nochmal aendern“). -->
       <h3><span class="haken" aria-hidden="true">✓</span> Noch 1 Schritt: Mail bestätigen</h3>
-      <p>Ohne diesen Klick kommt keine einzige Mail. Die Bestätigung ist leider auf Englisch. So sieht sie aus:</p>
-      <figure class="mailvorschau" role="img" aria-label="Mail von Ruhepuls, Betreff Confirmation email, mit grünem Knopf Confirm your email">
-        <span class="mv-kopf"><b>Ruhepuls</b><span>Confirmation email</span></span>
-        <span class="mv-titel">Confirm your email address</span>
-        <span class="mv-knopf">Confirm your email</span>
+      <p class="small">Gesendet an <b id="mailAn"></b>. <button type="button" class="linkknopf" id="mailAendern">Adresse falsch? Ändern</button></p>
+      <p>Ohne diesen Klick kommt keine einzige Mail. So sieht sie aus:</p>
+      <figure class="mailvorschau" role="img" aria-label="Mail von Ruhepuls, Betreff Bitte bestätigen: deine 7 Tage Energiekurve, mit grünem Knopf Ja, Adresse bestätigen">
+        <span class="mv-kopf"><b>Ruhepuls</b><span>Bitte bestätigen: deine 7 Tage Energiekurve</span></span>
+        <span class="mv-titel">Bestätige deine Mailadresse</span>
+        <span class="mv-knopf">Ja, Adresse bestätigen</span>
       </figure>
       <ol class="schritte">
         <li>Postfach öffnen.</li>
-        <li>Mail von <b>Ruhepuls</b> mit dem Betreff <b>„Confirmation email“</b> suchen.</li>
-        <li>Auf den grünen Knopf <b>„Confirm your email“</b> tippen. Dann kommt sofort Tag 1.</li>
+        <li>Mail von <b>Ruhepuls</b> mit dem Betreff <b>„Bitte bestätigen: deine 7 Tage Energiekurve“</b> suchen.</li>
+        <li>Auf den grünen Knopf <b>„Ja, Adresse bestätigen“</b> tippen. Dann kommt sofort Tag 1.</li>
       </ol>
       <a class="btn weg" id="postfachKnopf" href="#" target="_blank" rel="noopener">Postfach öffnen</a>
       <p class="small">Keine Mail da? Sieh im Spam-Ordner nach, bei Gmail auch unter „Werbung“.</p>

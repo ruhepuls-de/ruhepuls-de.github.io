@@ -812,6 +812,18 @@ def pruefe_mail(html):
         if namen != {"fields[email]", "ml-submit", "anticsrf"}:
             fehler.append("MAIL: Das Formular sendet mehr oder anderes als die "
                           "Mailadresse: %s" % sorted(namen))
+    # 06.10.2026: Bestaetigungsmail deutsch (MailerLite Comfort) + Adresse aenderbar (Liam:
+    # „wenn du die Mail falsch eingetragen hast, dann kannst du sie ja nicht nochmal aendern“).
+    for alt in ("Englisch", "Confirm your email", "Confirmation email"):
+        if alt in re.sub(r"<!--.*?-->", " ", html, flags=re.S):
+            fehler.append("MAIL: index.html nennt noch die englische Bestaetigungsmail (%s) — "
+                          "seit 06.10. ist sie deutsch." % alt)
+    for pflicht in ('id="mailAn"', 'id="mailAendern"', 'id="mailTipp"'):
+        if pflicht not in html:
+            fehler.append("MAIL: %s fehlt — die eingetragene Adresse muss sichtbar und aenderbar sein "
+                          "(Liam 06.10.)." % pflicht)
+    if "mailAendern" not in code or "TIPPFEHLER" not in code:
+        fehler.append("MAIL: mail.js zeigt keine Aendern-Moeglichkeit oder keinen Tippfehler-Vorschlag (Liam 06.10.).")
     hinweise.append("  j) Mail: ein Netzaufruf, nur die Adresse, nur nach Klick, "
                     "kein fremdes Skript")
 
