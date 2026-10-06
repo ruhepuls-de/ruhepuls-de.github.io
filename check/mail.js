@@ -48,6 +48,7 @@
   });
 
   document.getElementById("mailAendern").addEventListener("click", function () {
+    clearTimeout(nochmalUhr);
     danke.classList.add("weg");
     form.classList.remove("weg");
     knopf.disabled = false;
@@ -57,8 +58,44 @@
     feld.select();
   });
 
+  /* 06.10.2026 (Recherche „Anmeldestrecke wie die Profis“, Baymard): Adresse ohne Endung abfangen. */
+  function ohneEndung(adresse) {
+    var teile = String(adresse).trim().split("@");
+    return teile.length === 2 && teile[1].indexOf(".") === -1;
+  }
+
+  /* Der eine Netzaufruf: das Formular selbst, auch fuer „Nochmal senden“ (MailerLite schickt die
+     Bestaetigung an Unbestaetigte erneut, Hilfe „What are unconfirmed subscribers“). */
+  function senden() {
+    return fetch(form.action, { method: "POST", body: new FormData(form) })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok || j.success === false) throw new Error("abgelehnt");
+        });
+      });
+  }
+
+  var nochmal = document.getElementById("mailNochmal");
+  var nochmalOk = document.getElementById("mailNochmalOk");
+  var nochmalZaehler = 0, nochmalUhr = null;
+  function nochmalSpaeter() {
+    clearTimeout(nochmalUhr);
+    nochmal.classList.add("weg");
+    if (nochmalZaehler < 2) nochmalUhr = setTimeout(function () { nochmal.classList.remove("weg"); }, 60000);
+  }
+  nochmal.addEventListener("click", function () {
+    nochmal.disabled = true;
+    nochmalZaehler++;
+    senden().then(function () { nochmalOk.classList.remove("weg"); })
+      .catch(function () { fehler.classList.remove("weg"); })
+      .then(function () { nochmal.disabled = false; nochmalSpaeter(); });
+  });
+
+  feld.addEventListener("input", function () { feld.setCustomValidity(""); });
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+    feld.setCustomValidity(ohneEndung(feld.value) ? "Da fehlt die Endung, zum Beispiel .de oder .com." : "");
     if (!feld.checkValidity()) { feld.reportValidity(); return; }
     var v = vorschlag(feld.value);
     if (v && vorschlagGeprueft !== feld.value) {
@@ -71,17 +108,15 @@
     knopf.disabled = true;
     knopf.textContent = "Einen Moment …";
     fehler.classList.add("weg");
-    fetch(form.action, { method: "POST", body: new FormData(form) })
-      .then(function (r) {
-        return r.json().catch(function () { return {}; }).then(function (j) {
-          if (!r.ok || j.success === false) throw new Error("abgelehnt");
-        });
-      })
+    senden()
       .then(function () {
         form.classList.add("weg");
         an.textContent = feld.value.trim();
         if (window.ruhepulsPostfach) window.ruhepulsPostfach(feld.value);
         danke.classList.remove("weg");
+        nochmalZaehler = 0;
+        nochmalOk.classList.add("weg");
+        nochmalSpaeter();
       })
       .catch(function () {
         knopf.disabled = false;

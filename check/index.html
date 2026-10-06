@@ -82,7 +82,7 @@
          Formular- und Gruppen-ID bleiben dabei gleich, deshalb hier nichts tauschen. -->
     <form id="mailForm" class="mailform" action="https://assets.mailerlite.com/jsonp/2657658/forms/199491451928708547/subscribe" method="post" target="_blank">
       <label class="sr-only" for="mailFeld">Deine Mailadresse</label>
-      <input id="mailFeld" type="email" name="fields[email]" required autocomplete="email" placeholder="deine@mailadresse.de">
+      <input id="mailFeld" type="email" name="fields[email]" required autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email" placeholder="deine@mailadresse.de">
       <input type="hidden" name="ml-submit" value="1">
       <input type="hidden" name="anticsrf" value="true">
       <button class="btn" type="submit">Kostenlos mitmachen</button>
@@ -109,6 +109,10 @@
       </ol>
       <a class="btn weg" id="postfachKnopf" href="#" target="_blank" rel="noopener">Postfach öffnen</a>
       <p class="small">Keine Mail da? Sieh im Spam-Ordner nach, bei Gmail auch unter „Werbung“.</p>
+      <!-- 06.10.2026, Recherche „Anmeldestrecke wie die Profis“: MailerLite schickt die Bestaetigung erneut, wenn eine
+           unbestaetigte Adresse das Formular noch einmal absendet — einzige erlaubte Erinnerung. Erscheint nach 60 s, hoechstens 2x. -->
+      <button type="button" class="btn-zweit weg" id="mailNochmal">Keine Mail da? Nochmal senden</button>
+      <p class="small weg" id="mailNochmalOk" aria-live="polite">Ist raus. Schau in ein, zwei Minuten nach, auch im Spam-Ordner.</p>
       <p>Die Mails sind für alle gleich, denn dein Ergebnis bleibt in deinem Browser. Niemand außer dir sieht es. Ruhepuls sieht, welche Links du in den Mails anklickst, aber nicht, ob du eine Mail öffnest.</p>
     </div>
     <!-- Einwilligungssatz: Abteilung Recht 24.09.2026, Textvorschlag (b), Inhalt woertlich;
@@ -161,6 +165,6 @@
 <script src="regeln.js"></script>
 <script src="videolinks.js"></script>
 <script src="check.js?v=edbc3932"></script>
-<script src="postfach.js?v=91dd6ec4"></script>
-<script src="mail.js?v=7fc10c3e"></script>
+<script src="postfach.js?v=13b842ba"></script>
+<script src="mail.js?v=f7cf24ca"></script>
 </body></html>

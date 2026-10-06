@@ -818,7 +818,7 @@ def pruefe_mail(html):
         if alt in re.sub(r"<!--.*?-->", " ", html, flags=re.S):
             fehler.append("MAIL: index.html nennt noch die englische Bestaetigungsmail (%s) — "
                           "seit 06.10. ist sie deutsch." % alt)
-    for pflicht in ('id="mailAn"', 'id="mailAendern"', 'id="mailTipp"'):
+    for pflicht in ('id="mailAn"', 'id="mailAendern"', 'id="mailTipp"', 'id="mailNochmal"', 'autocapitalize="off"'):
         if pflicht not in html:
             fehler.append("MAIL: %s fehlt — die eingetragene Adresse muss sichtbar und aenderbar sein "
                           "(Liam 06.10.)." % pflicht)

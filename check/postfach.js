@@ -4,9 +4,11 @@
   "use strict";
   /* 02.10.2026: Knopf „Postfach öffnen“ passend zur Adresse — ein normaler
      Link, kein Netzaufruf. Unbekannter Anbieter: Knopf bleibt versteckt. */
+  /* 06.10.2026 (Recherche Profis, Buttondown/Growth.Design): Gmail-Knopf oeffnet die Suche nach
+     unserem Absender in allen Ordnern (auch Spam/Werbung). */
   var POSTFACH = {
-    "gmail.com": ["https://mail.google.com/", "Gmail"],
-    "googlemail.com": ["https://mail.google.com/", "Gmail"],
+    "gmail.com": ["https://mail.google.com/mail/u/0/#search/from%3Ahallo%40mein-ruhepuls.de+in%3Aanywhere+newer_than%3A1d", "Gmail"],
+    "googlemail.com": ["https://mail.google.com/mail/u/0/#search/from%3Ahallo%40mein-ruhepuls.de+in%3Aanywhere+newer_than%3A1d", "Gmail"],
     "gmx.de": ["https://www.gmx.net/", "GMX"], "gmx.net": ["https://www.gmx.net/", "GMX"],
     "gmx.at": ["https://www.gmx.at/", "GMX"], "gmx.ch": ["https://www.gmx.ch/", "GMX"],
     "web.de": ["https://web.de/", "WEB.DE"],
